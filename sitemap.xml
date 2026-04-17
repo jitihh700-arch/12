@@ -1,9 +1,158 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+    <!-- Page d'accueil principale -->
     <url>
-        <loc>https://memoriz.quiz.emender.com/</loc>
+        <loc>https://memoriz.com/</loc>
         <lastmod>2026-04-16</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
+
+    <!-- CATÉGORIES - QUIZ -->
+
+    <!-- Séries TV -->
+    <url>
+        <loc>https://memoriz.com/quiz/series-tv</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Cinéma -->
+    <url>
+        <loc>https://memoriz.com/quiz/films</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Anime/Manga - Les plus célèbres -->
+    <url>
+        <loc>https://memoriz.com/quiz/anime-celebres</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.9</priority>
+    </url>
+
+    <!-- Anime/Manga - Les plus détestés -->
+    <url>
+        <loc>https://memoriz.com/quiz/anime-detestes</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+
+    <!-- Anime/Manga - Les plus puissants -->
+    <url>
+        <loc>https://memoriz.com/quiz/anime-puissants</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.85</priority>
+    </url>
+
+    <!-- Anime/Manga - Génies ultimes -->
+    <url>
+        <loc>https://memoriz.com/quiz/anime-intelligents</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.75</priority>
+    </url>
+
+    <!-- Sports & Musique -->
+    <url>
+        <loc>https://memoriz.com/quiz/sports-musique</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.85</priority>
+    </url>
+
+    <!-- Séries TV - Détestés -->
+    <url>
+        <loc>https://memoriz.com/quiz/series-detestes</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+
+    <!-- Filles les plus puissantes (NOUVEAU) -->
+    <url>
+        <loc>https://memoriz.com/quiz/filles-puissantes</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Meilleurs footballeurs (NOUVEAU) -->
+    <url>
+        <loc>https://memoriz.com/quiz/meilleurs-footballeurs</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.9</priority>
+    </url>
+
+    <!-- Meilleurs entraîneurs (NOUVEAU) -->
+    <url>
+        <loc>https://memoriz.com/quiz/meilleurs-entraineurs</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.75</priority>
+    </url>
+
+    <!-- Meilleurs mangas (NOUVEAU) -->
+    <url>
+        <loc>https://memoriz.com/quiz/meilleurs-mangas</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.85</priority>
+    </url>
+
+    <!-- Meilleurs animes (NOUVEAU) -->
+    <url>
+        <loc>https://memoriz.com/quiz/meilleurs-animes</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.85</priority>
+    </url>
+
+    <!-- Personnages idiots (NOUVEAU) -->
+    <url>
+        <loc>https://memoriz.com/quiz/anime-idiots</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+
+    <!-- PAGES LÉGALES -->
+    <url>
+        <loc>https://memoriz.com/confidentialite</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+    </url>
+
+    <url>
+        <loc>https://memoriz.com/conditions</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+    </url>
+
+    <url>
+        <loc>https://memoriz.com/a-propos</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.4</priority>
+    </url>
+
+    <url>
+        <loc>https://memoriz.com/contact</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.4</priority>
+    </url>
+
 </urlset>
