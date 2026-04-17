@@ -1,36 +1,31 @@
-# robots.txt pour Memoriz
-# Créé le 16 avril 2026
-
 User-agent: *
 Allow: /
+Disallow: /cgi-bin/
+Disallow: /private/
+Disallow: /temp/
 
-# Empêcher l'indexation des pages sensibles
-Disallow: /game-panel
-Disallow: /modal
-Disallow: /legal-modal
+# Délai entre les requêtes (respectueux des serveurs)
+Crawl-delay: 1
 
-# Délai entre les requêtes des bots (respect)
-Crawl-delay: 2
-
-# Sitemap (à créer plus tard)
+# Sitemap
 Sitemap: https://memoriz.com/sitemap.xml
 
-# Règles spécifiques pour Google (priorité)
+# Règles spécifiques pour Googlebot
 User-agent: Googlebot
 Allow: /
-Crawl-delay: 1
+Crawl-delay: 0.5
 
 # Règles pour Bing
 User-agent: Bingbot
 Allow: /
-Crawl-delay: 2
+Crawl-delay: 1
 
-# Règles pour les mauvais bots (optionnel)
-User-agent: AhrefsBot
-Disallow: /
+# Règles pour les bots d'images
+User-agent: Googlebot-Image
+Allow: /
 
-User-agent: SemrushBot
-Disallow: /
-
-User-agent: MJ12bot
-Disallow: /
+# Exclusion des paramètres inutiles
+User-agent: *
+Disallow: /*?utm_
+Disallow: /*?ref=
+Disallow: /*?source=
