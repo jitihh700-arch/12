@@ -9,13 +9,10 @@
     <meta name="author" content="Memoriz">
     <meta name="robots" content="index, follow">
 
-    <!-- FlatIcon CDN pour l'icône -->
-    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-bold-straight/css/uicons-bold-straight.css'>
-    
     <!-- Sécurité Headers -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn-uicons.flaticon.com; img-src 'self' data: https:; font-src 'self' data: https://cdn-uicons.flaticon.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;">
     
     <!-- Google AdSense (à remplacer par ton ID plus tard) -->
     <meta name="google-adsense-account" content="ca-pub-XXXXXXXXXXXXX">
@@ -477,11 +474,10 @@
 <body>
     <div class="container">
         <header>
-            <i class="fi fi-bs-admin"></i>
             <h1>🧠 MEMORIZ 🧠</h1>
             <p>"Ce que tu sais, tu le mémorises. Ce que tu ne sais pas, tu l'apprends."</p>
-            <div class="badge">📅 Depuis 2022 - Plus de 150 personnages à découvrir</div>
-            <p style="font-size: 0.9rem; margin-top: 10px;">🎯 8 catégories | ⏱️ 10 minutes par quiz | 🏆 Teste-toi !</p>
+            <div class="badge">📅 Depuis 2022 - Plus de 200 personnages à découvrir</div>
+            <p style="font-size: 0.9rem; margin-top: 10px;">🎯 14 catégories | ⏱️ 10 minutes par quiz | 🏆 Teste-toi !</p>
         </header>
 
         <div class="categories">
@@ -509,7 +505,7 @@
                 </div>
                 <div class="category-card" data-category="animeForts">
                     <h3>🌌 Anime/Manga</h3>
-                    <p>Top 20 des plus puissants</p>
+                    <p>Top 20 des plus puissants (version ultime)</p>
                     <span class="questions-count">20 personnages</span>
                 </div>
                 <div class="category-card" data-category="animeIntelligents">
@@ -525,6 +521,36 @@
                 <div class="category-card" data-category="seriesDeteste">
                     <h3>👎 Séries TV</h3>
                     <p>Top 10 des personnages détestés</p>
+                    <span class="questions-count">10 personnages</span>
+                </div>
+                <div class="category-card" data-category="fillesPuissantes">
+                    <h3>👸 Anime/Manga</h3>
+                    <p>Top 15 des filles les plus puissantes</p>
+                    <span class="questions-count">15 personnages</span>
+                </div>
+                <div class="category-card" data-category="meilleursFootballeurs">
+                    <h3>⚽ Football</h3>
+                    <p>Top 15 des meilleurs joueurs de tous les temps</p>
+                    <span class="questions-count">15 joueurs</span>
+                </div>
+                <div class="category-card" data-category="meilleursEntraineurs">
+                    <h3>📋 Football</h3>
+                    <p>Top 10 des meilleurs entraîneurs de tous les temps</p>
+                    <span class="questions-count">10 entraîneurs</span>
+                </div>
+                <div class="category-card" data-category="meilleursMangas">
+                    <h3>📖 Mangas</h3>
+                    <p>Top 15 des meilleurs mangas de tous les temps</p>
+                    <span class="questions-count">15 mangas</span>
+                </div>
+                <div class="category-card" data-category="meilleursAnimes">
+                    <h3>🎬 Animes</h3>
+                    <p>Top 15 des meilleurs animes de tous les temps</p>
+                    <span class="questions-count">15 animes</span>
+                </div>
+                <div class="category-card" data-category="animeIdiots">
+                    <h3>🤪 Anime/Manga</h3>
+                    <p>Top 10 des personnages les plus idiots</p>
                     <span class="questions-count">10 personnages</span>
                 </div>
             </div>
@@ -571,12 +597,12 @@
             "Sugou Nobuyuki", "Yukiteru Amano", "Shinji Ikari", "Near", "Malty Melromarc"
         ];
         
-        // 🌌 TOP 20 – Personnages les plus puissants (niveau univers / multivers)
+        // 🌌 TOP 20 – Personnages les plus puissants (NOUVELLE VERSION)
         const animeFortsList = [
-            "Zeno", "Kami Tenchi", "Featherine Augustus Aurora", "Hajun", "Anos Voldigoad",
-            "Rimuru Tempest", "Saitama", "Goku", "Beerus", "Kaguya Otsutsuki",
-            "Madara Uchiha", "Sosuke Aizen", "Ichigo Kurosaki", "Yhwach", "Gojo Satoru",
-            "Sukuna", "Meliodas", "Escanor", "Alucard", "Naruto Uzumaki"
+            "Featherine Augustus Aurora", "The Creator", "Lambdadelta", "Bernkastel", "Akuto Sai",
+            "Hajun", "Ren Fuji", "Mercurius", "Madoka Kaname", "Akemi Homura",
+            "Othinus", "Kami Tenchi", "Rimuru Tempest", "Anos Voldigoad", "Altair",
+            "Medaka Kurokami", "Ajimu Najimi", "Ryougi Shiki", "Sailor Cosmos", "Haruhi Suzumiya"
         ];
         
         // 🧠 TOP 15 – Génies ultimes (anime/manga)
@@ -620,6 +646,46 @@
             "Geoffrey", "Petyr Baelish", "The Night King", "White Walkers", "Umbridge"
         ];
 
+        // 👸 TOP 15 – Filles les plus puissantes (anime/manga)
+        const fillesPuissantesList = [
+            "Featherine Augustus Aurora", "Lambdadelta", "Bernkastel", "Beatrice", "Madoka Kaname",
+            "Akemi Homura", "Haruhi Suzumiya", "Altair", "Sailor Cosmos", "Sailor Moon",
+            "Ryougi Shiki", "Medaka Kurokami", "Ajimu Najimi", "Othinus", "Kaguya Otsutsuki"
+        ];
+
+        // ⚽ TOP 15 – Meilleurs footballeurs de tous les temps
+        const meilleursFootballeursList = [
+            "Lionel Messi", "Pelé", "Diego Maradona", "Cristiano Ronaldo", "Johan Cruyff",
+            "Zinedine Zidane", "Ronaldo Nazário", "Michel Platini", "Franz Beckenbauer", "Alfredo Di Stéfano",
+            "Ronaldinho", "Xavi Hernandez", "Andrés Iniesta", "Paolo Maldini", "George Best"
+        ];
+
+        // 📋 TOP 10 – Meilleurs entraîneurs de tous les temps
+        const meilleursEntraineursList = [
+            "Sir Alex Ferguson", "Pep Guardiola", "Rinus Michels", "Arrigo Sacchi", "Carlo Ancelotti",
+            "Johan Cruyff", "José Mourinho", "Viktor Maslov", "Valeriy Lobanovskyi", "Vicente del Bosque"
+        ];
+
+        // 📖 TOP 15 – Meilleurs mangas de tous les temps
+        const meilleursMangasList = [
+            "One Piece", "Golgo 13", "Dragon Ball", "Naruto", "Detective Conan",
+            "Doraemon", "Demon Slayer", "Jujutsu Kaisen", "Attack on Titan", "Slam Dunk",
+            "Bleach", "Hunter x Hunter", "JoJo's Bizarre Adventure", "Fist of the North Star", "Astro Boy"
+        ];
+
+        // 🎬 TOP 15 – Meilleurs animes de tous les temps
+        const meilleursAnimesList = [
+            "Naruto", "One Piece", "Jojo's Bizarre Adventure", "Death Note", "Dragon Ball Z",
+            "Bleach", "Attack on Titan", "Hunter x Hunter", "Code Geass", "Neon Genesis Evangelion",
+            "Cowboy Bebop", "Demon Slayer", "Jujutsu Kaisen", "Fullmetal Alchemist: Brotherhood", "Monster"
+        ];
+
+        // 🤪 TOP 10 – Personnages d'anime les plus idiots
+        const animeIdiotsList = [
+            "Naruto Uzumaki", "Son Goku", "Luffy", "Mineta", "Zenitsu Agatsuma",
+            "Aqua", "Kazuma Satou", "Patrick Star", "Mako Mankanshoku", "Ritsu Kageyama"
+        ];
+
         const quizData = {
             series: seriesList,
             films: filmsList,
@@ -628,7 +694,13 @@
             animeForts: animeFortsList,
             animeIntelligents: animeIntelligentsList,
             sportsMusique: sportsMusiqueList,
-            seriesDeteste: seriesDetesteList
+            seriesDeteste: seriesDetesteList,
+            fillesPuissantes: fillesPuissantesList,
+            meilleursFootballeurs: meilleursFootballeursList,
+            meilleursEntraineurs: meilleursEntraineursList,
+            meilleursMangas: meilleursMangasList,
+            meilleursAnimes: meilleursAnimesList,
+            animeIdiots: animeIdiotsList
         };
 
         const categoryMapping = {
@@ -636,10 +708,16 @@
             films: { data: quizData.films, title: "🎬 Cinéma - Top 20 des icônes" },
             animeCelebres: { data: quizData.animeCelebres, title: "🌍 Anime/Manga - Top 30 des plus célèbres au monde" },
             animeDeteste: { data: quizData.animeDeteste, title: "💀 Anime/Manga - Top 20 des plus détestés" },
-            animeForts: { data: quizData.animeForts, title: "🌌 Anime/Manga - Top 20 des plus puissants" },
+            animeForts: { data: quizData.animeForts, title: "🌌 Anime/Manga - Top 20 des plus puissants (Version Ultime)" },
             animeIntelligents: { data: quizData.animeIntelligents, title: "🧠 Anime/Manga - Top 15 des génies ultimes" },
             sportsMusique: { data: quizData.sportsMusique, title: "⚽🏀🎵 Sports & Musique - Top 40 des stars mondiales" },
-            seriesDeteste: { data: quizData.seriesDeteste, title: "👎 Séries TV - Top 10 des plus détestés" }
+            seriesDeteste: { data: quizData.seriesDeteste, title: "👎 Séries TV - Top 10 des plus détestés" },
+            fillesPuissantes: { data: quizData.fillesPuissantes, title: "👸 Anime/Manga - Top 15 des filles les plus puissantes" },
+            meilleursFootballeurs: { data: quizData.meilleursFootballeurs, title: "⚽ Football - Top 15 des meilleurs joueurs de tous les temps" },
+            meilleursEntraineurs: { data: quizData.meilleursEntraineurs, title: "📋 Football - Top 10 des meilleurs entraîneurs de tous les temps" },
+            meilleursMangas: { data: quizData.meilleursMangas, title: "📖 Mangas - Top 15 des meilleurs mangas de tous les temps" },
+            meilleursAnimes: { data: quizData.meilleursAnimes, title: "🎬 Animes - Top 15 des meilleurs animes de tous les temps" },
+            animeIdiots: { data: quizData.animeIdiots, title: "🤪 Anime/Manga - Top 10 des personnages les plus idiots" }
         };
 
         function normalizeString(str) {
@@ -805,7 +883,7 @@
             } 
             else if (result.notFound) {
                 showMessage(`❌ "${answer}" n'est pas dans la liste. Réessaie !`, 'error');
-                input.value = '';  // ← VIDER LE CHAMP MÊME EN CAS D'ERREUR
+                input.value = '';
                 input.focus();
             } 
             else if (result.alreadyAnswered) {
@@ -1024,6 +1102,12 @@
                         <li>🧠 Anime/Manga - Top 15 des génies ultimes</li>
                         <li>⚽🏀🎵 Sports & Musique - Top 40 des stars mondiales</li>
                         <li>👎 Séries TV détestés - Top 10</li>
+                        <li>👸 Anime/Manga - Top 15 des filles les plus puissantes</li>
+                        <li>⚽ Football - Top 15 meilleurs joueurs</li>
+                        <li>📋 Football - Top 10 meilleurs entraîneurs</li>
+                        <li>📖 Mangas - Top 15 meilleurs mangas</li>
+                        <li>🎬 Animes - Top 15 meilleurs animes</li>
+                        <li>🤪 Anime/Manga - Top 10 personnages idiots</li>
                     </ul>
                     
                     <h3>L'équipe</h3>
