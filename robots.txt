@@ -1,31 +1,3 @@
 User-agent: *
 Allow: /
-Disallow: /cgi-bin/
-Disallow: /private/
-Disallow: /temp/
-
-# Délai entre les requêtes (respectueux des serveurs)
-Crawl-delay: 1
-
-# Sitemap
-Sitemap: https://memoriz.com/sitemap.xml
-
-# Règles spécifiques pour Googlebot
-User-agent: Googlebot
-Allow: /
-Crawl-delay: 0.5
-
-# Règles pour Bing
-User-agent: Bingbot
-Allow: /
-Crawl-delay: 1
-
-# Règles pour les bots d'images
-User-agent: Googlebot-Image
-Allow: /
-
-# Exclusion des paramètres inutiles
-User-agent: *
-Disallow: /*?utm_
-Disallow: /*?ref=
-Disallow: /*?source=
+Sitemap: https://memoriz-quiz.onrender.com/sitemap.xml
