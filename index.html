@@ -1,20 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <!-- Open Graph pour le partage -->
-<meta property="og:title" content="Memoriz - Le défi ultime des souvenirs">
-<meta property="og:description" content="Testez vos connaissances sur les célébrités, anime, sports et musiques. Quiz gratuit avec chronomètre.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://votresite.onrender.com">
-<meta property="og:image" content="https://votresite.onrender.com/favicon-96x96.png">
-<meta property="og:site_name" content="Memoriz">
-<meta property="og:locale" content="fr_FR">
-
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Memoriz - Le défi ultime des souvenirs">
-<meta name="twitter:description" content="Testez vos connaissances sur les célébrités, anime, sports et musiques.">
-<meta name="twitter:image" content="https://votresite.onrender.com/favicon-96x96.png">
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />
@@ -27,6 +13,23 @@
     <meta name="keywords" content="quiz, célébrités, anime, manga, football, musique, test, connaissances">
     <meta name="author" content="Memoriz">
     <meta name="robots" content="index, follow">
+
+    <!-- Open Graph pour Facebook, LinkedIn, etc. -->
+    <meta property="og:title" content="Memoriz - Le défi ultime des souvenirs">
+    <meta property="og:description" content="Testez vos connaissances sur les célébrités, anime, sports et musiques. Quiz gratuit avec chronomètre.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://memoriz.onrender.com">
+    <meta property="og:image" content="https://memoriz.onrender.com/favicon-96x96.png">
+    <meta property="og:image:width" content="96">
+    <meta property="og:image:height" content="96">
+    <meta property="og:site_name" content="Memoriz">
+    <meta property="og:locale" content="fr_FR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Memoriz - Le défi ultime des souvenirs">
+    <meta name="twitter:description" content="Testez vos connaissances sur les célébrités, anime, sports et musiques. Quiz gratuit avec chronomètre.">
+    <meta name="twitter:image" content="https://memoriz.onrender.com/favicon-96x96.png">
 
     <!-- Sécurité Headers -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
@@ -139,6 +142,81 @@
             padding: 5px 15px;
             border-radius: 20px;
             font-size: 0.9rem;
+        }
+
+        /* Section Blog */
+        .blog-section {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .blog-section h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            color: #4ecdc4;
+        }
+
+        .blog-article {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .blog-article:hover {
+            transform: translateY(-3px);
+            background: rgba(255,255,255,0.12);
+        }
+
+        .blog-article h3 {
+            color: #ff6b6b;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .blog-article .blog-date {
+            color: #4ecdc4;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .blog-article p {
+            line-height: 1.8;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .blog-article ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+            line-height: 1.8;
+            opacity: 0.9;
+        }
+
+        .blog-article ul li {
+            margin-bottom: 8px;
+        }
+
+        .read-more {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .read-more:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255,107,107,0.4);
         }
 
         /* Footer styles */
@@ -489,6 +567,10 @@
             .category-card h3 {
                 font-size: 1.4rem;
             }
+            
+            .blog-article {
+                padding: 20px;
+            }
         }
     </style>
 </head>
@@ -497,7 +579,7 @@
         <header>
             <h1>🧠 MEMORIZ 🧠</h1>
             <p>"Ce que tu sais, tu le mémorises. Ce que tu ne sais pas, tu l'apprends."</p>
-            <div class="badge">  Plus de 200 personnages à découvrir</div>
+            <div class="badge">✨ Plus de 200 personnages à découvrir</div>
             <p style="font-size: 0.9rem; margin-top: 10px;">🎯 14 catégories | ⏱️ 10 minutes par quiz | 🏆 Teste-toi !</p>
         </header>
 
@@ -602,16 +684,80 @@
                  (adsbygoogle = window.adsbygoogle || []).push({});
             </script>
         </div>
+
+        <!-- ==================== SECTION BLOG ==================== -->
+        <section class="blog-section">
+            <h2>📝 Articles Memoriz</h2>
+            
+            <article class="blog-article">
+                <h3>🧠 Comment améliorer sa mémoire avec les quiz ?</h3>
+                <p class="blog-date">📅 Publié le 10 janvier 2026 | ⏱️ 4 min de lecture</p>
+                <p>Les quiz sont bien plus qu'un simple divertissement : ils constituent un <strong>excellent moyen de stimuler votre cerveau</strong> et d'améliorer votre mémoire à long terme. Des études en neurosciences montrent que le rappel actif d'informations renforce les connexions neuronales et favorise la neuroplasticité.</p>
+                <p>Lorsque vous essayez de retrouver un nom, votre cerveau active simultanément plusieurs zones : l'hippocampe pour la mémoire, le cortex préfrontal pour la prise de décision, et le cortex temporal pour le langage. Cette activation multiple crée des <strong>liens synaptiques plus solides</strong>, ce qui facilite la mémorisation durable.</p>
+                <p>Chez Memoriz, nous avons conçu nos quiz pour maximiser cet effet d'apprentissage. Chaque catégorie est soigneusement élaborée pour vous aider à retenir les noms des personnages et célébrités les plus importants de la culture populaire. Notre système de chronomètre de 10 minutes crée une <strong>pression positive</strong> qui stimule votre concentration et votre agilité mentale.</p>
+                <p><strong>Conseil Memoriz :</strong> Pour des résultats optimaux, essayez de jouer régulièrement, idéalement 2 à 3 fois par semaine. La répétition espacée est l'une des techniques les plus efficaces pour ancrer durablement les connaissances dans votre mémoire.</p>
+                <a href="#" class="read-more">Lire la suite →</a>
+            </article>
+
+            <article class="blog-article">
+                <h3>🎬 Top 5 des animés à regarder absolument en 2026</h3>
+                <p class="blog-date">📅 Publié le 5 mars 2026 | ⏱️ 5 min de lecture</p>
+                <p>L'année 2026 s'annonce exceptionnelle pour les fans d'animation japonaise. Entre les nouvelles sorties très attendues et les suites de séries cultes, voici notre sélection des 5 animés incontournables à ne pas manquer cette année.</p>
+                <ul>
+                    <li><strong>🥇 Demon Slayer - L'arc final :</strong> La conclusion épique de l'histoire de Tanjiro promet des combats d'une intensité jamais vue. L'animation d'Ufotable atteint des sommets.</li>
+                    <li><strong>🥈 Jujutsu Kaisen - Saison 3 :</strong> L'arc de l'incident de Shibuya continue de nous tenir en haleine avec des révélations choquantes et des combats stratégiques.</li>
+                    <li><strong>🥉 One Piece - Saga finale :</strong> Luffy et son équipage s'approchent du One Piece. Les mystères du Siècle Perdu commencent enfin à se dévoiler.</li>
+                    <li><strong>🏅 Chainsaw Man - Saison 2 :</strong> Après le succès phénoménal de la première saison, Denji revient pour des aventures encore plus folles et sanglantes.</li>
+                    <li><strong>🏅 Solo Leveling - Saison 2 :</strong> Sung Jin-Woo continue son ascension vertigineuse dans ce qui est devenu l'un des anime les plus populaires du moment.</li>
+                </ul>
+                <p>Que vous soyez fan de shonen, de seinen ou de dark fantasy, cette année 2026 a de quoi satisfaire tous les goûts. Et bien sûr, n'oubliez pas de tester vos connaissances sur ces univers dans nos quiz Memoriz pour voir si vous êtes un véritable expert !</p>
+                <a href="#" class="read-more">Lire la suite →</a>
+            </article>
+
+            <article class="blog-article">
+                <h3>⚽ Pourquoi les quiz de sport sont bons pour votre culture générale</h3>
+                <p class="blog-date">📅 Publié le 20 mars 2026 | ⏱️ 3 min de lecture</p>
+                <p>Le sport est bien plus qu'une activité physique : c'est un <strong>phénomène culturel mondial</strong> qui transcende les frontières. Connaître les grands noms du football, du basketball ou du tennis, c'est aussi comprendre l'histoire, la géographie et les dynamiques sociales de notre époque.</p>
+                <p>Notre catégorie Sports & Musique combine les plus grandes stars du sport et de la musique pour vous offrir un <strong>panorama complet de la culture populaire internationale</strong>. De Pelé à LeBron James, en passant par Michael Jackson et Beyoncé, chaque nom que vous retrouvez est une porte ouverte sur une histoire fascinante.</p>
+                <p>En testant vos connaissances avec Memoriz, vous ne faites pas que jouer : vous enrichissez votre culture générale et développez votre capacité à faire des liens entre différentes disciplines. Une compétence précieuse dans un monde de plus en plus interconnecté.</p>
+                <a href="#" class="read-more">Lire la suite →</a>
+            </article>
+
+            <article class="blog-article">
+                <h3>💡 Les bienfaits cognitifs des jeux de mémoire</h3>
+                <p class="blog-date">📅 Publié le 15 avril 2026 | ⏱️ 4 min de lecture</p>
+                <p>Saviez-vous que les jeux de mémoire peuvent <strong>réduire le risque de déclin cognitif</strong> lié à l'âge ? Des recherches publiées dans des revues scientifiques de premier plan suggèrent que les activités stimulant la mémoire de travail et la mémoire épisodique contribuent à maintenir un cerveau en bonne santé plus longtemps.</p>
+                <p>Memoriz a été conçu avec cette vision : faire travailler votre mémoire de façon ludique et progressive. Notre slogan "Ce que tu sais, tu le mémorises. Ce que tu ne sais pas, tu l'apprends" reflète parfaitement notre philosophie d'apprentissage par le jeu.</p>
+                <p>Alors, prêt à relever le défi et à booster vos capacités cérébrales tout en vous amusant ?</p>
+                <a href="#" class="read-more">Lire la suite →</a>
+            </article>
+        </section>
+        <!-- ==================== FIN SECTION BLOG ==================== -->
+
+        <!-- Bloc publicitaire AdSense - Après Blog -->
+        <div style="text-align: center; margin: 30px 0; min-height: 90px;">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-5242542688677015"
+                 data-ad-slot="1122334455"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
         
         <footer class="main-footer">
             <div class="footer-links">
                 <a href="#" id="privacy-link">🔒 Confidentialité</a>
                 <a href="#" id="terms-link">📜 Conditions générales</a>
+                <a href="#" id="mentions-link">⚖️ Mentions légales</a>
                 <a href="#" id="about-link">ℹ️ À propos</a>
                 <a href="#" id="contact-link">📧 Contact</a>
             </div>
             <div class="copyright">
-                © 2022-2026 Memoriz - Tous droits réservés. "Memoriz" est une marque déposée.
+                © 2022-2026 Memoriz - Tous droits réservés. "Memoriz" est une marque déposée.<br>
+                <small>Hébergé par Render Inc., San Francisco, CA, USA</small>
             </div>
         </footer>
     </div>
@@ -626,7 +772,7 @@
     <script>
         // ==================== DONNÉES DES QUIZ - VERSION FINALE ====================
         
-        // 🌍 TOP 30 – Personnages d’anime/manga les plus célèbres au monde
+        // 🌍 TOP 30 – Personnages d'anime/manga les plus célèbres au monde
         const animeCelebresList = [
             "Son Goku", "Naruto Uzumaki", "Monkey D. Luffy", "Pikachu", "Sailor Moon",
             "Ichigo Kurosaki", "Eren Yeager", "Light Yagami", "Levi Ackerman", "Sasuke Uchiha",
@@ -1130,6 +1276,34 @@
                     <p>Les présentes conditions sont régies par le droit français. Tout litige sera soumis aux tribunaux compétents.</p>
                 `
             },
+            mentions: {
+                title: "⚖️ Mentions légales",
+                content: `
+                    <h2>Mentions légales</h2>
+                    <p>Dernière mise à jour : 16 avril 2026</p>
+                    
+                    <h3>Éditeur du site</h3>
+                    <p><strong>Nom :</strong> Memoriz</p>
+                    <p><strong>Forme juridique :</strong> Entreprise individuelle / Auto-entrepreneur</p>
+                    <p><strong>Responsable de publication :</strong> L'équipe Memoriz</p>
+                    <p><strong>Contact :</strong> contact@memoriz.com</p>
+                    
+                    <h3>Hébergement</h3>
+                    <p><strong>Hébergeur :</strong> Render Inc.</p>
+                    <p><strong>Adresse :</strong> 548 Market St, San Francisco, CA 94104, États-Unis</p>
+                    <p><strong>Site web :</strong> https://render.com</p>
+                    
+                    <h3>Propriété intellectuelle</h3>
+                    <p>L'ensemble du contenu du site Memoriz (structure, design, textes, quiz, logo, code source) est la propriété exclusive de Memoriz, sauf mention contraire explicite. Toute reproduction, même partielle, est strictement interdite sans autorisation préalable.</p>
+                    <p>Les noms de personnages, célébrités, marques et œuvres cités dans les quiz sont la propriété de leurs ayants droit respectifs. Memoriz les utilise à titre de référence culturelle dans un but éducatif et ludique.</p>
+                    
+                    <h3>Données personnelles</h3>
+                    <p>Conformément au Règlement Général sur la Protection des Données (RGPD), Memoriz s'engage à ne collecter aucune donnée personnelle sans consentement explicite de l'utilisateur. Les informations relatives aux parties de quiz restent exclusivement sur l'appareil de l'utilisateur.</p>
+                    
+                    <h3>Limitation de responsabilité</h3>
+                    <p>Memoriz s'efforce de fournir des informations exactes et à jour. Cependant, nous ne pouvons garantir l'exactitude absolue du contenu des quiz. L'utilisation du site se fait sous la seule responsabilité de l'utilisateur.</p>
+                `
+            },
             about: {
                 title: "ℹ️ À propos de Memoriz",
                 content: `
@@ -1230,6 +1404,10 @@
             document.getElementById('terms-link')?.addEventListener('click', (e) => {
                 e.preventDefault();
                 showLegalPage('terms');
+            });
+            document.getElementById('mentions-link')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                showLegalPage('mentions');
             });
             document.getElementById('about-link')?.addEventListener('click', (e) => {
                 e.preventDefault();
