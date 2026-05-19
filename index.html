@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <script src="https://5gvci.com/act/files/tag.min.js?z=11025374" data-cfasync="false" async></script>
+    <!-- Adsterra Popunder -->
+    <script src="https://pl29495716.effectivecpmnetwork.com/67/aa/1f/67aa1fc8c7f7e6a93f3c786aa5d5504d.js"></script>
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5242542688677015" crossorigin="anonymous"></script>
+    
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />
@@ -15,7 +20,7 @@
     <meta name="author" content="Memoriz">
     <meta name="robots" content="index, follow">
 
-    <!-- Open Graph pour Facebook, LinkedIn, etc. -->
+    <!-- Open Graph -->
     <meta property="og:title" content="Memoriz - Le défi ultime des souvenirs">
     <meta property="og:description" content="Testez vos connaissances sur les célébrités, anime, sports et musiques. Quiz gratuit avec chronomètre.">
     <meta property="og:type" content="website">
@@ -35,12 +40,6 @@
     <!-- Sécurité Headers -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://5gvci.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://pagead2.googlesyndication.com;">
-    
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5242542688677015" crossorigin="anonymous"></script>
-    
-    <meta name="google-adsense-account" content="ca-pub-5242542688677015">
     
     <style>
         * {
@@ -54,6 +53,7 @@
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             min-height: 100vh;
             color: white;
+            padding-bottom: 70px;
         }
 
         .container {
@@ -145,7 +145,32 @@
             font-size: 0.9rem;
         }
 
-        /* Section Blog */
+        .ad-container {
+            text-align: center;
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100px;
+        }
+
+        .ad-container iframe {
+            margin: 0 auto;
+        }
+
+        .mobile-banner-fixed {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            z-index: 1000;
+            background: rgba(0,0,0,0.95);
+            padding: 5px 0;
+            display: flex;
+            justify-content: center;
+        }
+
         .blog-section {
             max-width: 800px;
             margin: 40px auto;
@@ -220,7 +245,6 @@
             box-shadow: 0 5px 20px rgba(255,107,107,0.4);
         }
 
-        /* Footer styles */
         .main-footer {
             text-align: center;
             padding: 30px;
@@ -253,7 +277,6 @@
             opacity: 0.5;
         }
 
-        /* Game Panel Styles */
         .game-panel {
             position: fixed;
             top: 0;
@@ -261,7 +284,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.98);
-            z-index: 1000;
+            z-index: 1001;
             overflow-y: auto;
             padding: 20px;
         }
@@ -477,7 +500,6 @@
             overflow-y: auto;
         }
 
-        /* Modal pour pages légales */
         .modal {
             display: none;
             position: fixed;
@@ -584,17 +606,22 @@
             <p style="font-size: 0.9rem; margin-top: 10px;">🎯 14 catégories | ⏱️ 10 minutes par quiz | 🏆 Teste-toi !</p>
         </header>
 
-        <!-- Bloc publicitaire AdSense - Header -->
-        <div style="text-align: center; margin-bottom: 30px; min-height: 90px;">
+        <!-- Google AdSense - Banner 728x90 -->
+        <div class="ad-container">
             <ins class="adsbygoogle"
-                 style="display:block"
+                 style="display:inline-block; width:728px; height:90px"
                  data-ad-client="ca-pub-5242542688677015"
                  data-ad-slot="1234567890"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
+                 data-ad-format="horizontal"></ins>
             <script>
-                 (adsbygoogle = window.adsbygoogle || []).push({});
+                (adsbygoogle = window.adsbygoogle || []).push({});
             </script>
+        </div>
+
+        <!-- Adsterra - Native Banner -->
+        <div class="ad-container">
+            <script async="async" data-cfasync="false" src="https://pl29495717.effectivecpmnetwork.com/39b02a83b551874040920e04a6401603/invoke.js"></script>
+            <div id="container-39b02a83b551874040920e04a6401603"></div>
         </div>
 
         <div class="categories">
@@ -673,20 +700,19 @@
             </div>
         </div>
 
-        <!-- Bloc publicitaire AdSense - Milieu de page -->
-        <div style="text-align: center; margin-bottom: 30px; min-height: 90px;">
+        <!-- Google AdSense - Banner 300x250 -->
+        <div class="ad-container">
             <ins class="adsbygoogle"
-                 style="display:block"
+                 style="display:inline-block; width:300px; height:250px"
                  data-ad-client="ca-pub-5242542688677015"
                  data-ad-slot="0987654321"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
+                 data-ad-format="rectangle"></ins>
             <script>
-                 (adsbygoogle = window.adsbygoogle || []).push({});
+                (adsbygoogle = window.adsbygoogle || []).push({});
             </script>
         </div>
 
-        <!-- ==================== SECTION BLOG ==================== -->
+        <!-- SECTION BLOG -->
         <section class="blog-section">
             <h2>📝 Articles Memoriz</h2>
             
@@ -733,20 +759,6 @@
                 <a href="#" class="read-more">Lire la suite →</a>
             </article>
         </section>
-        <!-- ==================== FIN SECTION BLOG ==================== -->
-
-        <!-- Bloc publicitaire AdSense - Après Blog -->
-        <div style="text-align: center; margin: 30px 0; min-height: 90px;">
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-5242542688677015"
-                 data-ad-slot="1122334455"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
-            <script>
-                 (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
-        </div>
         
         <footer class="main-footer">
             <div class="footer-links">
@@ -763,6 +775,20 @@
         </footer>
     </div>
 
+    <!-- Adsterra - Banner 320x50 (fixe en bas) -->
+    <div class="mobile-banner-fixed">
+        <script>
+            atOptions = {
+                'key' : 'ffc89fd5f32d8df2b580dc85da02acb5',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        </script>
+        <script src="https://www.highperformanceformat.com/ffc89fd5f32d8df2b580dc85da02acb5/invoke.js"></script>
+    </div>
+
     <div id="legal-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
@@ -771,9 +797,7 @@
     </div>
 
     <script>
-        // ==================== DONNÉES DES QUIZ - VERSION FINALE ====================
-        
-        // 🌍 TOP 30 – Personnages d'anime/manga les plus célèbres au monde
+        // DONNÉES DES QUIZ
         const animeCelebresList = [
             "Son Goku", "Naruto Uzumaki", "Monkey D. Luffy", "Pikachu", "Sailor Moon",
             "Ichigo Kurosaki", "Eren Yeager", "Light Yagami", "Levi Ackerman", "Sasuke Uchiha",
@@ -783,7 +807,6 @@
             "L", "Ash Ketchum", "Alucard", "Spike Spiegel", "Jotaro Kujo"
         ];
         
-        // 💀 TOP 20 – Personnages les plus détestés (global fans)
         const animeDetesteList = [
             "Shou Tucker", "Griffith", "Danzo Shimura", "Rachel", "Mahito",
             "Sakura Haruno", "Mineta", "Gabi Braun", "Akainu", "Blackbeard",
@@ -791,7 +814,6 @@
             "Sugou Nobuyuki", "Yukiteru Amano", "Shinji Ikari", "Near", "Malty Melromarc"
         ];
         
-        // 🌌 TOP 20 – Personnages les plus puissants (NOUVELLE VERSION)
         const animeFortsList = [
             "Featherine Augustus Aurora", "The Creator", "Lambdadelta", "Bernkastel", "Akuto Sai",
             "Hajun", "Ren Fuji", "Mercurius", "Madoka Kaname", "Akemi Homura",
@@ -799,14 +821,12 @@
             "Medaka Kurokami", "Ajimu Najimi", "Ryougi Shiki", "Sailor Cosmos", "Haruhi Suzumiya"
         ];
         
-        // 🧠 TOP 15 – Génies ultimes (anime/manga)
         const animeIntelligentsList = [
             "Light Yagami", "L", "Johan Liebert", "Lelouch Lamperouge", "Sosuke Aizen",
             "Ayanokoji Kiyotaka", "Kisuke Urahara", "Senku Ishigami", "Itachi Uchiha", "Shikamaru Nara",
             "Armin Arlert", "Bulma", "Kurisu Makise", "Sora", "Norman"
         ];
         
-        // Séries TV - Top 20 des plus célèbres
         const seriesList = [
             "Walter White", "Jon Snow", "Daenerys Targaryen", "Sherlock Holmes", "Rick Grimes",
             "Michael Scott", "Tyrion Lannister", "Eleven", "Wednesday Addams", "Joey Tribbiani",
@@ -814,7 +834,6 @@
             "Loki", "Geralt de Riv", "Elliot Alderson", "Klaus Hargreeves", "Joe Goldberg"
         ];
         
-        // Films - Top 20 des plus célèbres
         const filmsList = [
             "Harry Potter", "Luke Skywalker", "Jack Sparrow", "James Bond", "Indiana Jones",
             "Forrest Gump", "John Wick", "Tony Stark", "Peter Parker", "Bruce Wayne",
@@ -822,7 +841,6 @@
             "Joker", "Willy Wonka", "Rocky Balboa", "Ethan Hunt", "John McClane"
         ];
         
-        // Sports & Musique - Top 40 des plus célèbres au monde
         const sportsMusiqueList = [
             "Lionel Messi", "Cristiano Ronaldo", "Neymar", "Kylian Mbappe", "Zinedine Zidane",
             "David Beckham", "Ronaldinho", "Diego Maradona", "Pele", "Karim Benzema",
@@ -834,47 +852,40 @@
             "Rihanna", "Justin Bieber", "Ed Sheeran", "Ariana Grande", "Kanye West"
         ];
         
-        // Séries TV - Top 10 des plus détestés
         const seriesDetesteList = [
             "Joffrey Baratheon", "Ramsay Bolton", "Dolores Umbridge", "Negan", "Cersei Lannister",
             "Geoffrey", "Petyr Baelish", "The Night King", "White Walkers", "Umbridge"
         ];
 
-        // 👸 TOP 15 – Filles les plus puissantes (anime/manga)
         const fillesPuissantesList = [
             "Featherine Augustus Aurora", "Lambdadelta", "Bernkastel", "Beatrice", "Madoka Kaname",
             "Akemi Homura", "Haruhi Suzumiya", "Altair", "Sailor Cosmos", "Sailor Moon",
             "Ryougi Shiki", "Medaka Kurokami", "Ajimu Najimi", "Othinus", "Kaguya Otsutsuki"
         ];
 
-        // ⚽ TOP 15 – Meilleurs footballeurs de tous les temps
         const meilleursFootballeursList = [
             "Lionel Messi", "Pelé", "Diego Maradona", "Cristiano Ronaldo", "Johan Cruyff",
             "Zinedine Zidane", "Ronaldo Nazário", "Michel Platini", "Franz Beckenbauer", "Alfredo Di Stéfano",
             "Ronaldinho", "Xavi Hernandez", "Andrés Iniesta", "Paolo Maldini", "George Best"
         ];
 
-        // 📋 TOP 10 – Meilleurs entraîneurs de tous les temps
         const meilleursEntraineursList = [
             "Sir Alex Ferguson", "Pep Guardiola", "Rinus Michels", "Arrigo Sacchi", "Carlo Ancelotti",
             "Johan Cruyff", "José Mourinho", "Viktor Maslov", "Valeriy Lobanovskyi", "Vicente del Bosque"
         ];
 
-        // 📖 TOP 15 – Meilleurs mangas de tous les temps
         const meilleursMangasList = [
             "One Piece", "Golgo 13", "Dragon Ball", "Naruto", "Detective Conan",
             "Doraemon", "Demon Slayer", "Jujutsu Kaisen", "Attack on Titan", "Slam Dunk",
             "Bleach", "Hunter x Hunter", "JoJo's Bizarre Adventure", "Fist of the North Star", "Astro Boy"
         ];
 
-        // 🎬 TOP 15 – Meilleurs animes de tous les temps
         const meilleursAnimesList = [
             "Naruto", "One Piece", "Jojo's Bizarre Adventure", "Death Note", "Dragon Ball Z",
             "Bleach", "Attack on Titan", "Hunter x Hunter", "Code Geass", "Neon Genesis Evangelion",
             "Cowboy Bebop", "Demon Slayer", "Jujutsu Kaisen", "Fullmetal Alchemist: Brotherhood", "Monster"
         ];
 
-        // 🤪 TOP 10 – Personnages d'anime les plus idiots
         const animeIdiotsList = [
             "Naruto Uzumaki", "Son Goku", "Luffy", "Mineta", "Zenitsu Agatsuma",
             "Aqua", "Kazuma Satou", "Patrick Star", "Mako Mankanshoku", "Ritsu Kageyama"
@@ -923,7 +934,6 @@
                 .trim();
         }
 
-        // ==================== JEU PRINCIPAL ====================
         let currentGame = null;
         let timerInterval = null;
 
@@ -940,16 +950,12 @@
             
             findMatchingQuestion(answer) {
                 const normalizedAnswer = normalizeString(answer);
-                
                 for (let i = 0; i < this.questions.length; i++) {
                     if (!this.correctAnswers[i]) {
                         const normalizedQuestion = normalizeString(this.questions[i]);
-                        
                         if (normalizedAnswer === normalizedQuestion) return i;
-                        
                         const firstWord = normalizedQuestion.split(' ')[0];
                         if (normalizedAnswer === firstWord && firstWord.length > 2) return i;
-                        
                         const words = normalizedQuestion.split(' ');
                         if (words.length > 1) {
                             const lastName = words[words.length - 1];
@@ -962,13 +968,10 @@
             
             submitAnswer(answer) {
                 if (!this.gameActive) return { success: false, gameInactive: true };
-                
                 const sanitizedAnswer = answer.trim();
                 const matchIndex = this.findMatchingQuestion(sanitizedAnswer);
-                
                 if (matchIndex === -1) return { success: false, notFound: true };
                 if (this.correctAnswers[matchIndex]) return { success: false, alreadyAnswered: true };
-                
                 this.correctAnswers[matchIndex] = true;
                 this.score++;
                 return { success: true, index: matchIndex, correctName: this.questions[matchIndex] };
@@ -986,21 +989,13 @@
 
         function showGamePanel(categoryKey) {
             if (currentGame) closeGame();
-            
             const category = categoryMapping[categoryKey];
             if (!category) return;
-            
             currentGame = new QuizGame(category, categoryKey, category.data);
             
             let tableRows = '';
             for (let i = 0; i < currentGame.questions.length; i++) {
-                tableRows += `
-                    <tr id="row-${i}">
-                        <td style="width: 60px; text-align: center; font-weight: bold;">${i + 1}</td>
-                        <td id="answer-display-${i}">❓ ???</td>
-                        <td id="status-${i}" style="width: 70px; text-align: center;">⏳</td>
-                    </tr>
-                `;
+                tableRows += `<tr id="row-${i}"><td style="width:60px;text-align:center;font-weight:bold;">${i+1}</td><td id="answer-display-${i}">❓ ???</td><td id="status-${i}" style="width:70px;text-align:center;">⏳</td></tr>`;
             }
             
             const gameHTML = `
@@ -1013,18 +1008,7 @@
                             <button class="close-game" id="close-game-btn">✕ Fermer</button>
                         </div>
                         <div class="progress" id="progress">📊 Progression: 0/${currentGame.questions.length} (0%)</div>
-                        <div class="quiz-table">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>👤 Personnage / Célébrité</th>
-                                        <th>✅ Statut</th>
-                                    </tr>
-                                </thead>
-                                <tbody>${tableRows}</tbody>
-                            </table>
-                        </div>
+                        <div class="quiz-table"><table><thead><tr><th>#</th><th>👤 Personnage / Célébrité</th><th>✅ Statut</th></tr></thead><tbody>${tableRows}</tbody></table></div>
                         <div class="input-area">
                             <div class="input-group">
                                 <input type="text" id="quick-input" placeholder="✏️ Tape un nom ici..." autocomplete="off">
@@ -1039,33 +1023,22 @@
             
             document.body.insertAdjacentHTML('beforeend', gameHTML);
             startTimer();
-            
             const quickInput = document.getElementById('quick-input');
             const quickSubmit = document.getElementById('quick-submit');
             const closeBtn = document.getElementById('close-game-btn');
-            
             if (quickSubmit) quickSubmit.onclick = () => handleQuickSubmit();
             if (quickInput) quickInput.onkeypress = (e) => { if (e.key === 'Enter') handleQuickSubmit(); };
             if (closeBtn) closeBtn.onclick = () => closeGame();
-            
             if (quickInput) quickInput.focus();
         }
 
         function handleQuickSubmit() {
             if (!currentGame || !currentGame.gameActive) return;
-            
             const input = document.getElementById('quick-input');
             if (!input) return;
-            
             const answer = input.value.trim();
-            
-            if (answer === '') {
-                showMessage('📝 Veuillez entrer un nom', 'error');
-                return;
-            }
-            
+            if (answer === '') { showMessage('📝 Veuillez entrer un nom', 'error'); return; }
             const result = currentGame.submitAnswer(answer);
-            
             if (result.success) {
                 updateRow(result.index, result.correctName);
                 updateScoreAndProgress();
@@ -1074,13 +1047,11 @@
                 input.focus();
                 updateFoundList();
                 if (currentGame.isComplete()) endGame(true);
-            } 
-            else if (result.notFound) {
+            } else if (result.notFound) {
                 showMessage(`❌ "${answer}" n'est pas dans la liste. Réessaie !`, 'error');
                 input.value = '';
                 input.focus();
-            } 
-            else if (result.alreadyAnswered) {
+            } else if (result.alreadyAnswered) {
                 showMessage(`⚠️ "${answer}" a déjà été trouvé !`, 'error');
                 input.value = '';
                 input.focus();
@@ -1090,50 +1061,27 @@
         function updateRow(index, correctName) {
             const answerDisplay = document.getElementById(`answer-display-${index}`);
             const statusCell = document.getElementById(`status-${index}`);
-            
-            if (answerDisplay) {
-                answerDisplay.innerHTML = `✅ ${correctName}`;
-                answerDisplay.style.color = '#28a745';
-                answerDisplay.style.fontWeight = 'bold';
-            }
-            if (statusCell) {
-                statusCell.innerHTML = '✓';
-                statusCell.style.color = '#28a745';
-                statusCell.style.fontSize = '20px';
-                statusCell.style.fontWeight = 'bold';
-            }
+            if (answerDisplay) { answerDisplay.innerHTML = `✅ ${correctName}`; answerDisplay.style.color = '#28a745'; answerDisplay.style.fontWeight = 'bold'; }
+            if (statusCell) { statusCell.innerHTML = '✓'; statusCell.style.color = '#28a745'; statusCell.style.fontSize = '20px'; statusCell.style.fontWeight = 'bold'; }
         }
 
         function updateFoundList() {
             const foundListDiv = document.getElementById('found-list');
             if (!foundListDiv) return;
-            
             const found = [];
             const notFound = [];
-            
             for (let i = 0; i < currentGame.questions.length; i++) {
-                if (currentGame.correctAnswers[i]) {
-                    found.push(currentGame.questions[i]);
-                } else {
-                    notFound.push(i + 1);
-                }
+                if (currentGame.correctAnswers[i]) found.push(currentGame.questions[i]);
+                else notFound.push(i + 1);
             }
-            
-            if (found.length > 0) {
-                foundListDiv.innerHTML = `
-                    <strong>🏆 Déjà trouvés (${found.length}/${currentGame.questions.length}) :</strong> ${found.join(', ')}<br>
-                    <strong>⏳ Restants :</strong> positions ${notFound.join(', ')}
-                `;
-            } else {
-                foundListDiv.innerHTML = `💡 Tape un nom pour commencer l'aventure Memoriz !`;
-            }
+            if (found.length > 0) foundListDiv.innerHTML = `<strong>🏆 Déjà trouvés (${found.length}/${currentGame.questions.length}) :</strong> ${found.join(', ')}<br><strong>⏳ Restants :</strong> positions ${notFound.join(', ')}`;
+            else foundListDiv.innerHTML = `💡 Tape un nom pour commencer l'aventure Memoriz !`;
         }
 
         function updateScoreAndProgress() {
             const progress = currentGame.getProgress();
             const scoreElement = document.getElementById('score');
             const progressElement = document.getElementById('progress');
-            
             if (scoreElement) scoreElement.textContent = `🎯 ${currentGame.score}/${currentGame.questions.length}`;
             if (progressElement) progressElement.textContent = `📊 Progression: ${progress.answered}/${progress.total} (${Math.round(progress.percentage)}%)`;
         }
@@ -1142,9 +1090,8 @@
             if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 if (!currentGame || !currentGame.gameActive) return;
-                if (currentGame.timeLeft <= 0) {
-                    endGame(false);
-                } else {
+                if (currentGame.timeLeft <= 0) endGame(false);
+                else {
                     currentGame.timeLeft--;
                     const timerElement = document.getElementById('timer');
                     if (timerElement) {
@@ -1168,268 +1115,58 @@
             if (!currentGame || !currentGame.gameActive) return;
             currentGame.gameActive = false;
             if (timerInterval) clearInterval(timerInterval);
-            
             const gameContainer = document.querySelector('.game-container');
             if (!gameContainer) return;
-            
             const percentage = (currentGame.score / currentGame.questions.length) * 100;
-            
             for (let i = 0; i < currentGame.questions.length; i++) {
                 const answerDisplay = document.getElementById(`answer-display-${i}`);
-                if (answerDisplay && !currentGame.correctAnswers[i]) {
-                    answerDisplay.innerHTML = `❌ ${currentGame.questions[i]}`;
-                    answerDisplay.style.color = '#dc3545';
-                }
+                if (answerDisplay && !currentGame.correctAnswers[i]) { answerDisplay.innerHTML = `❌ ${currentGame.questions[i]}`; answerDisplay.style.color = '#dc3545'; }
             }
-            
-            gameContainer.innerHTML = `
-                <div class="game-complete">
-                    <h2>${completed ? '🏆 FÉLICITATIONS ! 🏆' : '⏰ TEMPS ÉCOULÉ ! ⏰'}</h2>
-                    <p style="font-size: 1.5rem; margin: 20px 0;">Ton score : ${currentGame.score}/${currentGame.questions.length} (${Math.round(percentage)}%)</p>
-                    <p>${completed ? 'Tu as dominé ce défi Memoriz !' : 'Continue à t\'entraîner, tu vas y arriver !'}</p>
-                    <button class="play-again" onclick="closeGame()">🏠 Retour aux catégories</button>
-                    <button class="play-again" onclick="restartGame()">🔄 Rejouer</button>
-                </div>
-            `;
+            gameContainer.innerHTML = `<div class="game-complete"><h2>${completed ? '🏆 FÉLICITATIONS ! 🏆' : '⏰ TEMPS ÉCOULÉ ! ⏰'}</h2><p style="font-size:1.5rem;margin:20px 0;">Ton score : ${currentGame.score}/${currentGame.questions.length} (${Math.round(percentage)}%)</p><p>${completed ? 'Tu as dominé ce défi Memoriz !' : 'Continue à t\'entraîner, tu vas y arriver !'}</p><button class="play-again" onclick="closeGame()">🏠 Retour aux catégories</button><button class="play-again" onclick="restartGame()">🔄 Rejouer</button></div>`;
         }
 
         function closeGame() {
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-            }
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
             const gamePanel = document.getElementById('game-panel');
             if (gamePanel) gamePanel.remove();
             currentGame = null;
         }
 
         function restartGame() {
-            if (currentGame) {
-                const categoryKey = currentGame.categoryKey;
-                closeGame();
-                setTimeout(() => showGamePanel(categoryKey), 50);
-            }
+            if (currentGame) { const categoryKey = currentGame.categoryKey; closeGame(); setTimeout(() => showGamePanel(categoryKey), 50); }
         }
 
-        // ==================== PAGES LÉGALES ====================
+        // Pages légales
         const legalContent = {
-            privacy: {
-                title: "🔒 Politique de Confidentialité",
-                content: `
-                    <h2>Politique de Confidentialité - Memoriz</h2>
-                    <p>Dernière mise à jour : 16 avril 2026</p>
-                    <p>Memoriz a été créé en 2022.</p>
-                    
-                    <h3>1. Collecte des données</h3>
-                    <p><strong>Memoriz ne collecte AUCUNE donnée personnelle.</strong> Le jeu fonctionne entièrement en local sur ton navigateur. Aucune information n'est envoyée à nos serveurs.</p>
-                    
-                    <h3>2. Cookies</h3>
-                    <p>Memoriz n'utilise aucun cookie de tracking. Seuls les cookies strictement nécessaires au fonctionnement technique du site pourraient être utilisés par ton navigateur.</p>
-                    
-                    <h3>3. Google AdSense</h3>
-                    <p>Memoriz utilise Google AdSense pour afficher des publicités. Google peut utiliser des cookies pour personnaliser les annonces. Tu peux contrôler la personnalisation via les paramètres de ton compte Google.</p>
-                    
-                    <h3>4. Données de jeu</h3>
-                    <p>Tes réponses, scores et progression restent sur ton appareil. Memoriz n'a pas accès à ces informations.</p>
-                    
-                    <h3>5. Protection des mineurs</h3>
-                    <p>Memoriz est adapté à tous les âges. Cependant, certaines catégories contiennent des personnages de séries et anime destinés à un public adolescent/adulte.</p>
-                    
-                    <h3>6. Tes droits (RGPD)</h3>
-                    <p>Conformément au RGPD, tu as le droit d'accéder, modifier ou supprimer tes données. Comme nous n'en collectons aucune, il n'y a rien à modifier. Pour toute question : privacy@memoriz.com</p>
-                    
-                    <h3>7. Sécurité</h3>
-                    <p>Memoriz met en œuvre des mesures de sécurité techniques (CSP, X-Frame-Options, X-Content-Type-Options) pour protéger les utilisateurs.</p>
-                `
-            },
-            terms: {
-                title: "📜 Conditions Générales d'Utilisation",
-                content: `
-                    <h2>Conditions Générales - Memoriz</h2>
-                    <p>Dernière mise à jour : 16 avril 2026</p>
-                    <p>Memoriz existe depuis 2022.</p>
-                    
-                    <h3>1. Acceptation</h3>
-                    <p>En utilisant Memoriz, tu acceptes pleinement les présentes conditions.</p>
-                    
-                    <h3>2. Utilisation du site</h3>
-                    <p>Memoriz est destiné à un usage personnel et non commercial. Tu t'engages à ne pas :</p>
-                    <ul>
-                        <li>Tenter de pirater, décompiler ou désassembler le code du jeu</li>
-                        <li>Utiliser des bots, scripts ou outils automatisés</li>
-                        <li>Publier du contenu offensant, illégal ou inapproprié</li>
-                        <li>Tenter de contourner les mesures de sécurité</li>
-                    </ul>
-                    
-                    <h3>3. Propriété intellectuelle</h3>
-                    <p>Tous les quiz, le nom "Memoriz", le logo et le design sont la propriété exclusive de Memoriz. Les noms de personnages, célébrités et marques cités appartiennent à leurs propriétaires respectifs.</p>
-                    
-                    <h3>4. Publicités</h3>
-                    <p>Memoriz peut afficher des publicités via Google AdSense. Nous ne sommes pas responsables du contenu des annonces affichées.</p>
-                    
-                    <h3>5. Limitation de responsabilité</h3>
-                    <p>Memoriz est fourni "tel quel". Nous ne garantissons pas l'absence d'erreurs, d'interruptions ou de bugs. En aucun cas Memoriz ne pourra être tenu responsable des dommages directs ou indirects liés à l'utilisation du site.</p>
-                    
-                    <h3>6. Modification des conditions</h3>
-                    <p>Memoriz se réserve le droit de modifier ces conditions à tout moment. Les modifications prennent effet dès leur publication.</p>
-                    
-                    <h3>7. Droit applicable</h3>
-                    <p>Les présentes conditions sont régies par le droit français. Tout litige sera soumis aux tribunaux compétents.</p>
-                `
-            },
-            mentions: {
-                title: "⚖️ Mentions légales",
-                content: `
-                    <h2>Mentions légales</h2>
-                    <p>Dernière mise à jour : 16 avril 2026</p>
-                    
-                    <h3>Éditeur du site</h3>
-                    <p><strong>Nom :</strong> Memoriz</p>
-                    <p><strong>Forme juridique :</strong> Entreprise individuelle / Auto-entrepreneur</p>
-                    <p><strong>Responsable de publication :</strong> L'équipe Memoriz</p>
-                    <p><strong>Contact :</strong> contact@memoriz.com</p>
-                    
-                    <h3>Hébergement</h3>
-                    <p><strong>Hébergeur :</strong> Render Inc.</p>
-                    <p><strong>Adresse :</strong> 548 Market St, San Francisco, CA 94104, États-Unis</p>
-                    <p><strong>Site web :</strong> https://render.com</p>
-                    
-                    <h3>Propriété intellectuelle</h3>
-                    <p>L'ensemble du contenu du site Memoriz (structure, design, textes, quiz, logo, code source) est la propriété exclusive de Memoriz, sauf mention contraire explicite. Toute reproduction, même partielle, est strictement interdite sans autorisation préalable.</p>
-                    <p>Les noms de personnages, célébrités, marques et œuvres cités dans les quiz sont la propriété de leurs ayants droit respectifs. Memoriz les utilise à titre de référence culturelle dans un but éducatif et ludique.</p>
-                    
-                    <h3>Données personnelles</h3>
-                    <p>Conformément au Règlement Général sur la Protection des Données (RGPD), Memoriz s'engage à ne collecter aucune donnée personnelle sans consentement explicite de l'utilisateur. Les informations relatives aux parties de quiz restent exclusivement sur l'appareil de l'utilisateur.</p>
-                    
-                    <h3>Limitation de responsabilité</h3>
-                    <p>Memoriz s'efforce de fournir des informations exactes et à jour. Cependant, nous ne pouvons garantir l'exactitude absolue du contenu des quiz. L'utilisation du site se fait sous la seule responsabilité de l'utilisateur.</p>
-                `
-            },
-            about: {
-                title: "ℹ️ À propos de Memoriz",
-                content: `
-                    <h2>L'histoire de Memoriz</h2>
-                    <p><strong>Memoriz</strong> est né d'une passion : celle des quiz et de la culture populaire. <strong>Créé en 2022</strong>, notre site permet aux fans de tester leurs connaissances sur leurs personnages et célébrités préférés, sans pression, juste pour le plaisir d'apprendre et de se souvenir.</p>
-                    
-                    <h3>Pourquoi "Memoriz" ?</h3>
-                    <p>Memoriz vient de "Memory" (mémoire) et "Prize" (récompense). L'idée est simple : ce que tu sais, tu le mémorises. Ce que tu ne sais pas, tu l'apprends. Et chaque bonne réponse est une petite récompense !</p>
-                    
-                    <h3>Nos catégories (2026)</h3>
-                    <ul>
-                        <li>📺 Séries TV - Top 20 des légendes</li>
-                        <li>🎬 Cinéma - Top 20 des icônes</li>
-                        <li>🌍 Anime/Manga - Top 30 des plus célèbres au monde</li>
-                        <li>💀 Anime/Manga - Top 20 des plus détestés</li>
-                        <li>🌌 Anime/Manga - Top 20 des plus puissants</li>
-                        <li>🧠 Anime/Manga - Top 15 des génies ultimes</li>
-                        <li>⚽🏀🎵 Sports & Musique - Top 40 des stars mondiales</li>
-                        <li>👎 Séries TV détestés - Top 10</li>
-                        <li>👸 Anime/Manga - Top 15 des filles les plus puissantes</li>
-                        <li>⚽ Football - Top 15 meilleurs joueurs</li>
-                        <li>📋 Football - Top 10 meilleurs entraîneurs</li>
-                        <li>📖 Mangas - Top 15 meilleurs mangas</li>
-                        <li>🎬 Animes - Top 15 meilleurs animes</li>
-                        <li>🤪 Anime/Manga - Top 10 personnages idiots</li>
-                    </ul>
-                    
-                    <h3>L'équipe</h3>
-                    <p>Memoriz est développé et maintenu par une petite équipe passionnée de développeurs et de fans de culture pop. Nous mettons tout en œuvre pour offrir une expérience fluide, amusante et sécurisée.</p>
-                    
-                    <h3>Contact</h3>
-                    <p>📧 Email : contact@memoriz.com</p>
-                    <p>🐦 Twitter : @MemorizQuiz</p>
-                    <p>💬 Discord : discord.gg/memoriz</p>
-                    
-                    <h3>Remerciements</h3>
-                    <p>Merci à tous les joueurs qui font vivre Memoriz au quotidien ! Vos retours nous aident à nous améliorer.</p>
-                `
-            },
-            contact: {
-                title: "📧 Contact - Memoriz",
-                content: `
-                    <h2>Nous contacter</h2>
-                    <p>Memoriz existe depuis 2022.</p>
-                    
-                    <h3>Support technique</h3>
-                    <p>Un bug ? Une suggestion ? Écris-nous à : <strong>support@memoriz.com</strong></p>
-                    
-                    <h3>Partenariats & Publicité</h3>
-                    <p>Tu souhaites faire de la publicité sur Memoriz ou proposer un partenariat ? Contacte-nous : <strong>partenariat@memoriz.com</strong></p>
-                    
-                    <h3>Presse & Médias</h3>
-                    <p>Demande d'interview, article ou revue de presse : <strong>presse@memoriz.com</strong></p>
-                    
-                    <h3>Questions juridiques</h3>
-                    <p>Pour toute question relative aux droits d'auteur ou aux conditions d'utilisation : <strong>legal@memoriz.com</strong></p>
-                    
-                    <h3>Réseaux sociaux</h3>
-                    <ul>
-                        <li>🐦 Twitter/X : @MemorizQuiz</li>
-                        <li>📷 Instagram : @memoriz.official</li>
-                        <li>💬 Discord : https://discord.gg/memoriz</li>
-                        <li>📘 Facebook : Memoriz Quiz</li>
-                    </ul>
-                    
-                    <h3>Temps de réponse</h3>
-                    <p>Nous nous engageons à répondre sous 48h ouvrées. Merci de ta patience !</p>
-                    
-                    <p style="margin-top: 30px; padding: 15px; background: #f0f0f0; border-radius: 10px;">
-                        <strong>📌 Adresse postale :</strong><br>
-                        Memoriz SAS<br>
-                        123 Avenue de la Culture<br>
-                        75001 Paris, France
-                    </p>
-                `
-            }
+            privacy: { title: "Confidentialité", content: `<h2>Politique de Confidentialité</h2><p>Memoriz ne collecte aucune donnée personnelle. Les régies publicitaires (Google AdSense et Adsterra) peuvent utiliser des cookies.</p>` },
+            terms: { title: "CGU", content: `<h2>Conditions Générales</h2><p>En utilisant Memoriz, vous acceptez nos conditions. Le site est pour un usage personnel.</p>` },
+            mentions: { title: "Mentions légales", content: `<h2>Mentions légales</h2><p>Éditeur : Memoriz<br>Hébergement : Render Inc.</p>` },
+            about: { title: "À propos", content: `<h2>À propos</h2><p>Memoriz - Quiz depuis 2022</p>` },
+            contact: { title: "Contact", content: `<h2>Contact</h2><p>Email : contact@memoriz.com</p>` }
         };
 
         function showLegalPage(page) {
             const modal = document.getElementById('legal-modal');
             const modalBody = document.getElementById('modal-body');
             const content = legalContent[page];
-            
-            if (content) {
-                modalBody.innerHTML = `<div class="legal-content">${content.content}</div>`;
-                modal.style.display = 'block';
-            }
+            if (content) { modalBody.innerHTML = `<div class="legal-content">${content.content}</div>`; modal.style.display = 'block'; }
         }
 
         function initLegalPages() {
             const modal = document.getElementById('legal-modal');
             const closeBtn = document.querySelector('.close-modal');
-            
-            document.getElementById('privacy-link')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                showLegalPage('privacy');
-            });
-            document.getElementById('terms-link')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                showLegalPage('terms');
-            });
-            document.getElementById('mentions-link')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                showLegalPage('mentions');
-            });
-            document.getElementById('about-link')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                showLegalPage('about');
-            });
-            document.getElementById('contact-link')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                showLegalPage('contact');
-            });
-            
+            document.getElementById('privacy-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('privacy'); });
+            document.getElementById('terms-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('terms'); });
+            document.getElementById('mentions-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('mentions'); });
+            document.getElementById('about-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('about'); });
+            document.getElementById('contact-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('contact'); });
             if (closeBtn) closeBtn.onclick = () => { modal.style.display = 'none'; };
             window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
         }
 
-        // ==================== INITIALISATION ====================
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.category-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    const category = card.getAttribute('data-category');
-                    if (category) showGamePanel(category);
-                });
+                card.addEventListener('click', () => { const category = card.getAttribute('data-category'); if (category) showGamePanel(category); });
             });
             initLegalPages();
         });
