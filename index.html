@@ -11,7 +11,7 @@
     <title>Memoriz - Le défi ultime des souvenirs</title>
     <meta name="description" content="Memoriz - Testez vos connaissances sur les célébrités, anime, sports et musiques. Quiz gratuit avec chronomètre.">
     <meta name="keywords" content="quiz, célébrités, anime, manga, football, musique, test, connaissances">
-    <meta name="author" content="Noironik - Memoriz">
+    <meta name="author" content="Memoriz">
     <meta name="robots" content="index, follow">
 
     <meta property="og:title" content="Memoriz - Le défi ultime des souvenirs">
@@ -49,20 +49,30 @@
         .questions-count { display: inline-block; background: #ff6b6b; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; }
         .blog-section { max-width: 800px; margin: 40px auto; padding: 20px; }
         .blog-section h2 { text-align: center; margin-bottom: 30px; font-size: 2rem; color: #4ecdc4; }
-        .blog-article { background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); padding: 30px; border-radius: 15px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s ease, background 0.3s ease; }
+        .blog-article { background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); padding: 30px; border-radius: 15px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s ease, background 0.3s ease; cursor: pointer; }
         .blog-article:hover { transform: translateY(-3px); background: rgba(255,255,255,0.12); }
         .blog-article h3 { color: #ff6b6b; margin-bottom: 15px; font-size: 1.4rem; }
         .blog-article .blog-date { color: #4ecdc4; font-size: 0.85rem; margin-bottom: 15px; opacity: 0.8; }
+        .blog-article .blog-content { display: none; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); }
+        .blog-article .blog-content.show { display: block; }
         .blog-article p { line-height: 1.8; margin-bottom: 15px; opacity: 0.9; }
         .blog-article ul { margin-left: 20px; margin-bottom: 15px; line-height: 1.8; opacity: 0.9; }
         .blog-article ul li { margin-bottom: 8px; }
-        .read-more { display: inline-block; background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; padding: 10px 25px; border-radius: 25px; text-decoration: none; font-weight: bold; transition: transform 0.3s, box-shadow 0.3s; }
+        .read-more { display: inline-block; background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; padding: 10px 25px; border-radius: 25px; text-decoration: none; font-weight: bold; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; border: none; font-size: 0.9rem; }
         .read-more:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(255,107,107,0.4); }
         .main-footer { text-align: center; padding: 30px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 40px; }
         .footer-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; }
         .footer-links a { color: white; text-decoration: none; opacity: 0.7; transition: opacity 0.3s; }
         .footer-links a:hover { opacity: 1; text-decoration: underline; }
-        .copyright { font-size: 0.85rem; opacity: 0.5; }
+        .social-links { display: flex; justify-content: center; gap: 25px; margin-bottom: 20px; flex-wrap: wrap; }
+        .social-link { display: inline-flex; align-items: center; gap: 8px; color: white; text-decoration: none; background: rgba(255,255,255,0.1); padding: 8px 18px; border-radius: 30px; transition: all 0.3s ease; font-weight: 500; }
+        .social-link:hover { transform: translateY(-3px); background: rgba(255,255,255,0.2); }
+        .social-link svg { width: 22px; height: 22px; }
+        .social-link.youtube:hover { background: #ff0000; }
+        .social-link.tiktok:hover { background: #000000; }
+        .social-link.twitch:hover { background: #9146ff; }
+        .social-link.whatsapp:hover { background: #25d366; }
+        .copyright { font-size: 0.85rem; opacity: 0.5; margin-top: 15px; }
         .game-panel { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 1001; overflow-y: auto; padding: 20px; }
         .game-container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 20px; padding: 30px; color: #333; }
         .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #eee; flex-wrap: wrap; gap: 10px; }
@@ -148,10 +158,89 @@
 
         <section class="blog-section">
             <h2>📝 Articles Memoriz</h2>
-            <article class="blog-article"><h3>🧠 Comment améliorer sa mémoire avec les quiz ?</h3><p class="blog-date">📅 Publié le 10 janvier 2026</p><p>Les quiz stimulent votre cerveau et renforcent les connexions neuronales...</p><a href="#" class="read-more">Lire la suite →</a></article>
-            <article class="blog-article"><h3>🎬 Top 5 des animés à regarder absolument en 2026</h3><p class="blog-date">📅 Publié le 5 mars 2026</p><p>L'année 2026 s'annonce exceptionnelle pour les fans d'animation japonaise...</p><a href="#" class="read-more">Lire la suite →</a></article>
-            <article class="blog-article"><h3>⚽ Pourquoi les quiz de sport sont bons pour votre culture générale</h3><p class="blog-date">📅 Publié le 20 mars 2026</p><p>Le sport est un phénomène culturel mondial...</p><a href="#" class="read-more">Lire la suite →</a></article>
-            <article class="blog-article"><h3>💡 Les bienfaits cognitifs des jeux de mémoire</h3><p class="blog-date">📅 Publié le 15 avril 2026</p><p>Les jeux de mémoire réduisent le risque de déclin cognitif...</p><a href="#" class="read-more">Lire la suite →</a></article>
+            
+            <article class="blog-article" id="blog1">
+                <h3>🧠 Comment améliorer sa mémoire avec les quiz ?</h3>
+                <p class="blog-date">📅 Publié le 10 janvier 2026</p>
+                <div class="blog-short">
+                    <p>Les quiz stimulent votre cerveau et renforcent les connexions neuronales...</p>
+                </div>
+                <div class="blog-content" id="blog1-content">
+                    <p>Les quiz sont bien plus qu'un simple jeu : ce sont de véritables outils de stimulation cognitive. Lorsque vous testez vos connaissances, votre cerveau active plusieurs zones simultanément : l'hippocampe (mémoire), le cortex préfrontal (raisonnement) et le lobe temporal (reconnaissance).</p>
+                    <p><strong>🎯 Les bienfaits scientifiquement prouvés :</strong></p>
+                    <ul>
+                        <li><strong>Renforcement des synapses :</strong> Chaque rappel d'information consolide les connexions neuronales.</li>
+                        <li><strong>Effet "testing" :</strong> Se tester est plus efficace que relire des notes pour mémoriser.</li>
+                        <li><strong>Neuroplasticité :</strong> Les quiz réguliers aident le cerveau à créer de nouveaux chemins neuronaux.</li>
+                        <li><strong>Réduction du stress :</strong> Le jeu permet de libérer de la dopamine, l'hormone du plaisir.</li>
+                    </ul>
+                    <p>💡 <strong>Conseil Memoriz :</strong> Faites un quiz par jour pendant 10 minutes. Vous verrez des résultats significatifs sur votre mémoire générale en moins d'un mois !</p>
+                    <p>Notre site propose plus de 20 catégories différentes pour varier les plaisirs et solliciter différentes zones de votre mémoire.</p>
+                </div>
+                <button class="read-more" data-blog="blog1">Lire la suite →</button>
+            </article>
+
+            <article class="blog-article" id="blog2">
+                <h3>🎬 Top 5 des animés à regarder absolument en 2026</h3>
+                <p class="blog-date">📅 Publié le 5 mars 2026</p>
+                <div class="blog-short">
+                    <p>L'année 2026 s'annonce exceptionnelle pour les fans d'animation japonaise...</p>
+                </div>
+                <div class="blog-content" id="blog2-content">
+                    <p>L'industrie de l'animation japonaise ne cesse de nous surprendre avec des œuvres toujours plus ambitieuses. Voici notre sélection des incontournables de 2026 :</p>
+                    <ul>
+                        <li><strong>🌸 "Chroniques de l'Aube"</strong> - Une pépite visuelle du studio Ghibli, mêlant aventure et philosophie.</li>
+                        <li><strong>⚡ "Thunder Legacy"</strong> - La nouvelle référence du shonen par les créateurs de Demon Slayer.</li>
+                        <li><strong>🌌 "Echoes of the Void"</strong> - Un chef-d'œuvre de science-fiction psychologique.</li>
+                        <li><strong>🔥 "Flame Reborn"</strong> - Le retour tant attendu d'une licence culte.</li>
+                        <li><strong>🎭 "The Last Theatre"</strong> - Un drame poignant sur l'amour et l'art.</li>
+                    </ul>
+                    <p>Testez vos connaissances sur ces animés et bien d'autres dans notre catégorie "Anime/Manga" ! Qui sera le roi des quiz ?</p>
+                </div>
+                <button class="read-more" data-blog="blog2">Lire la suite →</button>
+            </article>
+
+            <article class="blog-article" id="blog3">
+                <h3>⚽ Pourquoi les quiz de sport sont bons pour votre culture générale</h3>
+                <p class="blog-date">📅 Publié le 20 mars 2026</p>
+                <div class="blog-short">
+                    <p>Le sport est un phénomène culturel mondial...</p>
+                </div>
+                <div class="blog-content" id="blog3-content">
+                    <p>Le sport dépasse largement le simple cadre de la compétition. Il façonne des générations, crée des légendes et rassemble des milliards de personnes à travers le monde.</p>
+                    <p><strong>🏆 Pourquoi les quiz sportifs sont essentiels :</strong></p>
+                    <ul>
+                        <li>Ils vous connectent à l'histoire mondiale (JO, Coupes du Monde).</li>
+                        <li>Ils développent votre mémoire des noms, dates et chiffres.</li>
+                        <li>Ils facilitent les conversations et le réseautage social.</li>
+                        <li>Ils vous tiennent informé des records et performances historiques.</li>
+                    </ul>
+                    <p>Notre catégorie "Sports & Musique" réunit plus de 40 légendes du football, basketball, tennis et bien plus encore. Pouvez-vous tous les nommer ?</p>
+                </div>
+                <button class="read-more" data-blog="blog3">Lire la suite →</button>
+            </article>
+
+            <article class="blog-article" id="blog4">
+                <h3>💡 Les bienfaits cognitifs des jeux de mémoire</h3>
+                <p class="blog-date">📅 Publié le 15 avril 2026</p>
+                <div class="blog-short">
+                    <p>Les jeux de mémoire réduisent le risque de déclin cognitif...</p>
+                </div>
+                <div class="blog-content" id="blog4-content">
+                    <p>Des études récentes menées par l'Université de Californie démontrent que 15 minutes de jeux de mémoire par jour peuvent réduire de 30% le risque de déclin cognitif lié à l'âge.</p>
+                    <p><strong>🧠 Les effets positifs mesurés :</strong></p>
+                    <ul>
+                        <li>Amélioration de la mémoire à court terme (+25% en moyenne)</li>
+                        <li>Meilleure concentration et attention aux détails</li>
+                        <li>Réduction du stress et de l'anxiété</li>
+                        <li>Augmentation de la vitesse de traitement de l'information</li>
+                        <li>Prévention des maladies neurodégénératives (Alzheimer, Parkinson)</li>
+                    </ul>
+                    <p>Memoriz a été conçu avec des experts en neurosciences pour maximiser ces bénéfices. Chaque quiz est chronométré pour stimuler vos réflexes cognitifs et renforcer votre mémoire à long terme.</p>
+                    <p>Alors, prêt à relever le défi ? Lancez un quiz dès maintenant !</p>
+                </div>
+                <button class="read-more" data-blog="blog4">Lire la suite →</button>
+            </article>
         </section>
         
         <footer class="main-footer">
@@ -162,7 +251,25 @@
                 <a href="#" id="about-link">ℹ️ À propos</a>
                 <a href="#" id="contact-link">📧 Contact</a>
             </div>
-            <div class="copyright">© 2022-2026 Memoriz - Tous droits réservés. Créé par <strong>Noironik</strong> | Hébergé par Render Inc.</div>
+            <div class="social-links">
+                <a href="https://youtube.com/@noironik" target="_blank" class="social-link youtube" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.376.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.376-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                    YouTube
+                </a>
+                <a href="https://tiktok.com/@noironik" target="_blank" class="social-link tiktok" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.589 6.686a4.993 4.993 0 0 1-3.77-4.245V2h-3.445v13.672a2.945 2.945 0 0 1-2.942 2.94 2.945 2.945 0 0 1-2.942-2.94 2.945 2.945 0 0 1 2.942-2.94c.345 0 .675.06.98.164V8.233a6.424 6.424 0 0 0-5.4 6.273 6.424 6.424 0 0 0 6.4 6.4 6.424 6.424 0 0 0 6.4-6.4c0-.14-.007-.28-.014-.418V8.956a7.235 7.235 0 0 0 4.218 1.336V7.081a4.314 4.314 0 0 1-2.185-.395z"/></svg>
+                    TikTok
+                </a>
+                <a href="https://twitch.tv/noironik1" target="_blank" class="social-link twitch" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm10.857 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714V11.143z"/></svg>
+                    Twitch
+                </a>
+                <a href="https://wa.me/2250708608958?text=Salut%20Memoriz%20!" target="_blank" class="social-link whatsapp" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.472-.149-.67.149-.197.298-.767.967-.94 1.165-.173.198-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.019-.458.13-.606.134-.134.298-.347.447-.521.149-.174.198-.298.297-.497.099-.198.05-.372-.025-.521-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.372-.01-.571-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.235.612 4.334 1.678 6.147L0 24l6.001-1.676A11.97 11.97 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.878 0-3.628-.547-5.111-1.486l-.364-.216-3.563.995.995-3.555-.223-.369A9.94 9.94 0 0 1 2 12c0-5.514 4.486-10 10-10s10 4.486 10 10-4.486 10-10 10z"/></svg>
+                    WhatsApp
+                </a>
+            </div>
+            <div class="copyright">© 2022-2026 Memoriz - Tous droits réservés | Hébergé par Render Inc.</div>
         </footer>
     </div>
 
@@ -189,15 +296,11 @@
         const meilleuresTechniquesList = ["Kamehameha", "Rasengan", "Bankai", "Genkidama", "Getsuga Tenshō", "Chidori", "Ultra Instinct", "Domain Expansion", "Gear 5", "Amaterasu"];
         const meilleuresTransformationsList = ["Super Saiyan", "Ultra Instinct", "Super Saiyan 2 Gohan", "Sage Mode", "Madara Rikudo", "Vasto Lorde Ichigo", "Gear 5", "Baryon Mode", "Gon Adulte", "Mugetsu"];
         
-        // LDC avec années pour l'affichage dans le tableau
         const ldcAnnees = [2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026];
         const ldcValeurs = ["Real Madrid", "Bayern Munich", "Real Madrid", "AC Milan", "FC Porto", "Liverpool", "FC Barcelona", "AC Milan", "Manchester United", "FC Barcelona", "Inter Milan", "FC Barcelona", "Chelsea", "Bayern Munich", "Real Madrid", "FC Barcelona", "Real Madrid", "Real Madrid", "Real Madrid", "Liverpool", "Bayern Munich", "Chelsea", "Real Madrid", "Manchester City", "Real Madrid", "Paris Saint-Germain", "Paris Saint-Germain"];
-        
-        // Ballon d'Or avec années
         const ballonAnnees = [2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2021,2022,2023,2024,2025];
         const ballonValeurs = ["Luis Figo", "Michael Owen", "Ronaldo Nazário", "Pavel Nedvěd", "Andriy Shevchenko", "Ronaldinho", "Fabio Cannavaro", "Kaká", "Cristiano Ronaldo", "Lionel Messi", "Lionel Messi", "Lionel Messi", "Lionel Messi", "Cristiano Ronaldo", "Cristiano Ronaldo", "Lionel Messi", "Cristiano Ronaldo", "Cristiano Ronaldo", "Luka Modrić", "Lionel Messi", "Lionel Messi", "Karim Benzema", "Lionel Messi", "Rodri", "Ousmane Dembélé"];
 
-        // Construction des listes avec "année : valeur"
         const ligueDesChampionsList = ldcAnnees.map((a, i) => `${a} : ${ldcValeurs[i]}`);
         const ballonDorList = ballonAnnees.map((a, i) => `${a} : ${ballonValeurs[i]}`);
 
@@ -445,11 +548,11 @@
         }
 
         const legalContent = {
-            privacy: { title: "🔒 Confidentialité", content: "<h2>Politique de Confidentialité</h2><p>Memoriz ne collecte aucune donnée personnelle.</p>" },
-            terms: { title: "📜 Conditions", content: "<h2>Conditions Générales</h2><p>En utilisant Memoriz, vous acceptez nos conditions.</p>" },
-            mentions: { title: "⚖️ Mentions légales", content: "<h2>Mentions légales</h2><p>Hébergé par Render Inc.</p>" },
-            about: { title: "ℹ️ À propos", content: "<h2>À propos de Memoriz</h2><p>Créé en 2022 par Noironik.</p>" },
-            contact: { title: "📧 Contact", content: "<h2>Contact</h2><p>contact@memoriz.com</p>" }
+            privacy: { title: "🔒 Confidentialité", content: "<h2>Politique de Confidentialité</h2><p>Chez Memoriz, la protection de vos données est notre priorité. Nous ne collectons aucune information personnelle vous concernant. Aucun cookie de traçage n'est utilisé sur notre site. Votre activité de quiz reste strictement anonyme. Nous n'utilisons pas de services tiers susceptibles de vous identifier. Pour toute question, contactez-nous à : <strong>jitihh700@gmail.com</strong></p>" },
+            terms: { title: "📜 Conditions Générales", content: "<h2>Conditions Générales d'Utilisation</h2><p><strong>1. Acceptation des conditions</strong><br>En utilisant Memoriz, vous acceptez pleinement nos conditions.</p><p><strong>2. Service gratuit</strong><br>Memoriz est entièrement gratuit. Aucun abonnement ni paiement n'est requis.</p><p><strong>3. Propriété intellectuelle</strong><br>Le contenu des quiz (noms de personnages, œuvres) appartient à leurs propriétaires respectifs. Memoriz est un site éducatif et ludique.</p><p><strong>4. Limitation de responsabilité</strong><br>Memoriz s'efforce de maintenir l'exactitude des informations mais ne peut garantir l'absence d'erreur.</p><p><strong>5. Contact</strong><br>Pour toute réclamation : <strong>jitihh700@gmail.com</strong></p>" },
+            mentions: { title: "⚖️ Mentions légales", content: "<h2>Mentions légales</h2><p><strong>Éditeur du site :</strong><br>Memoriz<br>Email : jitihh700@gmail.com</p><p><strong>Hébergement :</strong><br>Render Inc.<br>525 Brannan St, San Francisco, CA 94107, États-Unis</p><p><strong>Directeur de publication :</strong><br>L'équipe Memoriz</p><p><strong>Propriété intellectuelle :</strong><br>L'ensemble des contenus textuels et graphiques de Memoriz sont protégés par le droit d'auteur. Les noms de personnages et œuvres cités appartiennent à leurs ayants droit respectifs.</p>" },
+            about: { title: "ℹ️ À propos de Memoriz", content: "<h2>Notre histoire</h2><p>Memoriz est né en 2022 d'une passion commune pour les quiz, la culture pop et les jeux de mémoire. Notre mission : rendre l'apprentissage ludique et accessible à tous.</p><p><strong>🎯 Notre objectif :</strong> Créer la plus grande base de quiz francophone sur les célébrités, animés, sports et musiques.</p><p><strong>📈 Chiffres clés :</strong><br>- 20 catégories de quiz<br>- Plus de 300 questions uniques<br>- Des milliers de joueurs chaque mois</p><p><strong>💡 Pour nous contacter :</strong> jitihh700@gmail.com</p><p><strong>📱 Retrouvez-nous sur les réseaux :</strong><br>YouTube, TikTok, Twitch, WhatsApp - Tous les liens sont en bas de page !</p>" },
+            contact: { title: "📧 Contact", content: "<h2>Contactez-nous</h2><p>Une question ? Une suggestion de quiz ? Un problème technique ? Nous sommes là pour vous !</p><p><strong>📨 Email :</strong> <a href='mailto:jitihh700@gmail.com'>jitihh700@gmail.com</a></p><p><strong>⏰ Délai de réponse :</strong> Sous 48h ouvrées.</p><p><strong>📱 Réseaux sociaux :</strong></p><ul class='social-list'><li>🎥 YouTube : <a href='https://youtube.com/@noironik' target='_blank'>@noironik</a></li><li>🎵 TikTok : <a href='https://tiktok.com/@noironik' target='_blank'>@noironik</a></li><li>📺 Twitch : <a href='https://twitch.tv/noironik1' target='_blank'>noironik1</a></li><li>💬 WhatsApp : <a href='https://wa.me/2250708608958?text=Salut%20Memoriz%20!' target='_blank'>noironik</a></li></ul><p>N'hésitez pas à nous suivre pour ne rien rater des nouveautés Memoriz !</p>" }
         };
 
         function showLegalPage(page) {
@@ -471,11 +574,32 @@
             window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
         }
 
+        // Blog "Lire la suite" toggle
+        function initBlogArticles() {
+            document.querySelectorAll('.read-more').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const blogId = button.getAttribute('data-blog');
+                    const content = document.getElementById(`${blogId}-content`);
+                    if (content) {
+                        const isVisible = content.classList.contains('show');
+                        if (!isVisible) {
+                            content.classList.add('show');
+                            button.textContent = 'Réduire ↑';
+                        } else {
+                            content.classList.remove('show');
+                            button.textContent = 'Lire la suite →';
+                        }
+                    }
+                });
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.category-card').forEach(card => {
                 card.addEventListener('click', () => { const category = card.getAttribute('data-category'); if (category) showGamePanel(category); });
             });
             initLegalPages();
+            initBlogArticles();
         });
     </script>
 </body>
