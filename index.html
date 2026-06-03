@@ -99,6 +99,35 @@
         header h1 { font-size: 3.5rem; margin-bottom: 10px; background: linear-gradient(135deg, #ff6b6b, #4ecdc4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         header p { font-size: 1.2rem; opacity: 0.9; }
         
+        /* Bannière de soutien en haut */
+        .support-banner {
+            background: linear-gradient(135deg, #00A859, #008040);
+            border-radius: 60px;
+            padding: 12px 25px;
+            margin: 20px auto 0 auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(0,168,89,0.3);
+        }
+        .support-banner:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #00c06a, #009950);
+            box-shadow: 0 6px 20px rgba(0,168,89,0.5);
+        }
+        .support-banner svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+        
         /* Bouton thème */
         .theme-btn {
             position: absolute;
@@ -242,6 +271,14 @@
             <p>"Ce que tu sais, tu le mémorises. Ce que tu ne sais pas, tu l'apprends."</p>
             <div class="badge">✨ Plus de 300 personnages et thèmes à découvrir</div>
             <p style="font-size: 0.9rem; margin-top: 10px;">🎯 20 catégories | ⏱️ 10 minutes par quiz | 🏆 Teste-toi !</p>
+            
+            <!-- BOUTON DE SOUTIEN EN HAUT (visible immédiatement) -->
+            <a href="https://www.sapeo.org/memoriz-quiz" target="_blank" class="support-banner">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+                ❤️ SOUTENIR MEMORIZ ❤️
+            </a>
         </header>
 
         <div class="categories">
