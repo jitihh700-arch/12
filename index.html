@@ -9,8 +9,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Memoriz - Le défi ultime des souvenirs</title>
-    <meta name="description" content="Memoriz - Testez vos connaissances sur les célébrités, anime, sports et musiques. Quiz gratuit avec chronomètre.">
-    <meta name="keywords" content="quiz, célébrités, anime, manga, football, musique, test, connaissances">
+    <meta name="description" content="Memoriz - Testez vos connaissances sur les célébrités, anime, sports, musiques, jeux vidéo, super-héros et rap. Quiz gratuit avec chronomètre.">
+    <meta name="keywords" content="quiz, célébrités, anime, manga, football, musique, test, connaissances, jeux vidéo, super-héros, rap, culture générale">
     <meta name="author" content="Memoriz">
     <meta name="robots" content="index, follow">
 
@@ -22,7 +22,7 @@
     <meta name="format-detection" content="telephone=no">
     
     <meta property="og:title" content="Memoriz - Le défi ultime des souvenirs">
-    <meta property="og:description" content="Testez vos connaissances sur les célébrités, anime, sports et musiques. Quiz gratuit avec chronomètre.">
+    <meta property="og:description" content="Testez vos connaissances sur les célébrités, anime, sports, musiques, jeux vidéo, super-héros et rap. Quiz gratuit avec chronomètre.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://memoriz.onrender.com">
     <meta property="og:image" content="https://memoriz.onrender.com/favicon-96x96.png">
@@ -33,7 +33,7 @@
 
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Memoriz - Le défi ultime des souvenirs">
-    <meta name="twitter:description" content="Testez vos connaissances sur les célébrités, anime, sports et musiques. Quiz gratuit avec chronomètre.">
+    <meta name="twitter:description" content="Testez vos connaissances sur les célébrités, anime, sports, musiques, jeux vidéo, super-héros et rap. Quiz gratuit avec chronomètre.">
     <meta name="twitter:image" content="https://memoriz.onrender.com/favicon-96x96.png">
 
     <style>
@@ -418,8 +418,8 @@
             <button class="theme-btn" id="themeToggle">🌓 Mode Clair/Sombre</button>
             <h1>🧠 MEMORIZ 🧠</h1>
             <p>"Ce que tu sais, tu le mémorises. Ce que tu ne sais pas, tu l'apprends."</p>
-            <div class="badge">✨ Plus de 300 personnages et thèmes à découvrir | Sharingan Legend ✨</div>
-            <p style="font-size: 0.9rem; margin-top: 10px;">🎯 20 catégories | ⏱️ 10 minutes par quiz | 🏆 Teste-toi !</p>
+            <div class="badge">✨ Plus de 400 personnages et thèmes à découvrir | Sharingan Legend ✨</div>
+            <p style="font-size: 0.9rem; margin-top: 10px;">🎯 23 catégories | ⏱️ 10 minutes par quiz | 🏆 Teste-toi !</p>
             
             <a href="https://www.sapeo.org/memoriz-quiz" target="_blank" class="support-banner">
                 <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
@@ -432,6 +432,7 @@
         <div class="categories">
             <h2>📚 Choisis ton défi</h2>
             <div class="category-grid">
+                <!-- Catégories existantes -->
                 <div class="category-card" data-category="series"><h3>📺 Séries TV</h3><p>Top 20 des légendes du petit écran</p><span class="questions-count">20 personnages</span></div>
                 <div class="category-card" data-category="films"><h3>🎬 Cinéma</h3><p>Top 20 des icônes du 7ème art</p><span class="questions-count">20 personnages</span></div>
                 <div class="category-card" data-category="animeCelebres"><h3>🌍 Anime/Manga</h3><p>Top 30 des plus célèbres au monde</p><span class="questions-count">30 personnages</span></div>
@@ -452,6 +453,11 @@
                 <div class="category-card" data-category="meilleuresTransformations"><h3>🔄 Anime/Manga</h3><p>Top 10 des meilleures transformations</p><span class="questions-count">10 transformations</span></div>
                 <div class="category-card" data-category="ligueDesChampions"><h3>🏆 Ligue des Champions</h3><p>Vainqueurs de 2000 à 2026</p><span class="questions-count">27 clubs</span></div>
                 <div class="category-card" data-category="ballonDor"><h3>🥇 Ballon d'Or</h3><p>Vainqueurs de 2000 à 2025</p><span class="questions-count">25 joueurs</span></div>
+                
+                <!-- NOUVELLES CATÉGORIES AJOUTÉES (sans Drapeaux) -->
+                <div class="category-card" data-category="jeuxVideo"><h3>🎮 Légendes du Jeu Vidéo</h3><p>Top 10 des jeux cultes</p><span class="questions-count">10 jeux</span></div>
+                <div class="category-card" data-category="superHeros"><h3>🦸 Super-héros Marvel & DC</h3><p>Top 20 des héros et vilains</p><span class="questions-count">20 personnages</span></div>
+                <div class="category-card" data-category="rapFrUs"><h3>🎤 Rap Français & US</h3><p>Top 15 des plus grandes légendes</p><span class="questions-count">15 artistes</span></div>
             </div>
         </div>
 
@@ -513,7 +519,7 @@
     <div id="legal-modal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><div id="modal-body"></div></div></div>
 
     <script>
-        // ==================== VOS DONNÉES COMPLÈTES ====================
+        // ==================== DONNÉES EXISTANTES ====================
         const animeCelebresList = ["Son Goku", "Naruto Uzumaki", "Monkey D. Luffy", "Pikachu", "Sailor Moon", "Ichigo Kurosaki", "Eren Yeager", "Light Yagami", "Levi Ackerman", "Sasuke Uchiha", "Vegeta", "Gojo Satoru", "Tanjiro Kamado", "Killua Zoldyck", "Gon Freecss", "Edward Elric", "Mikasa Ackerman", "Kakashi Hatake", "Itachi Uchiha", "Roronoa Zoro", "Natsu Dragneel", "Deku", "All Might", "Saitama", "Ken Kaneki", "L", "Ash Ketchum", "Alucard", "Spike Spiegel", "Jotaro Kujo"];
         const animeDetesteList = ["Shou Tucker", "Griffith", "Danzo Shimura", "Rachel", "Mahito", "Sakura Haruno", "Mineta", "Gabi Braun", "Akainu", "Blackbeard", "Frieza", "Kazuya Kinoshita", "Makima", "Orochimaru", "Envy", "Sugou Nobuyuki", "Yukiteru Amano", "Shinji Ikari", "Near", "Malty Melromarc"];
         const animeFortsList = ["Featherine Augustus Aurora", "The Creator", "Lambdadelta", "Bernkastel", "Akuto Sai", "Zeno", "Ren Fuji", "Mercurius", "Madoka Kaname", "Akemi Homura", "Othinus", "Kami Tenchi", "Rimuru Tempest", "Anos Voldigoad", "Altair", "Medaka Kurokami", "Ajimu Najimi", "Ryougi Shiki", "Sailor Cosmos", "Haruhi Suzumiya"];
@@ -538,6 +544,12 @@
         const ballonValeurs = ["Luis Figo", "Michael Owen", "Ronaldo Nazário", "Pavel Nedvěd", "Andriy Shevchenko", "Ronaldinho", "Fabio Cannavaro", "Kaká", "Cristiano Ronaldo", "Lionel Messi", "Lionel Messi", "Lionel Messi", "Lionel Messi", "Cristiano Ronaldo", "Cristiano Ronaldo", "Lionel Messi", "Cristiano Ronaldo", "Cristiano Ronaldo", "Luka Modrić", "Lionel Messi", "Lionel Messi", "Karim Benzema", "Lionel Messi", "Rodri", "Ousmane Dembélé"];
         const ligueDesChampionsList = ldcAnnees.map((a, i) => `${a} : ${ldcValeurs[i]}`);
         const ballonDorList = ballonAnnees.map((a, i) => `${a} : ${ballonValeurs[i]}`);
+        
+        // ========== NOUVELLES CATÉGORIES (sans Drapeaux) ==========
+        const jeuxVideoList = ["Super Mario Bros.", "The Legend of Zelda", "Tetris", "Minecraft", "Grand Theft Auto V", "Final Fantasy", "Metal Gear Solid", "Half-Life 2", "The Witcher 3: Wild Hunt", "Dark Souls"];
+        const superHerosList = ["Spider-Man", "Batman", "Superman", "Iron Man", "Joker", "Captain America", "Wolverine", "Wonder Woman", "Deadpool", "Harley Quinn", "Thor", "Hulk", "Flash", "Black Panther", "Thanos", "Doctor Doom", "Green Lantern", "Magneto", "Aquaman", "Darkseid"];
+        const rapFrUsList = ["Tupac Shakur", "The Notorious B.I.G.", "Jay-Z", "Eminem", "IAM", "Nas", "Booba", "Kendrick Lamar", "NTM", "Dr. Dre", "MC Solaar", "Soprano", "Snoop Dogg", "Kaaris", "Lil Wayne"];
+        
         const quizData = {
             series: seriesList, films: filmsList, animeCelebres: animeCelebresList, animeDeteste: animeDetesteList,
             animeForts: animeFortsList, animeIntelligents: animeIntelligentsList, sportsMusique: sportsMusiqueList,
@@ -545,8 +557,10 @@
             meilleursEntraineurs: meilleursEntraineursList, meilleursMangas: meilleursMangasList, meilleursAnimes: meilleursAnimesList,
             animeIdiots: animeIdiotsList, meilleursCombats: meilleursCombatsList, meilleursArcs: meilleursArcsList,
             meilleuresTechniques: meilleuresTechniquesList, meilleuresTransformations: meilleuresTransformationsList,
-            ligueDesChampions: ligueDesChampionsList, ballonDor: ballonDorList
+            ligueDesChampions: ligueDesChampionsList, ballonDor: ballonDorList,
+            jeuxVideo: jeuxVideoList, superHeros: superHerosList, rapFrUs: rapFrUsList
         };
+        
         const categoryMapping = {
             series: { data: quizData.series, title: "📺 Séries TV - Top 20 des légendes", showYears: false, yearsList: null },
             films: { data: quizData.films, title: "🎬 Cinéma - Top 20 des icônes", showYears: false, yearsList: null },
@@ -567,8 +581,12 @@
             meilleuresTechniques: { data: quizData.meilleuresTechniques, title: "✨ Anime/Manga - Top 10 des meilleures techniques", showYears: false, yearsList: null },
             meilleuresTransformations: { data: quizData.meilleuresTransformations, title: "🔄 Anime/Manga - Top 10 des meilleures transformations", showYears: false, yearsList: null },
             ligueDesChampions: { data: quizData.ligueDesChampions, title: "🏆 Ligue des Champions - Vainqueurs de 2000 à 2026", showYears: true, yearsList: ldcAnnees },
-            ballonDor: { data: quizData.ballonDor, title: "🥇 Ballon d'Or - Vainqueurs de 2000 à 2025", showYears: true, yearsList: ballonAnnees }
+            ballonDor: { data: quizData.ballonDor, title: "🥇 Ballon d'Or - Vainqueurs de 2000 à 2025", showYears: true, yearsList: ballonAnnees },
+            jeuxVideo: { data: quizData.jeuxVideo, title: "🎮 Légendes du Jeu Vidéo - Top 10 des jeux cultes", showYears: false, yearsList: null },
+            superHeros: { data: quizData.superHeros, title: "🦸 Super-héros Marvel & DC - Top 20", showYears: false, yearsList: null },
+            rapFrUs: { data: quizData.rapFrUs, title: "🎤 Rap Français & US - Top 15 des légendes", showYears: false, yearsList: null }
         };
+        
         function normalizeString(str) { if (!str) return ''; let normalized = str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); normalized = normalized.replace(/^\d{4}\s*:\s*/, ''); normalized = normalized.replace(/[^a-z0-9\s]/g, '').trim(); return normalized; }
         let currentGame = null; let timerInterval = null;
         class QuizGame { constructor(category, categoryKey, questionsList, showYears, yearsList) { this.category = category; this.categoryKey = categoryKey; this.questions = [...questionsList]; this.showYears = showYears; this.yearsList = yearsList; this.correctAnswers = new Array(this.questions.length).fill(false); this.score = 0; this.timeLeft = 600; this.gameActive = true; }
