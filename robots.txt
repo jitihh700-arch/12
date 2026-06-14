@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 Disallow: /game-panel
-Sitemap: https://memoriz.onrender.com/sitemap.xml
+Sitemap: https://memoriz-quiz.onrender.com/sitemap.xml
