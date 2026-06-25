@@ -40,7 +40,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(135deg, #0a0a1a 0%, #0f0f2a 50%, #0a0a1f 100%); 
+            background: #0a0a1a; 
             min-height: 100vh; 
             color: white; 
             padding-bottom: 70px; 
@@ -48,9 +48,20 @@
             overflow-x: hidden;
         }
         
+        /* === NOUVEAU FOND ANIMÉ === */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
         /* Mode clair */
         body.light-mode {
-            background: linear-gradient(135deg, #f0f2f5 0%, #e4e9f2 50%, #d8dfe9 100%);
+            background: #f0f2f5;
             color: #0a0a1a;
         }
         
@@ -105,7 +116,7 @@
             transform: translate(-50%, -50%);
             width: 500px;
             height: 500px;
-            z-index: -1;
+            z-index: 1;
             opacity: 0.15;
             pointer-events: none;
             transition: opacity 0.5s ease;
@@ -211,7 +222,7 @@
             100% { opacity: 0.05; transform: translate(-50%, -50%) scale(1); }
         }
         
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; position: relative; z-index: 2; }
         
         header { 
             text-align: center; 
@@ -402,6 +413,9 @@
     </style>
 </head>
 <body>
+    <!-- CANVAS POUR LE FOND ANIMÉ -->
+    <canvas id="particles-canvas"></canvas>
+
     <!-- SHARINGAN AU CENTRE ANIMÉ -->
     <div class="sharingan-bg">
         <div class="sharingan-eye">
@@ -509,7 +523,7 @@
                 <a href="https://youtube.com/@noironik" target="_blank" class="social-link youtube" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="20"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.376.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.376-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg> YouTube</a>
                 <a href="https://tiktok.com/@noironik" target="_blank" class="social-link tiktok" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="20"><path d="M19.589 6.686a4.993 4.993 0 0 1-3.77-4.245V2h-3.445v13.672a2.945 2.945 0 0 1-2.942 2.94 2.945 2.945 0 0 1-2.942-2.94 2.945 2.945 0 0 1 2.942-2.94c.345 0 .675.06.98.164V8.233a6.424 6.424 0 0 0-5.4 6.273 6.424 6.424 0 0 0 6.4 6.4 6.424 6.424 0 0 0 6.4-6.4c0-.14-.007-.28-.014-.418V8.956a7.235 7.235 0 0 0 4.218 1.336V7.081a4.314 4.314 0 0 1-2.185-.395z"/></svg> TikTok</a>
                 <a href="https://twitch.tv/noironik1" target="_blank" class="social-link twitch" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="20"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm10.857 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714V11.143z"/></svg> Twitch</a>
-                <a href="https://wa.me/2250708608958?text=Salut%20Memoriz%20!" target="_blank" class="social-link whatsapp" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.472-.149-.67.149-.197.298-.767.967-.94 1.165-.173.198-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.019-.458.13-.606.134-.134.298-.347.447-.521.149-.174.198-.298.297-.497.099-.198.05-.372-.025-.521-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.372-.01-.571-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.235.612 4.334 1.678 6.147L0 24l6.001-1.676A11.97 11.97 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.878 0-3.628-.547-5.111-1.486l-.364-.216-3.563.995.995-3.555-.223-.369A9.94 9.94 0 0 1 2 12c0-5.514 4.486-10 10-10s10 4.486 10 10-4.486 10-10 10z"/></svg> WhatsApp</a>
+                <a href="https://wa.me/2250708608958?text=Salut%20Memoriz%20!" target="_blank" class="social-link whatsapp" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.472-.149-.67.149-.197.298-.767.94-.94 1.165-.173.198-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.019-.458.13-.606.134-.134.298-.347.447-.521.149-.174.198-.298.297-.497.099-.198.05-.372-.025-.521-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.372-.01-.571-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.235.612 4.334 1.678 6.147L0 24l6.001-1.676A11.97 11.97 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.878 0-3.628-.547-5.111-1.486l-.364-.216-3.563.995.995-3.555-.223-.369A9.94 9.94 0 0 1 2 12c0-5.514 4.486-10 10-10s10 4.486 10 10-4.486 10-10 10z"/></svg> WhatsApp</a>
                 <a href="https://www.sapeo.org/memoriz-quiz" target="_blank" class="social-link sapeo" rel="noopener noreferrer" style="background: #00A859; color: white;">❤️ Soutenir Memoriz</a>
             </div>
             <div class="copyright">© 2022-2026 Memoriz - Tous droits réservés | Hébergé par Render Inc. | Sharingan Edition</div>
@@ -519,6 +533,85 @@
     <div id="legal-modal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><div id="modal-body"></div></div></div>
 
     <script>
+        // ========== FOND ANIMÉ AVEC PARTICULES ==========
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 4 + 1;
+                this.speedX = (Math.random() - 0.5) * 0.8;
+                this.speedY = (Math.random() - 0.5) * 0.8;
+                this.opacity = Math.random() * 0.6 + 0.2;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        // Création des particules
+        function initParticles(count = 120) {
+            particles = [];
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle());
+            }
+        }
+        initParticles(120);
+
+        // Animation
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let p of particles) {
+                p.update();
+                p.draw();
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // Adapter les couleurs en mode clair
+        function updateParticlesForTheme(isLight) {
+            // On change juste la couleur au prochain frame (via un flag)
+            // On va redéfinir le draw des particules en fonction du thème
+            Particle.prototype.draw = function() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                const color = document.body.classList.contains('light-mode') ? 'rgba(0, 0, 0, 0.25)' : `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.fillStyle = color;
+                ctx.fill();
+            };
+        }
+        updateParticlesForTheme(false);
+
+        // Observer le changement de thème
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', function() {
+            setTimeout(() => {
+                updateParticlesForTheme(document.body.classList.contains('light-mode'));
+            }, 50);
+        });
+
         // ==================== DONNÉES EXISTANTES ====================
         const animeCelebresList = ["Son Goku", "Naruto Uzumaki", "Monkey D. Luffy", "Pikachu", "Sailor Moon", "Ichigo Kurosaki", "Eren Yeager", "Light Yagami", "Levi Ackerman", "Sasuke Uchiha", "Vegeta", "Gojo Satoru", "Tanjiro Kamado", "Killua Zoldyck", "Gon Freecss", "Edward Elric", "Mikasa Ackerman", "Kakashi Hatake", "Itachi Uchiha", "Roronoa Zoro", "Natsu Dragneel", "Deku", "All Might", "Saitama", "Ken Kaneki", "L", "Ash Ketchum", "Alucard", "Spike Spiegel", "Jotaro Kujo"];
         const animeDetesteList = ["Shou Tucker", "Griffith", "Danzo Shimura", "Rachel", "Mahito", "Sakura Haruno", "Mineta", "Gabi Braun", "Akainu", "Blackbeard", "Frieza", "Kazuya Kinoshita", "Makima", "Orochimaru", "Envy", "Sugou Nobuyuki", "Yukiteru Amano", "Shinji Ikari", "Near", "Malty Melromarc"];
