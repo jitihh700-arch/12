@@ -73,6 +73,10 @@
         .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px 30px; border-radius: 50px; cursor: pointer; }
         .btn-whatsapp { background: #25D366; border: none; color: white; padding: 12px 30px; border-radius: 50px; cursor: pointer; font-weight: bold; }
         .btn-twitter { background: #1DA1F2; border: none; color: white; padding: 12px 30px; border-radius: 50px; cursor: pointer; font-weight: bold; }
+        .status-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; font-size: 14px; margin: 10px 0; }
+        .status-badge.success { background: rgba(40,167,69,0.2); color: #28a745; border: 1px solid #28a745; }
+        .status-badge.error { background: rgba(220,53,69,0.2); color: #dc3545; border: 1px solid #dc3545; }
+        .status-badge.waiting { background: rgba(255,165,0,0.2); color: #ffa502; border: 1px solid #ffa502; }
         @media (max-width: 600px) { header h1 { font-size: 2rem; } .game-header { flex-direction: column; align-items: stretch; text-align: center; } .game-stats { justify-content: center; flex-wrap: wrap; } .game-input-area { flex-direction: column; } .category-grid { grid-template-columns: repeat(2, 1fr); } }
     </style>
 </head>
@@ -82,6 +86,7 @@
         <header>
             <h1>🧠 MEMORIZ</h1>
             <p>Ce que tu sais, tu le mémorises. Ce que tu ne sais pas, tu l'apprends.</p>
+            <div id="connection-status" class="status-badge waiting">⏳ Vérification de la connexion...</div>
         </header>
 
         <div id="user-panel">
@@ -129,39 +134,42 @@
 
     <script>
         // ============================================================
-        // TEST DE CONNEXION SIMPLE SANS localStorage
+        // ✅ CONFIGURATION AVEC LA BONNE URL
         // ============================================================
-        console.log('🔧 Test de connexion Supabase...');
-
-        const SUPABASE_URL = 'https://azgstzbs1xcvsecqrevv.supabase.co';
+        const SUPABASE_URL = 'https://azgstzbslxcwsecqrevv.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6Z3N0emJzbHhjd3NlY3FyZXZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzMzI4OTEsImV4cCI6MjA5ODkwODg5MX0.ZPG31y8f4BHNP3v-d5DMejzNhOkhSgzdg0EZD8UC4f0';
 
-        // Créer le client
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('✅ Supabase client créé');
+        console.log('🔧 URL Supabase:', SUPABASE_URL);
 
         // ============================================================
-        // TEST DIRECT - Vérifier si la connexion fonctionne
+        // TEST DE CONNEXION
         // ============================================================
-        async function testConnection() {
+        async function testSupabaseConnection() {
+            const statusEl = document.getElementById('connection-status');
+
             try {
-                console.log('📡 Test de connexion à Supabase...');
-                const { data, error } = await supabaseClient
-                    .from('users')
-                    .select('count')
-                    .limit(1);
+                statusEl.textContent = '⏳ Test de connexion...';
+                statusEl.className = 'status-badge waiting';
 
-                if (error) {
-                    console.error('❌ Erreur de connexion:', error);
-                    document.getElementById('pseudo-error').textContent = '❌ Erreur de connexion: ' + error.message;
+                const response = await fetch(SUPABASE_URL + '/rest/v1/', {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+                    }
+                });
+
+                if (response.ok) {
+                    statusEl.textContent = '✅ Connecté à Supabase !';
+                    statusEl.className = 'status-badge success';
+                    return true;
+                } else {
+                    statusEl.textContent = '❌ Erreur ' + response.status;
+                    statusEl.className = 'status-badge error';
                     return false;
                 }
-
-                console.log('✅ Connexion réussie !');
-                return true;
             } catch (err) {
-                console.error('❌ Exception:', err);
-                document.getElementById('pseudo-error').textContent = '❌ Erreur: ' + err.message;
+                statusEl.textContent = '❌ Erreur: ' + err.message;
+                statusEl.className = 'status-badge error';
                 return false;
             }
         }
@@ -174,6 +182,8 @@
         let currentGame = null;
         let timerInterval = null;
         let isConnected = false;
+
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // ============================================================
         // DONNÉES DES QUIZ
@@ -243,7 +253,7 @@
         };
 
         // ============================================================
-        // FONCTIONS UTILISATEUR
+        // FONCTIONS
         // ============================================================
         async function createUser(pseudo) {
             if (!isConnected) {
@@ -252,8 +262,6 @@
             }
 
             try {
-                console.log('📝 Création user:', pseudo);
-
                 const { data: existing } = await supabaseClient
                     .from('users')
                     .select('pseudo')
@@ -272,19 +280,8 @@
                     .single();
 
                 if (error) {
-                    console.error('❌ Erreur:', error);
                     document.getElementById('pseudo-error').textContent = '❌ ' + error.message;
                     return false;
-                }
-
-                console.log('✅ Utilisateur créé:', data);
-
-                // Stocker dans sessionStorage (moins bloqué que localStorage)
-                try {
-                    sessionStorage.setItem('memoriz_user_id', data.id);
-                    sessionStorage.setItem('memoriz_pseudo', data.pseudo);
-                } catch (e) {
-                    console.log('⚠️ SessionStorage bloqué, on continue sans');
                 }
 
                 currentUser = data;
@@ -295,34 +292,16 @@
                 document.getElementById('pseudo-modal').style.display = 'none';
                 return true;
             } catch (err) {
-                console.error('❌ Exception:', err);
                 document.getElementById('pseudo-error').textContent = '❌ Erreur: ' + err.message;
                 return false;
             }
         }
 
         function checkUser() {
-            try {
-                const userId = sessionStorage.getItem('memoriz_user_id');
-                const pseudo = sessionStorage.getItem('memoriz_pseudo');
-
-                if (userId && pseudo) {
-                    currentUser = { id: userId, pseudo: pseudo, total_score: 0 };
-                    currentPseudo = pseudo;
-                    updateUI();
-                    loadLeaderboard();
-                    document.getElementById('pseudo-modal').style.display = 'none';
-                    return true;
-                }
-            } catch (e) { console.log('⚠️ SessionStorage bloqué'); }
             return false;
         }
 
         function logoutUser() {
-            try {
-                sessionStorage.removeItem('memoriz_user_id');
-                sessionStorage.removeItem('memoriz_pseudo');
-            } catch (e) {}
             currentUser = null;
             currentPseudo = '';
             document.getElementById('user-panel').style.display = 'none';
@@ -338,9 +317,6 @@
             document.getElementById('user-total-score').textContent = currentUser.total_score || 0;
         }
 
-        // ============================================================
-        // LEADERBOARD
-        // ============================================================
         async function loadLeaderboard() {
             if (!isConnected) {
                 document.getElementById('leaderboard-content').innerHTML = '<p class="op-5">⏳ Connexion en cours...</p>';
@@ -380,9 +356,6 @@
             }
         }
 
-        // ============================================================
-        // SCORE
-        // ============================================================
         async function addScore(userId, category) {
             if (!isConnected) return;
 
@@ -436,12 +409,6 @@
                     if (!this.correct[i]) {
                         const q = norm(this.questions[i]);
                         if (ans === q) {
-                            this.correct[i] = true;
-                            this.score++;
-                            return { success: true, index: i, name: this.questions[i] };
-                        }
-                        const firstWord = q.split(' ')[0];
-                        if (ans === firstWord && firstWord.length > 2) {
                             this.correct[i] = true;
                             this.score++;
                             return { success: true, index: i, name: this.questions[i] };
@@ -521,7 +488,6 @@
             const msg = document.getElementById('g-message');
 
             if (result.success) {
-                playSound(true);
                 document.getElementById(`g-answer-${result.index}`).textContent = `✅ ${result.name}`;
                 document.getElementById(`g-answer-${result.index}`).style.color = '#28a745';
                 document.getElementById(`g-status-${result.index}`).textContent = '✓';
@@ -541,7 +507,6 @@
                     endGame(true);
                 }
             } else {
-                playSound(false);
                 msg.className = 'game-message error';
                 msg.textContent = `❌ "${answer}" n'est pas dans la liste`;
                 input.value = '';
@@ -552,40 +517,6 @@
                 msg.className = 'game-message empty';
                 msg.textContent = '';
             }, 3000);
-        }
-
-        function playSound(success) {
-            try {
-                const ctx = new(window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                if (success) {
-                    osc.type = 'sine';
-                    osc.frequency.value = 880;
-                    gain.gain.value = 0.15;
-                    osc.start();
-                    osc.stop(ctx.currentTime + 0.1);
-                    setTimeout(() => {
-                        const osc2 = ctx.createOscillator();
-                        const gain2 = ctx.createGain();
-                        osc2.connect(gain2);
-                        gain2.connect(ctx.destination);
-                        osc2.type = 'sine';
-                        osc2.frequency.value = 1100;
-                        gain2.gain.value = 0.1;
-                        osc2.start();
-                        osc2.stop(ctx.currentTime + 0.1);
-                    }, 100);
-                } else {
-                    osc.type = 'sawtooth';
-                    osc.frequency.value = 300;
-                    gain.gain.value = 0.08;
-                    osc.start();
-                    osc.stop(ctx.currentTime + 0.2);
-                }
-            } catch (e) { console.log('Son désactivé'); }
         }
 
         function updateGameUI() {
@@ -680,20 +611,17 @@
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 Memoriz chargé');
 
-            // Test de connexion
-            isConnected = await testConnection();
+            isConnected = await testSupabaseConnection();
 
-            if (!isConnected) {
+            if (isConnected) {
+                console.log('✅ Supabase connecté !');
+            } else {
+                console.log('❌ Pas de connexion Supabase');
                 document.getElementById('pseudo-error').textContent = '⚠️ Vérifie ta connexion Internet';
             }
 
-            // Vérifier si l'utilisateur est déjà connecté
-            const hasUser = checkUser();
-
-            if (!hasUser) {
-                document.getElementById('pseudo-modal').style.display = 'flex';
-                document.getElementById('pseudo-input').focus();
-            }
+            document.getElementById('pseudo-modal').style.display = 'flex';
+            document.getElementById('pseudo-input').focus();
 
             document.getElementById('pseudo-btn').addEventListener('click', function() {
                 const input = document.getElementById('pseudo-input');
