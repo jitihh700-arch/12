@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Memoriz</title>
-    <!-- ⚠️ URL CORRECTE DU CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
     </script>
     <style>
@@ -404,9 +403,6 @@
             cursor: pointer;
             font-weight: bold;
         }
-        .btn-whatsapp:hover {
-            transform: scale(1.05);
-        }
         .btn-twitter {
             background: #1DA1F2;
             border: none;
@@ -415,9 +411,6 @@
             border-radius: 50px;
             cursor: pointer;
             font-weight: bold;
-        }
-        .btn-twitter:hover {
-            transform: scale(1.05);
         }
         @media (max-width: 600px) {
             header h1 {
@@ -494,16 +487,14 @@
 
     <script>
         // ============================================================
-        // CONFIGURATION SUPABASE
+        // CONFIGURATION SUPABASE - UTILISE UN NOM UNIQUE
         // ============================================================
         const SUPABASE_URL = 'https://azgstzbs1xcvsecqrevv.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6Z3N0emJzbHhjd3NlY3FyZXZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzMzI4OTEsImV4cCI6MjA5ODkwODg5MX0.ZPG31y8f4BHNP3v-d5DMejzNhOkhSgzdg0EZD8UC4f0';
 
-        console.log('🔗 URL:', SUPABASE_URL);
-        console.log('🔑 Clé ANON (début):', SUPABASE_ANON_KEY.substring(0, 40) + '...');
-
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('✅ Supabase initialisé');
+        // ⚠️ Utilise un nom DIFFÉRENT pour éviter les conflits
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('✅ Supabase initialisé avec supabaseClient');
 
         // ============================================================
         // VARIABLES
@@ -587,7 +578,7 @@
             try {
                 console.log('📝 Création user:', pseudo);
 
-                const { data: existing } = await supabase
+                const { data: existing } = await supabaseClient
                     .from('users')
                     .select('pseudo')
                     .eq('pseudo', pseudo)
@@ -598,7 +589,7 @@
                     return false;
                 }
 
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('users')
                     .insert([{ pseudo: pseudo }])
                     .select()
@@ -635,7 +626,7 @@
 
             if (userId && pseudo) {
                 try {
-                    const { data, error } = await supabase
+                    const { data, error } = await supabaseClient
                         .from('users')
                         .select('*')
                         .eq('id', userId)
@@ -679,7 +670,7 @@
         // ============================================================
         async function loadLeaderboard() {
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('users')
                     .select('pseudo, total_score')
                     .order('total_score', { ascending: false })
@@ -716,7 +707,7 @@
         // ============================================================
         async function addScore(userId, category) {
             try {
-                await supabase
+                await supabaseClient
                     .from('scores')
                     .insert([{
                         user_id: userId,
@@ -725,7 +716,7 @@
                         total_questions: 1
                     }]);
 
-                const { data: userData } = await supabase
+                const { data: userData } = await supabaseClient
                     .from('users')
                     .select('*')
                     .eq('id', userId)
