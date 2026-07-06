@@ -689,7 +689,80 @@
             getProgress() { const answered = this.correctAnswers.filter(c => c === true).length; return { answered, total: this.questions.length, percentage: (answered / this.questions.length) * 100 }; }
         }
         function showGamePanel(categoryKey) { if (currentGame) closeGame(); const category = categoryMapping[categoryKey]; if (!category) return; currentGame = new QuizGame(category, categoryKey, category.data, category.showYears, category.yearsList); let tableRows = ''; for (let i = 0; i < currentGame.questions.length; i++) { let displayText = "❓ ???"; if (currentGame.showYears && currentGame.yearsList && currentGame.yearsList[i]) { displayText = `📅 ${currentGame.yearsList[i]} : ???`; } tableRows += `<tr id="row-${i}"><td style="width:60px;text-align:center;font-weight:bold;">${i+1}<\/td><td id="answer-display-${i}">${displayText}<\/td><td id="status-${i}" style="width:70px;text-align:center;">⏳<\/td><\/tr>`; } let infoHtml = ''; if (categoryKey === 'meilleursCombats') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez le nom complet avec "vs" (ex: "Naruto Uzumaki vs Sasuke Uchiha").</div>`; else if (categoryKey === 'meilleursArcs') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez juste le nom (ex: "Fourmis Chimères" ou "Pain").</div>`; else if (categoryKey === 'ligueDesChampions') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez le nom du club (ex: "Real Madrid", "Bayern Munich"). L'année est automatiquement associée.</div>`; else if (categoryKey === 'ballonDor') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez le nom du joueur (ex: "Lionel Messi", "Cristiano Ronaldo"). L'année est automatiquement associée.</div>`; const gameHTML = `<div class="game-panel" id="game-panel"><div class="game-container"><div class="game-header"><h2>${category.title}</h2><button class="restart-category-btn" id="restart-category-btn">🔄 Recommencer cette catégorie</button><div class="timer" id="timer">10:00</div><div class="score" id="score">🎯 0/${currentGame.questions.length}</div><button class="close-game" id="close-game-btn">✕ Fermer</button></div><div class="progress" id="progress">📊 Progression: 0/${currentGame.questions.length} (0%)</div>${infoHtml}<div class="quiz-table"><table><thead><tr><th>#</th><th>Année / Personnage</th><th>✅ Statut</th></tr></thead><tbody>${tableRows}</tbody></table></div><div class="input-area"><div class="input-group"><input type="text" id="quick-input" placeholder="✏️ Tape un nom ici..." autocomplete="off"><button id="quick-submit">🎮 Valider</button></div><div id="message"></div><div id="found-list"></div></div></div></div>`; document.body.insertAdjacentHTML('beforeend', gameHTML); startTimer(); document.getElementById('quick-submit').onclick = () => handleQuickSubmit(); document.getElementById('quick-input').onkeypress = (e) => { if (e.key === 'Enter') handleQuickSubmit(); }; document.getElementById('close-game-btn').onclick = () => closeGame(); document.getElementById('restart-category-btn').onclick = () => restartGame(); document.getElementById('quick-input').focus(); }
-        function handleQuickSubmit() { if (!currentGame || !currentGame.gameActive) return; const input = document.getElementById('quick-input'); if (!input) return; const answer = input.value.trim(); if (answer === '') { showMessage('📝 Veuillez entrer un nom', 'error'); return; } const result = currentGame.submitAnswer(answer); if (result.success) { updateRow(result.index, result.correctName); updateScoreAndProgress(); showMessage(`✅ BRAVO ! "${result.correctName}" ajouté !`, 'success'); input.value = ''; input.focus(); updateFoundList(); if (currentGame.isComplete()) endGame(true); } else if (result.notFound) showMessage(`❌ "${answer}" n'est pas dans la liste. Réessaie !`, 'error'); else if (result.alreadyAnswered) showMessage(`⚠️ "${answer}" a déjà été trouvé !`, 'error'); input.value = ''; input.focus(); }
+
+        // ========== FONCTIONS AUDIO AJOUTÉES ==========
+        function playSoundCorrect() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 880; // La note La5
+                gainNode.gain.value = 0.2;
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.15);
+                // Petit délai avant le 2e son pour faire un "ding-dong"
+                setTimeout(() => {
+                    const osc2 = audioCtx.createOscillator();
+                    const gain2 = audioCtx.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(audioCtx.destination);
+                    osc2.type = 'sine';
+                    osc2.frequency.value = 1100;
+                    gain2.gain.value = 0.15;
+                    osc2.start();
+                    osc2.stop(audioCtx.currentTime + 0.15);
+                }, 120);
+            } catch (e) { /* silencieux si navigateur ne supporte pas */ }
+        }
+
+        function playSoundWrong() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.value = 300;
+                gainNode.gain.value = 0.1;
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.25);
+            } catch (e) { /* silencieux si navigateur ne supporte pas */ }
+        }
+
+        function handleQuickSubmit() { 
+            if (!currentGame || !currentGame.gameActive) return; 
+            const input = document.getElementById('quick-input'); 
+            if (!input) return; 
+            const answer = input.value.trim(); 
+            if (answer === '') { 
+                showMessage('📝 Veuillez entrer un nom', 'error'); 
+                return; 
+            } 
+            const result = currentGame.submitAnswer(answer); 
+            if (result.success) { 
+                playSoundCorrect(); // SON POUR BONNE RÉPONSE
+                updateRow(result.index, result.correctName); 
+                updateScoreAndProgress(); 
+                showMessage(`✅ BRAVO ! "${result.correctName}" ajouté !`, 'success'); 
+                input.value = ''; 
+                input.focus(); 
+                updateFoundList(); 
+                if (currentGame.isComplete()) endGame(true); 
+            } else if (result.notFound) {
+                playSoundWrong(); // SON POUR MAUVAISE RÉPONSE
+                showMessage(`❌ "${answer}" n'est pas dans la liste. Réessaie !`, 'error');
+            } else if (result.alreadyAnswered) {
+                playSoundWrong(); // SON POUR DÉJÀ RÉPONDU (on considère comme une erreur)
+                showMessage(`⚠️ "${answer}" a déjà été trouvé !`, 'error');
+            } 
+            input.value = ''; 
+            input.focus(); 
+        }
+
         function updateRow(index, correctName) { const answerDisplay = document.getElementById(`answer-display-${index}`); const statusCell = document.getElementById(`status-${index}`); if (answerDisplay) { if (currentGame.showYears && currentGame.yearsList && currentGame.yearsList[index]) { answerDisplay.innerHTML = `✅ ${currentGame.yearsList[index]} : ${correctName.replace(/^\d{4}\s*:\s*/, '')}`; } else { answerDisplay.innerHTML = `✅ ${correctName}`; } answerDisplay.style.color = '#28a745'; answerDisplay.style.fontWeight = 'bold'; } if (statusCell) { statusCell.innerHTML = '✓'; statusCell.style.color = '#28a745'; statusCell.style.fontSize = '20px'; statusCell.style.fontWeight = 'bold'; } }
         function updateFoundList() { const foundListDiv = document.getElementById('found-list'); if (!foundListDiv) return; const found = []; const notFound = []; for (let i = 0; i < currentGame.questions.length; i++) { if (currentGame.correctAnswers[i]) { let display = currentGame.questions[i]; if (currentGame.showYears && currentGame.yearsList) { display = `${currentGame.yearsList[i]} : ${display.replace(/^\d{4}\s*:\s*/, '')}`; } found.push(display); } else notFound.push(i + 1); } if (found.length > 0) foundListDiv.innerHTML = `<strong>🏆 Déjà trouvés (${found.length}/${currentGame.questions.length}) :</strong> ${found.join(', ')}<br><strong>⏳ Restants :</strong> positions ${notFound.join(', ')}`; else foundListDiv.innerHTML = `💡 Tape un nom pour commencer l'aventure Memoriz !`; }
         function updateScoreAndProgress() { const progress = currentGame.getProgress(); const scoreElement = document.getElementById('score'); const progressElement = document.getElementById('progress'); if (scoreElement) scoreElement.textContent = `🎯 ${currentGame.score}/${currentGame.questions.length}`; if (progressElement) progressElement.textContent = `📊 Progression: ${progress.answered}/${progress.total} (${Math.round(progress.percentage)}%)`; }
