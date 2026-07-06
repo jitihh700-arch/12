@@ -7,431 +7,73 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
     </script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            background: #0a0a1a;
-            color: white;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        header {
-            text-align: center;
-            padding: 40px 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            margin-bottom: 30px;
-        }
-        header h1 {
-            font-size: 3rem;
-            background: linear-gradient(135deg, #ff4757, #ff6b6b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        header p {
-            opacity: 0.7;
-            margin-top: 10px;
-        }
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.92);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        .modal-box {
-            background: #1a1a2e;
-            padding: 40px;
-            border-radius: 30px;
-            max-width: 420px;
-            width: 90%;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .modal-box h2 {
-            font-size: 1.8rem;
-            margin-bottom: 8px;
-        }
-        .modal-box p {
-            opacity: 0.7;
-            margin-bottom: 25px;
-        }
-        .modal-box input {
-            width: 100%;
-            padding: 15px 20px;
-            border-radius: 50px;
-            border: 2px solid rgba(255, 255, 255, 0.15);
-            background: rgba(255, 255, 255, 0.05);
-            color: white;
-            font-size: 16px;
-            text-align: center;
-            outline: none;
-        }
-        .modal-box input:focus {
-            border-color: #ff4757;
-        }
-        .modal-box button {
-            margin-top: 15px;
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #ff4757, #ff6b6b);
-            border: none;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-        }
-        .modal-box button:hover {
-            transform: scale(1.02);
-        }
-        .modal-box .error {
-            color: #ff4757;
-            margin-top: 12px;
-            font-size: 14px;
-            min-height: 20px;
-        }
-        #user-panel {
-            display: none;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px 25px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        #user-panel .user-info {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        #user-panel .user-name {
-            font-weight: bold;
-        }
-        #user-panel .user-score {
-            color: #ffa502;
-            font-weight: bold;
-        }
-        .btn-logout {
-            background: rgba(255, 71, 87, 0.2);
-            border: 1px solid #ff4757;
-            color: #ff4757;
-            padding: 8px 20px;
-            border-radius: 50px;
-            cursor: pointer;
-        }
-        .btn-logout:hover {
-            background: #ff4757;
-            color: white;
-        }
-        .categories-title {
-            font-size: 1.8rem;
-            margin: 30px 0 20px;
-            text-align: center;
-            background: linear-gradient(135deg, #ffa502, #ff6b6b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .category-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        .category-card {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 20px 15px;
-            border-radius: 15px;
-            text-align: center;
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.3s;
-        }
-        .category-card:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.1);
-            border-color: #ff4757;
-        }
-        .category-card h3 {
-            font-size: 1rem;
-            margin-bottom: 5px;
-        }
-        .category-card small {
-            opacity: 0.5;
-            font-size: 0.8rem;
-        }
-        .leaderboard-section {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        .leaderboard-section h3 {
-            text-align: center;
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-            color: #ffa502;
-        }
-        .lb-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .lb-table th {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.05);
-            opacity: 0.6;
-            font-weight: normal;
-        }
-        .lb-table td {
-            padding: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-        }
-        .lb-current {
-            background: rgba(255, 71, 87, 0.15);
-        }
-        .lb-rank {
-            font-weight: bold;
-            color: #ffa502;
-        }
-        .op-5 {
-            opacity: 0.5;
-            text-align: center;
-        }
-        .game-panel {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 1000;
-            padding: 20px;
-            overflow-y: auto;
-            display: none;
-        }
-        .game-panel.active {
-            display: block;
-        }
-        .game-container {
-            max-width: 850px;
-            margin: 0 auto;
-            background: #16162a;
-            padding: 30px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .game-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .game-header h2 {
-            font-size: 1.2rem;
-        }
-        .game-stats {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .game-timer {
-            font-size: 1.8rem;
-            font-family: monospace;
-            color: #ffa502;
-        }
-        .game-timer.warning {
-            color: #ff4757;
-        }
-        .game-score {
-            color: #ff6b6b;
-            font-weight: bold;
-        }
-        .btn-close {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            padding: 8px 18px;
-            border-radius: 50px;
-            cursor: pointer;
-        }
-        .btn-close:hover {
-            background: #ff4757;
-        }
-        .game-progress {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 10px 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            opacity: 0.7;
-        }
-        .quiz-table {
-            max-height: 380px;
-            overflow-y: auto;
-            margin: 15px 0;
-        }
-        .quiz-table table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .quiz-table th {
-            text-align: left;
-            padding: 10px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.05);
-            opacity: 0.5;
-            font-weight: normal;
-            position: sticky;
-            top: 0;
-            background: #16162a;
-        }
-        .quiz-table td {
-            padding: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-        }
-        .game-input-area {
-            margin-top: 20px;
-            display: flex;
-            gap: 12px;
-        }
-        .game-input-area input {
-            flex: 1;
-            padding: 14px 20px;
-            border-radius: 50px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.05);
-            color: white;
-            font-size: 16px;
-            outline: none;
-        }
-        .game-input-area input:focus {
-            border-color: #ff4757;
-        }
-        .game-input-area button {
-            padding: 14px 30px;
-            background: linear-gradient(135deg, #ff4757, #ff6b6b);
-            border: none;
-            color: white;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .game-message {
-            margin-top: 15px;
-            padding: 12px 20px;
-            border-radius: 12px;
-        }
-        .game-message.success {
-            background: rgba(40, 167, 69, 0.15);
-            color: #28a745;
-        }
-        .game-message.error {
-            background: rgba(220, 53, 69, 0.15);
-            color: #dc3545;
-        }
-        .game-message.empty {
-            display: none;
-        }
-        .game-complete {
-            text-align: center;
-            padding: 30px 20px;
-        }
-        .game-complete h2 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-        }
-        .game-complete .big-score {
-            font-size: 2.5rem;
-            color: #ffa502;
-            margin: 15px 0;
-        }
-        .game-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .btn-primary {
-            background: #ff4757;
-            border: none;
-            color: white;
-            padding: 12px 30px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .btn-primary:hover {
-            transform: scale(1.05);
-        }
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            padding: 12px 30px;
-            border-radius: 50px;
-            cursor: pointer;
-        }
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-        .btn-whatsapp {
-            background: #25D366;
-            border: none;
-            color: white;
-            padding: 12px 30px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .btn-twitter {
-            background: #1DA1F2;
-            border: none;
-            color: white;
-            padding: 12px 30px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        @media (max-width: 600px) {
-            header h1 {
-                font-size: 2rem;
-            }
-            .game-header {
-                flex-direction: column;
-                align-items: stretch;
-                text-align: center;
-            }
-            .game-stats {
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-            .game-input-area {
-                flex-direction: column;
-            }
-            .category-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #0a0a1a; color: white; min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        header { text-align: center; padding: 40px 20px; background: rgba(255,255,255,0.05); border-radius: 20px; margin-bottom: 30px; }
+        header h1 { font-size: 3rem; background: linear-gradient(135deg, #ff4757, #ff6b6b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        header p { opacity: 0.7; margin-top: 10px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .modal-box { background: #1a1a2e; padding: 40px; border-radius: 30px; max-width: 420px; width: 90%; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .modal-box h2 { font-size: 1.8rem; margin-bottom: 8px; }
+        .modal-box p { opacity: 0.7; margin-bottom: 25px; }
+        .modal-box input { width: 100%; padding: 15px 20px; border-radius: 50px; border: 2px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; font-size: 16px; text-align: center; outline: none; }
+        .modal-box input:focus { border-color: #ff4757; }
+        .modal-box button { margin-top: 15px; width: 100%; padding: 15px; background: linear-gradient(135deg, #ff4757, #ff6b6b); border: none; color: white; font-size: 18px; font-weight: bold; border-radius: 50px; cursor: pointer; }
+        .modal-box .error { color: #ff4757; margin-top: 12px; font-size: 14px; min-height: 20px; }
+        #user-panel { display: none; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 15px 25px; border-radius: 15px; margin-bottom: 25px; flex-wrap: wrap; gap: 10px; }
+        #user-panel .user-info { display: flex; align-items: center; gap: 20px; }
+        #user-panel .user-name { font-weight: bold; }
+        #user-panel .user-score { color: #ffa502; font-weight: bold; }
+        .btn-logout { background: rgba(255,71,87,0.2); border: 1px solid #ff4757; color: #ff4757; padding: 8px 20px; border-radius: 50px; cursor: pointer; }
+        .btn-logout:hover { background: #ff4757; color: white; }
+        .categories-title { font-size: 1.8rem; margin: 30px 0 20px; text-align: center; background: linear-gradient(135deg, #ffa502, #ff6b6b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .category-card { background: rgba(255,255,255,0.05); padding: 20px 15px; border-radius: 15px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s; }
+        .category-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.1); border-color: #ff4757; }
+        .category-card h3 { font-size: 1rem; margin-bottom: 5px; }
+        .category-card small { opacity: 0.5; font-size: 0.8rem; }
+        .leaderboard-section { background: rgba(255,255,255,0.03); border-radius: 15px; padding: 20px; margin: 20px 0; }
+        .leaderboard-section h3 { text-align: center; font-size: 1.5rem; margin-bottom: 15px; color: #ffa502; }
+        .lb-table { width: 100%; border-collapse: collapse; }
+        .lb-table th { padding: 10px; text-align: left; border-bottom: 2px solid rgba(255,255,255,0.05); opacity: 0.6; font-weight: normal; }
+        .lb-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .lb-current { background: rgba(255,71,87,0.15); }
+        .lb-rank { font-weight: bold; color: #ffa502; }
+        .op-5 { opacity: 0.5; text-align: center; }
+        .game-panel { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; padding: 20px; overflow-y: auto; display: none; }
+        .game-panel.active { display: block; }
+        .game-container { max-width: 850px; margin: 0 auto; background: #16162a; padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .game-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .game-header h2 { font-size: 1.2rem; }
+        .game-stats { display: flex; align-items: center; gap: 15px; }
+        .game-timer { font-size: 1.8rem; font-family: monospace; color: #ffa502; }
+        .game-timer.warning { color: #ff4757; }
+        .game-score { color: #ff6b6b; font-weight: bold; }
+        .btn-close { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 8px 18px; border-radius: 50px; cursor: pointer; }
+        .btn-close:hover { background: #ff4757; }
+        .game-progress { background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; font-size: 0.9rem; opacity: 0.7; }
+        .quiz-table { max-height: 380px; overflow-y: auto; margin: 15px 0; }
+        .quiz-table table { width: 100%; border-collapse: collapse; }
+        .quiz-table th { text-align: left; padding: 10px; border-bottom: 2px solid rgba(255,255,255,0.05); opacity: 0.5; font-weight: normal; position: sticky; top: 0; background: #16162a; }
+        .quiz-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .game-input-area { margin-top: 20px; display: flex; gap: 12px; }
+        .game-input-area input { flex: 1; padding: 14px 20px; border-radius: 50px; border: 2px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white; font-size: 16px; outline: none; }
+        .game-input-area input:focus { border-color: #ff4757; }
+        .game-input-area button { padding: 14px 30px; background: linear-gradient(135deg, #ff4757, #ff6b6b); border: none; color: white; border-radius: 50px; font-weight: bold; cursor: pointer; }
+        .game-message { margin-top: 15px; padding: 12px 20px; border-radius: 12px; }
+        .game-message.success { background: rgba(40,167,69,0.15); color: #28a745; }
+        .game-message.error { background: rgba(220,53,69,0.15); color: #dc3545; }
+        .game-message.empty { display: none; }
+        .game-complete { text-align: center; padding: 30px 20px; }
+        .game-complete h2 { font-size: 2.2rem; margin-bottom: 10px; }
+        .game-complete .big-score { font-size: 2.5rem; color: #ffa502; margin: 15px 0; }
+        .game-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px; }
+        .btn-primary { background: #ff4757; border: none; color: white; padding: 12px 30px; border-radius: 50px; cursor: pointer; font-weight: bold; }
+        .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px 30px; border-radius: 50px; cursor: pointer; }
+        .btn-whatsapp { background: #25D366; border: none; color: white; padding: 12px 30px; border-radius: 50px; cursor: pointer; font-weight: bold; }
+        .btn-twitter { background: #1DA1F2; border: none; color: white; padding: 12px 30px; border-radius: 50px; cursor: pointer; font-weight: bold; }
+        @media (max-width: 600px) { header h1 { font-size: 2rem; } .game-header { flex-direction: column; align-items: stretch; text-align: center; } .game-stats { justify-content: center; flex-wrap: wrap; } .game-input-area { flex-direction: column; } .category-grid { grid-template-columns: repeat(2, 1fr); } }
     </style>
 </head>
 <body>
@@ -487,14 +129,42 @@
 
     <script>
         // ============================================================
-        // CONFIGURATION SUPABASE - UTILISE UN NOM UNIQUE
+        // TEST DE CONNEXION SIMPLE SANS localStorage
         // ============================================================
+        console.log('🔧 Test de connexion Supabase...');
+
         const SUPABASE_URL = 'https://azgstzbs1xcvsecqrevv.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6Z3N0emJzbHhjd3NlY3FyZXZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzMzI4OTEsImV4cCI6MjA5ODkwODg5MX0.ZPG31y8f4BHNP3v-d5DMejzNhOkhSgzdg0EZD8UC4f0';
 
-        // ⚠️ Utilise un nom DIFFÉRENT pour éviter les conflits
+        // Créer le client
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('✅ Supabase initialisé avec supabaseClient');
+        console.log('✅ Supabase client créé');
+
+        // ============================================================
+        // TEST DIRECT - Vérifier si la connexion fonctionne
+        // ============================================================
+        async function testConnection() {
+            try {
+                console.log('📡 Test de connexion à Supabase...');
+                const { data, error } = await supabaseClient
+                    .from('users')
+                    .select('count')
+                    .limit(1);
+
+                if (error) {
+                    console.error('❌ Erreur de connexion:', error);
+                    document.getElementById('pseudo-error').textContent = '❌ Erreur de connexion: ' + error.message;
+                    return false;
+                }
+
+                console.log('✅ Connexion réussie !');
+                return true;
+            } catch (err) {
+                console.error('❌ Exception:', err);
+                document.getElementById('pseudo-error').textContent = '❌ Erreur: ' + err.message;
+                return false;
+            }
+        }
 
         // ============================================================
         // VARIABLES
@@ -503,6 +173,7 @@
         let currentPseudo = '';
         let currentGame = null;
         let timerInterval = null;
+        let isConnected = false;
 
         // ============================================================
         // DONNÉES DES QUIZ
@@ -575,6 +246,11 @@
         // FONCTIONS UTILISATEUR
         // ============================================================
         async function createUser(pseudo) {
+            if (!isConnected) {
+                document.getElementById('pseudo-error').textContent = '❌ Pas de connexion à Supabase';
+                return false;
+            }
+
             try {
                 console.log('📝 Création user:', pseudo);
 
@@ -603,8 +279,13 @@
 
                 console.log('✅ Utilisateur créé:', data);
 
-                localStorage.setItem('memoriz_user_id', data.id);
-                localStorage.setItem('memoriz_pseudo', data.pseudo);
+                // Stocker dans sessionStorage (moins bloqué que localStorage)
+                try {
+                    sessionStorage.setItem('memoriz_user_id', data.id);
+                    sessionStorage.setItem('memoriz_pseudo', data.pseudo);
+                } catch (e) {
+                    console.log('⚠️ SessionStorage bloqué, on continue sans');
+                }
 
                 currentUser = data;
                 currentPseudo = data.pseudo;
@@ -620,36 +301,28 @@
             }
         }
 
-        async function checkUser() {
-            const userId = localStorage.getItem('memoriz_user_id');
-            const pseudo = localStorage.getItem('memoriz_pseudo');
+        function checkUser() {
+            try {
+                const userId = sessionStorage.getItem('memoriz_user_id');
+                const pseudo = sessionStorage.getItem('memoriz_pseudo');
 
-            if (userId && pseudo) {
-                try {
-                    const { data, error } = await supabaseClient
-                        .from('users')
-                        .select('*')
-                        .eq('id', userId)
-                        .single();
-
-                    if (data) {
-                        currentUser = data;
-                        currentPseudo = data.pseudo;
-                        updateUI();
-                        loadLeaderboard();
-                        document.getElementById('pseudo-modal').style.display = 'none';
-                        return true;
-                    }
-                } catch (err) {
-                    console.log('❌ Utilisateur non trouvé');
+                if (userId && pseudo) {
+                    currentUser = { id: userId, pseudo: pseudo, total_score: 0 };
+                    currentPseudo = pseudo;
+                    updateUI();
+                    loadLeaderboard();
+                    document.getElementById('pseudo-modal').style.display = 'none';
+                    return true;
                 }
-            }
+            } catch (e) { console.log('⚠️ SessionStorage bloqué'); }
             return false;
         }
 
         function logoutUser() {
-            localStorage.removeItem('memoriz_user_id');
-            localStorage.removeItem('memoriz_pseudo');
+            try {
+                sessionStorage.removeItem('memoriz_user_id');
+                sessionStorage.removeItem('memoriz_pseudo');
+            } catch (e) {}
             currentUser = null;
             currentPseudo = '';
             document.getElementById('user-panel').style.display = 'none';
@@ -669,6 +342,11 @@
         // LEADERBOARD
         // ============================================================
         async function loadLeaderboard() {
+            if (!isConnected) {
+                document.getElementById('leaderboard-content').innerHTML = '<p class="op-5">⏳ Connexion en cours...</p>';
+                return;
+            }
+
             try {
                 const { data, error } = await supabaseClient
                     .from('users')
@@ -706,6 +384,8 @@
         // SCORE
         // ============================================================
         async function addScore(userId, category) {
+            if (!isConnected) return;
+
             try {
                 await supabaseClient
                     .from('scores')
@@ -1000,7 +680,15 @@
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 Memoriz chargé');
 
-            const hasUser = await checkUser();
+            // Test de connexion
+            isConnected = await testConnection();
+
+            if (!isConnected) {
+                document.getElementById('pseudo-error').textContent = '⚠️ Vérifie ta connexion Internet';
+            }
+
+            // Vérifier si l'utilisateur est déjà connecté
+            const hasUser = checkUser();
 
             if (!hasUser) {
                 document.getElementById('pseudo-modal').style.display = 'flex';
