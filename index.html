@@ -1,99 +1,555 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memoriz - Multijoueur</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Memoriz-quiz Le défi ultime des souvenirs</title>
+    <meta name="description" content="Memoriz - Testez vos connaissances sur les célébrités, anime, sports, musiques, jeux vidéo, super-héros et rap. Quiz gratuit avec chronomètre.">
+    <meta name="keywords" content="quiz, célébrités, anime, manga, football, musique, test, connaissances, jeux vidéo, super-héros, rap, culture générale">
+    <meta name="author" content="Memoriz">
+    <meta name="robots" content="index, follow">
+
+    <!-- Sécurité 2026 -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()">
+    <meta name="format-detection" content="telephone=no">
+    
+    <meta property="og:title" content="Memoriz - Le défi ultime des souvenirs">
+    <meta property="og:description" content="Testez vos connaissances sur les célébrités, anime, sports, musiques, jeux vidéo, super-héros et rap. Quiz gratuit avec chronomètre.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://memoriz.onrender.com">
+    <meta property="og:image" content="https://memoriz.onrender.com/favicon-96x96.png">
+    <meta property="og:image:width" content="96">
+    <meta property="og:image:height" content="96">
+    <meta property="og:site_name" content="Memoriz">
+    <meta property="og:locale" content="fr_FR">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Memoriz - Le défi ultime des souvenirs">
+    <meta name="twitter:description" content="Testez vos connaissances sur les célébrités, anime, sports, musiques, jeux vidéo, super-héros et rap. Quiz gratuit avec chronomètre.">
+    <meta name="twitter:image" content="https://memoriz.onrender.com/favicon-96x96.png">
+
+    <!-- Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #0a0a1a; color: white; min-height: 100vh; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #0a0a1a; 
+            min-height: 100vh; 
+            color: white; 
+            padding-bottom: 70px; 
+            position: relative;
+            overflow-x: hidden;
+        }
         
-        header { text-align: center; padding: 30px; background: rgba(255,255,255,0.05); border-radius: 30px; margin-bottom: 30px; }
-        header h1 { font-size: 3rem; background: linear-gradient(135deg, #ff4757, #ffa502); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        /* === NOUVEAU FOND ANIMÉ === */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
         
-        .multiplayer-section { background: rgba(255,255,255,0.05); border-radius: 30px; padding: 30px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1); }
-        .multiplayer-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
-        .multiplayer-header h2 { font-size: 1.8rem; background: linear-gradient(135deg, #6c5ce7, #a29bfe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        /* Mode clair */
+        body.light-mode {
+            background: #f0f2f5;
+            color: #0a0a1a;
+        }
         
-        .mp-btn { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; border: none; padding: 10px 25px; border-radius: 50px; cursor: pointer; font-weight: bold; transition: all 0.3s; font-size: 0.95rem; }
+        body.light-mode .category-card,
+        body.light-mode .blog-article,
+        body.light-mode .game-container {
+            background: rgba(255,255,255,0.95);
+            color: #0a0a1a;
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        
+        body.light-mode header,
+        body.light-mode .main-footer {
+            background: rgba(0,0,0,0.05);
+            border-color: rgba(0,0,0,0.1);
+        }
+        
+        body.light-mode .timer {
+            background: #0a0a1a;
+            color: #ff6b6b;
+        }
+        
+        body.light-mode .score {
+            background: #ff4757;
+            color: white;
+        }
+        
+        body.light-mode .game-panel {
+            background: rgba(255,255,255,0.98);
+        }
+        
+        body.light-mode td {
+            background: #f9f9f9;
+            color: #333;
+        }
+        
+        body.light-mode .footer-links a {
+            color: #0a0a1a;
+        }
+        
+        body.light-mode .social-link {
+            color: #0a0a1a;
+            background: rgba(0,0,0,0.05);
+        }
+        
+        /* SHARINGAN ANIMATION - CENTRE */
+        .sharingan-bg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            height: 500px;
+            z-index: 1;
+            opacity: 0.15;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        
+        body.light-mode .sharingan-bg {
+            opacity: 0.08;
+        }
+        
+        .sharingan-eye {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            animation: rotateSharingan 12s infinite linear;
+        }
+        
+        .sharingan-base {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ff1a1a 0%, #cc0000 40%, #8b0000 80%);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.6), inset 0 0 20px rgba(255, 255, 0, 0.3);
+        }
+        
+        .sharingan-pupil {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 25%;
+            height: 25%;
+            background: #0a0a0a;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(0,0,0,0.8);
+            z-index: 3;
+        }
+        
+        .sharingan-tomoe {
+            position: absolute;
+            width: 22%;
+            height: 22%;
+            background: #0a0a0a;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform-origin: center;
+            z-index: 2;
+        }
+        
+        .sharingan-tomoe::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            border-radius: 50%;
+            top: 0;
+            left: 0;
+        }
+        
+        .sharingan-tomoe::after {
+            content: '';
+            position: absolute;
+            width: 45%;
+            height: 45%;
+            background: #cc0000;
+            border-radius: 50%;
+            top: 27%;
+            left: 27%;
+        }
+        
+        /* Positions des 3 tomoe */
+        .tomoe-1 { transform: translate(-50%, -50%) rotate(0deg) translate(130px) rotate(0deg); }
+        .tomoe-2 { transform: translate(-50%, -50%) rotate(120deg) translate(130px) rotate(-120deg); }
+        .tomoe-3 { transform: translate(-50%, -50%) rotate(240deg) translate(130px) rotate(-240deg); }
+        
+        @keyframes rotateSharingan {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Pulse effect on sharingan */
+        .sharingan-bg {
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+        
+        @keyframes pulseGlow {
+            0% { opacity: 0.12; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.22; transform: translate(-50%, -50%) scale(1.05); }
+            100% { opacity: 0.12; transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        body.light-mode .sharingan-bg {
+            animation: pulseGlowLight 3s infinite ease-in-out;
+        }
+        
+        @keyframes pulseGlowLight {
+            0% { opacity: 0.05; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.12; transform: translate(-50%, -50%) scale(1.05); }
+            100% { opacity: 0.05; transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; position: relative; z-index: 2; }
+        
+        header { 
+            text-align: center; 
+            padding: 40px 20px; 
+            background: rgba(0,0,0,0.5); 
+            border-radius: 40px; 
+            margin-bottom: 40px; 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255,255,255,0.15); 
+            position: relative; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+        header h1 { 
+            font-size: 3.8rem; 
+            margin-bottom: 10px; 
+            background: linear-gradient(135deg, #ff4757, #ff6b81, #ffa502, #ff6b6b);
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            background-clip: text; 
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(255,71,87,0.3);
+        }
+        header p { font-size: 1.2rem; opacity: 0.95; }
+        
+        .support-banner {
+            background: linear-gradient(135deg, #00A859, #008040);
+            border-radius: 60px;
+            padding: 12px 30px;
+            margin: 20px auto 0 auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(0,168,89,0.4);
+        }
+        .support-banner:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #00c06a, #009950);
+            box-shadow: 0 6px 25px rgba(0,168,89,0.6);
+        }
+        
+        .theme-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 40px;
+            padding: 10px 20px;
+            cursor: pointer;
+            color: white;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+            font-weight: 500;
+        }
+        body.light-mode .theme-btn {
+            background: rgba(0,0,0,0.1);
+            color: #0a0a1a;
+            border-color: rgba(0,0,0,0.2);
+        }
+        .theme-btn:hover { transform: scale(1.05); background: #ff4757; color: white; border-color: #ff4757; }
+        
+        .badge { display: inline-block; background: rgba(255,255,255,0.15); padding: 6px 18px; border-radius: 40px; font-size: 0.85rem; margin-top: 12px; backdrop-filter: blur(4px); }
+        .categories h2 { text-align: center; margin-bottom: 35px; font-size: 2.2rem; background: linear-gradient(135deg, #ffa502, #ff4757); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; margin-bottom: 60px; }
+        .category-card { 
+            background: rgba(255,255,255,0.08); 
+            backdrop-filter: blur(10px); 
+            color: white; 
+            padding: 28px 20px; 
+            border-radius: 28px; 
+            cursor: pointer; 
+            transition: all 0.35s ease; 
+            text-align: center; 
+            border: 1px solid rgba(255,255,255,0.2); 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .category-card:hover { 
+            transform: translateY(-10px); 
+            background: rgba(255,255,255,0.18); 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4); 
+            border-color: rgba(255,107,107,0.5);
+        }
+        .category-card h3 { font-size: 1.9rem; margin-bottom: 12px; }
+        .category-card p { opacity: 0.85; margin-bottom: 12px; }
+        .questions-count { display: inline-block; background: linear-gradient(135deg, #ff4757, #ff6b6b); color: white; padding: 5px 18px; border-radius: 40px; font-size: 0.85rem; font-weight: bold; }
+        
+        /* ===== MULTIJOUEUR ===== */
+        .multiplayer-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 30px;
+            padding: 25px 30px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+        }
+        .multiplayer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .multiplayer-header h2 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .mp-btn {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
         .mp-btn:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(108,92,231,0.4); }
         .mp-btn.secondary { background: linear-gradient(135deg, #00b894, #00cec9); }
         .mp-btn.danger { background: linear-gradient(135deg, #e17055, #d63031); }
-        .mp-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+        .mp-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         
-        .room-controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-        .room-controls input { padding: 10px 18px; border-radius: 50px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-size: 1rem; flex: 1; min-width: 130px; outline: none; }
+        .room-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+        .room-controls input {
+            padding: 10px 18px;
+            border-radius: 50px;
+            border: 2px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 1rem;
+            flex: 1;
+            min-width: 150px;
+            outline: none;
+        }
         .room-controls input:focus { border-color: #6c5ce7; }
-        .room-controls input::placeholder { color: rgba(255,255,255,0.5); }
         
-        .players-list { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 15px; }
-        .player-card { background: rgba(255,255,255,0.08); padding: 10px 18px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 12px; }
-        .player-card.you { border-color: #6c5ce7; background: rgba(108,92,231,0.2); }
-        .player-card .score-mp { background: #6c5ce7; padding: 2px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
-        .player-card .status-badge { font-size: 0.65rem; opacity: 0.6; }
+        .players-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .player-card {
+            background: rgba(255,255,255,0.08);
+            padding: 10px 18px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .player-card .name { font-weight: 600; }
+        .player-card .score-mp { 
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+        .player-card.you { border-color: #6c5ce7; background: rgba(108,92,231,0.15); }
         
-        .mp-message { padding: 12px 20px; border-radius: 20px; margin-top: 10px; display: none; }
+        .mp-message {
+            padding: 12px 20px;
+            border-radius: 20px;
+            margin-top: 10px;
+            display: none;
+        }
         .mp-message.success { display: block; background: rgba(0,184,148,0.15); border-left: 4px solid #00b894; }
         .mp-message.error { display: block; background: rgba(225,112,85,0.15); border-left: 4px solid #e17055; }
         .mp-message.info { display: block; background: rgba(108,92,231,0.15); border-left: 4px solid #6c5ce7; }
         
-        #roomInfo { margin-top: 15px; display: none; }
-        #mpGameControls { margin-top: 15px; display: none; }
+        #roomInfo { margin-top: 12px; display: none; }
+        #mpGameControls { margin-top: 12px; display: none; }
         #mpCategoryList { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         #mpCategoryList button { font-size: 0.75rem; padding: 6px 14px; }
         
         .status-online { color: #00b894; }
         .status-offline { color: #e17055; }
+        /* ===== FIN MULTIJOUEUR ===== */
         
-        .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin: 30px 0; }
-        .category-card { background: rgba(255,255,255,0.07); padding: 22px; border-radius: 25px; cursor: pointer; transition: all 0.3s; text-align: center; border: 1px solid rgba(255,255,255,0.08); }
-        .category-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.15); }
-        .category-card h3 { font-size: 1.3rem; margin-bottom: 8px; }
-        .questions-count { display: inline-block; background: #ff4757; padding: 3px 14px; border-radius: 40px; font-size: 0.75rem; }
+        .blog-section { max-width: 800px; margin: 40px auto; padding: 20px; }
+        .blog-section h2 { text-align: center; margin-bottom: 30px; font-size: 2rem; background: linear-gradient(135deg, #ffa502, #ff6b6b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .blog-article { background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); padding: 30px; border-radius: 24px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s ease, background 0.3s ease; cursor: pointer; }
+        .blog-article:hover { transform: translateY(-5px); background: rgba(255,255,255,0.12); }
+        .blog-article h3 { color: #ff6b6b; margin-bottom: 15px; font-size: 1.5rem; }
+        .blog-article .blog-date { color: #ffa502; font-size: 0.85rem; margin-bottom: 15px; opacity: 0.9; }
+        .blog-article .blog-content { display: none; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); }
+        .blog-article .blog-content.show { display: block; animation: fadeSlide 0.4s ease; }
+        @keyframes fadeSlide { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .read-more { display: inline-block; background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; padding: 10px 25px; border-radius: 40px; text-decoration: none; font-weight: bold; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; border: none; font-size: 0.9rem; }
+        .read-more:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(255,107,107,0.5); }
         
-        .game-panel { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; overflow-y: auto; padding: 20px; }
-        .game-container { max-width: 900px; margin: 0 auto; background: white; border-radius: 30px; padding: 30px; color: #1e1e2f; }
-        .game-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
-        .timer { font-size: 2rem; font-weight: bold; background: #1e1e2f; color: #ffa502; padding: 8px 22px; border-radius: 60px; font-family: monospace; }
-        .score { font-size: 1.1rem; background: #ff4757; color: white; padding: 8px 22px; border-radius: 60px; font-weight: bold; }
-        .close-game { background: #2c3e50; color: white; border: none; padding: 8px 22px; border-radius: 60px; cursor: pointer; font-weight: bold; }
-        .close-game:hover { background: #e74c3c; }
-        .restart-btn { background: #ff4757; color: white; border: none; padding: 8px 20px; border-radius: 60px; cursor: pointer; font-weight: bold; }
-        .restart-btn:hover { background: #ff6b6b; }
+        .main-footer { text-align: center; padding: 35px 20px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 40px; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); border-radius: 30px; }
+        .footer-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 25px; margin-bottom: 25px; }
+        .footer-links a { color: white; text-decoration: none; opacity: 0.8; transition: all 0.3s; font-weight: 500; }
+        .footer-links a:hover { opacity: 1; color: #ff6b6b; transform: translateY(-2px); }
+        .social-links { display: flex; justify-content: center; gap: 20px; margin-bottom: 25px; flex-wrap: wrap; }
+        .social-link { display: inline-flex; align-items: center; gap: 8px; color: white; text-decoration: none; background: rgba(255,255,255,0.1); padding: 8px 20px; border-radius: 40px; transition: all 0.3s ease; font-weight: 500; backdrop-filter: blur(4px); }
+        .social-link:hover { transform: translateY(-4px); background: rgba(255,255,255,0.25); }
+        .social-link.youtube:hover { background: #ff0000; color: white; }
+        .social-link.tiktok:hover { background: #000000; color: white; }
+        .social-link.twitch:hover { background: #9146ff; color: white; }
+        .social-link.whatsapp:hover { background: #25d366; color: white; }
+        .social-link.sapeo:hover { background: #00A859; color: white; }
+        .copyright { font-size: 0.85rem; opacity: 0.6; margin-top: 15px; }
         
-        .quiz-table { overflow-x: auto; max-height: 400px; overflow-y: auto; margin: 15px 0; border-radius: 15px; border: 1px solid #ddd; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
-        th, td { border: 1px solid #ddd; padding: 10px 12px; text-align: left; }
-        th { background: #1e1e2f; color: white; position: sticky; top: 0; z-index: 5; }
-        .input-group { display: flex; gap: 12px; margin: 15px 0; flex-wrap: wrap; }
-        #quick-input { flex: 1; padding: 12px 20px; border-radius: 60px; border: 2px solid #ddd; font-size: 1rem; outline: none; min-width: 150px; }
-        #quick-input:focus { border-color: #ff4757; }
-        #quick-submit { padding: 12px 30px; background: #ff4757; color: white; border: none; border-radius: 60px; cursor: pointer; font-weight: bold; font-size: 1rem; }
-        #quick-submit:hover { background: #ff6b6b; }
-        .message { padding: 10px 20px; border-radius: 60px; margin: 10px 0; }
-        .message.success { background: #d4edda; color: #155724; }
-        .message.error { background: #f8d7da; color: #721c24; }
-        .game-complete { text-align: center; padding: 40px; background: linear-gradient(135deg, #1e1e2f, #2c3e50); color: white; border-radius: 25px; }
-        .play-again { background: white; color: #1e1e2f; border: none; padding: 12px 30px; border-radius: 60px; cursor: pointer; margin: 8px; font-weight: bold; }
-        .play-again:hover { background: #ff4757; color: white; }
-        #found-list { margin-top: 10px; padding: 12px 18px; background: #f5f5f5; border-radius: 15px; font-size: 0.85rem; max-height: 100px; overflow-y: auto; }
-        .info-note { background: #e3f2fd; padding: 10px 15px; border-radius: 15px; margin: 10px 0; font-size: 0.9rem; color: #0c5460; }
-        .progress { display: inline-block; background: #f0f0f0; padding: 6px 18px; border-radius: 60px; margin: 10px 0; font-weight: 600; }
-        .mp-badge { background: #6c5ce7; color: white; padding: 2px 12px; border-radius: 40px; font-size: 0.7rem; margin-left: 10px; }
+        /* Jeu - design amélioré */
+        .game-panel { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 1001; overflow-y: auto; padding: 20px; backdrop-filter: blur(8px); }
+        body.light-mode .game-panel { background: rgba(255,255,255,0.97); }
+        .game-container { max-width: 1200px; margin: 0 auto; background: linear-gradient(135deg, #fff, #f8f9fa); border-radius: 32px; padding: 35px; color: #1e1e2f; position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
+        body.light-mode .game-container { background: white; }
+        .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #eee; flex-wrap: wrap; gap: 15px; }
         
-        @media (max-width: 768px) { header h1 { font-size: 2rem; } .game-header { flex-direction: column; text-align: center; } .room-controls { flex-direction: column; } .room-controls input { width: 100%; } }
+        .restart-category-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ff4757);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .restart-category-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255,71,87,0.4);
+        }
+        
+        .timer { font-size: 2rem; font-weight: bold; font-family: monospace; background: #1e1e2f; color: #ffa502; padding: 12px 24px; border-radius: 60px; letter-spacing: 2px; }
+        .timer.warning { background: #ff4757; color: white; animation: pulse 1s infinite; }
+        .score { font-size: 1.4rem; background: linear-gradient(135deg, #ff4757, #ff6b6b); color: white; padding: 10px 24px; border-radius: 60px; font-weight: bold; }
+        .close-game { background: #2c3e50; color: white; border: none; padding: 10px 28px; border-radius: 60px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: all 0.3s; }
+        .close-game:hover { background: #e74c3c; transform: scale(1.03); }
+        
+        .quiz-table { overflow-x: auto; max-height: 450px; overflow-y: auto; margin-bottom: 20px; border-radius: 20px; border: 1px solid #e0e0e0; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 14px 12px; text-align: left; }
+        th { background: linear-gradient(135deg, #1e1e2f, #2c3e50); color: white; font-weight: bold; position: sticky; top: 0; }
+        td { background: #ffffff; }
+        
+        .input-area { margin-top: 25px; padding-top: 20px; border-top: 2px solid #e0e0e0; }
+        .input-group { display: flex; gap: 12px; margin-bottom: 20px; }
+        #quick-input { flex: 1; padding: 15px 20px; font-size: 1.1rem; border: 2px solid #ddd; border-radius: 60px; outline: none; transition: all 0.3s; background: #fefefe; }
+        #quick-input:focus { border-color: #ff4757; box-shadow: 0 0 0 3px rgba(255,71,87,0.2); }
+        #quick-submit { padding: 15px 35px; background: linear-gradient(135deg, #ff4757, #ff6b6b); color: white; border: none; border-radius: 60px; cursor: pointer; font-size: 1.1rem; font-weight: bold; transition: all 0.3s; }
+        #quick-submit:hover { transform: scale(1.02); box-shadow: 0 5px 15px rgba(255,71,87,0.4); }
+        
+        .message { padding: 12px 20px; border-radius: 60px; margin-top: 10px; animation: fadeIn 0.3s ease; font-weight: 500; }
+        .message.success { background: #d4edda; color: #155724; border-left: 5px solid #28a745; }
+        .message.error { background: #f8d7da; color: #721c24; border-left: 5px solid #dc3545; }
+        
+        .game-complete { text-align: center; padding: 50px; background: linear-gradient(135deg, #1e1e2f, #2c3e50); color: white; border-radius: 30px; }
+        .game-complete h2 { font-size: 2.5rem; margin-bottom: 20px; }
+        .play-again { background: white; color: #1e1e2f; border: none; padding: 12px 32px; font-size: 1rem; border-radius: 60px; cursor: pointer; margin-top: 20px; margin-right: 10px; font-weight: bold; transition: all 0.3s; }
+        .play-again:hover { transform: scale(1.05); background: #ff4757; color: white; }
+        .share-btn { background: #25D366; color: white; border: none; padding: 12px 28px; margin: 5px; border-radius: 60px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+        .share-btn:hover { transform: scale(1.05); }
+        .share-twitter { background: #1DA1F2; }
+        .progress { margin-bottom: 20px; font-size: 1.1rem; font-weight: 600; background: #f0f0f0; padding: 12px 18px; border-radius: 60px; display: inline-block; }
+        #found-list { margin-top: 15px; padding: 15px; background: #f5f5f5; border-radius: 20px; font-size: 0.9rem; max-height: 130px; overflow-y: auto; border-left: 4px solid #ff4757; }
+        
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); }
+        .modal-content { background: white; margin: 5% auto; padding: 35px; width: 90%; max-width: 800px; max-height: 80%; overflow-y: auto; border-radius: 32px; color: #1e1e2f; position: relative; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .close-modal { position: absolute; right: 25px; top: 20px; font-size: 32px; font-weight: bold; cursor: pointer; color: #999; transition: color 0.3s; }
+        .close-modal:hover { color: #ff4757; }
+        .legal-content h2 { color: #1e1e2f; margin-bottom: 20px; }
+        .legal-content h3 { margin-top: 25px; margin-bottom: 10px; color: #ff4757; }
+        .info-note { background: #e3f2fd; padding: 10px 15px; border-radius: 20px; margin-bottom: 20px; font-size: 0.9rem; color: #0c5460; border-left: 4px solid #17a2b8; }
+        
+        @media (max-width: 768px) { .game-header { flex-direction: column; text-align: center; } .modal-content { width: 95%; margin: 10% auto; padding: 20px; } header h1 { font-size: 2.5rem; } .category-card h3 { font-size: 1.5rem; } .sharingan-bg { width: 300px; height: 300px; } .tomoe-1, .tomoe-2, .tomoe-3 { transform: translate(-50%, -50%) translate(80px); } }
     </style>
 </head>
 <body>
+    <!-- CANVAS POUR LE FOND ANIMÉ -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- SHARINGAN AU CENTRE ANIMÉ -->
+    <div class="sharingan-bg">
+        <div class="sharingan-eye">
+            <div class="sharingan-base"></div>
+            <div class="sharingan-tomoe tomoe-1"></div>
+            <div class="sharingan-tomoe tomoe-2"></div>
+            <div class="sharingan-tomoe tomoe-3"></div>
+            <div class="sharingan-pupil"></div>
+        </div>
+    </div>
+
     <div class="container">
         <header>
-            <h1>🧠 MEMORIZ</h1>
+            <button class="theme-btn" id="themeToggle">🌓 Mode Clair/Sombre</button>
+            <h1>🧠 MEMORIZ 🧠</h1>
             <p>"Ce que tu sais, tu le mémorises. Ce que tu ne sais pas, tu l'apprends."</p>
+            <div class="badge">✨ Plus de 400 personnages et thèmes à découvrir ✨</div>
+            <p style="font-size: 0.9rem; margin-top: 10px;">🎯 23 catégories | ⏱️ 10 minutes par quiz | 🏆 Teste-toi !</p>
+            
+            <a href="https://www.sapeo.org/memoriz-quiz" target="_blank" class="support-banner">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+                ❤️ SOUTENIR MEMORIZ ❤️
+            </a>
         </header>
 
-        <!-- MULTIJOUEUR -->
+        <!-- ===== MULTIJOUEUR ===== -->
         <div class="multiplayer-section">
             <div class="multiplayer-header">
                 <h2>👥 Mode Multijoueur</h2>
@@ -101,175 +557,640 @@
             </div>
             
             <div class="room-controls">
-                <input type="text" id="pseudoInput" placeholder="👤 Pseudo" value="Joueur" style="flex:0.6; min-width:100px;">
-                <input type="text" id="roomCodeInput" placeholder="🔑 Code (6 caractères)" maxlength="6" style="flex:0.8;">
+                <input type="text" id="pseudoInput" placeholder="👤 Pseudo" value="Joueur" style="flex:0.5; min-width:100px;">
+                <input type="text" id="roomCodeInput" placeholder="🔑 Code (6 caractères)" maxlength="6">
                 <button class="mp-btn" id="createRoomBtn">🆕 Créer</button>
                 <button class="mp-btn secondary" id="joinRoomBtn">🔗 Rejoindre</button>
                 <button class="mp-btn danger" id="leaveRoomBtn" style="display:none;">🚪 Quitter</button>
             </div>
             
-            <div id="roomInfo">
-                <p style="margin-top:12px;"><strong>🏠 Salle :</strong> <span id="roomCodeDisplay"></span> 
+            <div id="roomInfo" style="margin-top:12px; display:none;">
+                <p><strong>🏠 Salle :</strong> <span id="roomCodeDisplay"></span> 
                     <button class="mp-btn" style="padding:4px 12px; font-size:0.7rem;" id="copyRoomCodeBtn">📋 Copier</button>
-                    <span style="margin-left:15px; font-size:0.85rem; opacity:0.7;" id="roomStatus">En attente...</span>
+                    <span style="margin-left:15px; font-size:0.9rem; opacity:0.7;" id="roomStatus">En attente...</span>
                 </p>
             </div>
             
             <div id="playersContainer">
-                <p style="opacity:0.7; margin-top:5px;">👥 Joueurs : <span id="playerCount">0</span></p>
+                <p style="opacity:0.7;">👥 Joueurs : <span id="playerCount">0</span></p>
                 <div class="players-list" id="playersList"></div>
             </div>
             
             <div id="mpMessage" class="mp-message"></div>
             
-            <div id="mpGameControls">
-                <hr style="border-color:rgba(255,255,255,0.08); margin:15px 0;">
-                <p><strong>🎮 Lancer un quiz :</strong> <span style="font-size:0.8rem; opacity:0.6;">(seul l'hôte peut lancer)</span></p>
+            <div id="mpGameControls" style="margin-top:12px; display:none;">
+                <hr style="border-color:rgba(255,255,255,0.1); margin:12px 0;">
+                <p><strong>🎮 Lancer un quiz :</strong> <span style="font-size:0.8rem; opacity:0.6;">(hôte uniquement)</span></p>
                 <div id="mpCategoryList"></div>
             </div>
         </div>
+        <!-- ===== FIN MULTIJOUEUR ===== -->
 
-        <!-- CATÉGORIES SOLO -->
-        <h2 style="text-align:center; margin:30px 0 20px 0; font-size:2rem;">📚 Choisis ton défi</h2>
-        <div class="category-grid" id="categoryGrid"></div>
+        <div class="categories">
+            <h2>📚 Choisis ton défi</h2>
+            <div class="category-grid">
+                <!-- Catégories existantes -->
+                <div class="category-card" data-category="series"><h3>📺 Séries TV</h3><p>Top 20 des légendes du petit écran</p><span class="questions-count">20 personnages</span></div>
+                <div class="category-card" data-category="films"><h3>🎬 Cinéma</h3><p>Top 20 des icônes du 7ème art</p><span class="questions-count">20 personnages</span></div>
+                <div class="category-card" data-category="animeCelebres"><h3>🌍 Anime/Manga</h3><p>Top 30 des plus célèbres au monde</p><span class="questions-count">30 personnages</span></div>
+                <div class="category-card" data-category="animeDeteste"><h3>💀 Anime/Manga</h3><p>Top 20 des plus détestés</p><span class="questions-count">20 personnages</span></div>
+                <div class="category-card" data-category="animeForts"><h3>🌌 Anime/Manga</h3><p>Top 20 des plus puissants (version ultime)</p><span class="questions-count">20 personnages</span></div>
+                <div class="category-card" data-category="animeIntelligents"><h3>🧠 Anime/Manga</h3><p>Top 15 des génies ultimes</p><span class="questions-count">15 personnages</span></div>
+                <div class="category-card" data-category="sportsMusique"><h3>⚽🏀🎵 Sports & Musique</h3><p>Top 40 des stars mondiales</p><span class="questions-count">40 célébrités</span></div>
+                <div class="category-card" data-category="seriesDeteste"><h3>👎 Séries TV</h3><p>Top 10 des personnages détestés</p><span class="questions-count">10 personnages</span></div>
+                <div class="category-card" data-category="fillesPuissantes"><h3>👸 Anime/Manga</h3><p>Top 15 des filles les plus puissantes</p><span class="questions-count">15 personnages</span></div>
+                <div class="category-card" data-category="meilleursFootballeurs"><h3>⚽ Football</h3><p>Top 15 des meilleurs joueurs de tous les temps</p><span class="questions-count">15 joueurs</span></div>
+                <div class="category-card" data-category="meilleursEntraineurs"><h3>📋 Football</h3><p>Top 10 des meilleurs entraîneurs de tous les temps</p><span class="questions-count">10 entraîneurs</span></div>
+                <div class="category-card" data-category="meilleursMangas"><h3>📖 Mangas</h3><p>Top 15 des meilleurs mangas de tous les temps</p><span class="questions-count">15 mangas</span></div>
+                <div class="category-card" data-category="meilleursAnimes"><h3>🎬 Animes</h3><p>Top 15 des meilleurs animes de tous les temps</p><span class="questions-count">15 animes</span></div>
+                <div class="category-card" data-category="animeIdiots"><h3>🤪 Anime/Manga</h3><p>Top 10 des personnages les plus idiots</p><span class="questions-count">10 personnages</span></div>
+                <div class="category-card" data-category="meilleursCombats"><h3>⚔️ Anime/Manga</h3><p>Top 20 des meilleurs combats all time</p><span class="questions-count">20 combats</span></div>
+                <div class="category-card" data-category="meilleursArcs"><h3>📖 Anime/Manga</h3><p>Top 10 des meilleurs arcs</p><span class="questions-count">10 arcs</span></div>
+                <div class="category-card" data-category="meilleuresTechniques"><h3>✨ Anime/Manga</h3><p>Top 10 des meilleures techniques</p><span class="questions-count">10 techniques</span></div>
+                <div class="category-card" data-category="meilleuresTransformations"><h3>🔄 Anime/Manga</h3><p>Top 10 des meilleures transformations</p><span class="questions-count">10 transformations</span></div>
+                <div class="category-card" data-category="ligueDesChampions"><h3>🏆 Ligue des Champions</h3><p>Vainqueurs de 2000 à 2026</p><span class="questions-count">27 clubs</span></div>
+                <div class="category-card" data-category="ballonDor"><h3>🥇 Ballon d'Or</h3><p>Vainqueurs de 2000 à 2025</p><span class="questions-count">25 joueurs</span></div>
+                
+                <!-- NOUVELLES CATÉGORIES AJOUTÉES (sans Drapeaux) -->
+                <div class="category-card" data-category="jeuxVideo"><h3>🎮 Légendes du Jeu Vidéo</h3><p>Top 10 des jeux cultes</p><span class="questions-count">10 jeux</span></div>
+                <div class="category-card" data-category="superHeros"><h3>🦸 Super-héros Marvel & DC</h3><p>Top 20 des héros et vilains</p><span class="questions-count">20 personnages</span></div>
+                <div class="category-card" data-category="rapFrUs"><h3>🎤 Rap Français & US</h3><p>Top 15 des plus grandes légendes</p><span class="questions-count">15 artistes</span></div>
+            </div>
+        </div>
+
+        <section class="blog-section">
+            <h2>📝 Articles Memoriz</h2>
+            
+            <article class="blog-article" id="blog1">
+                <h3>🧠 Comment améliorer sa mémoire avec les quiz ?</h3>
+                <p class="blog-date">📅 Publié le 10 janvier 2026</p>
+                <div class="blog-short"><p>Les quiz stimulent votre cerveau et renforcent les connexions neuronales...</p></div>
+                <div class="blog-content" id="blog1-content"><p>Les quiz sont bien plus qu'un simple jeu : ce sont de véritables outils de stimulation cognitive. Lorsque vous testez vos connaissances, votre cerveau active plusieurs zones simultanément : l'hippocampe (mémoire), le cortex préfrontal (raisonnement) et le lobe temporal (reconnaissance).</p><p><strong>🎯 Les bienfaits scientifiquement prouvés :</strong></p><ul><li><strong>Renforcement des synapses :</strong> Chaque rappel d'information consolide les connexions neuronales.</li><li><strong>Effet "testing" :</strong> Se tester est plus efficace que relire des notes pour mémoriser.</li><li><strong>Neuroplasticité :</strong> Les quiz réguliers aident le cerveau à créer de nouveaux chemins neuronaux.</li><li><strong>Réduction du stress :</strong> Le jeu permet de libérer de la dopamine, l'hormone du plaisir.</li></ul><p>💡 <strong>Conseil Memoriz :</strong> Faites un quiz par jour pendant 10 minutes. Vous verrez des résultats significatifs sur votre mémoire générale en moins d'un mois !</p><p>Notre site propose plus de 20 catégories différentes pour varier les plaisirs et solliciter différentes zones de votre mémoire.</p></div>
+                <button class="read-more" data-blog="blog1">Lire la suite →</button>
+            </article>
+
+            <article class="blog-article" id="blog2">
+                <h3>🎬 Top 5 des animés à regarder absolument en 2026</h3>
+                <p class="blog-date">📅 Publié le 5 mars 2026</p>
+                <div class="blog-short"><p>L'année 2026 s'annonce exceptionnelle pour les fans d'animation japonaise...</p></div>
+                <div class="blog-content" id="blog2-content"><p>L'industrie de l'animation japonaise ne cesse de nous surprendre avec des œuvres toujours plus ambitieuses. Voici notre sélection des incontournables de 2026 :</p><ul><li><strong>🌸 "Chroniques de l'Aube"</strong> - Une pépite visuelle du studio Ghibli, mêlant aventure et philosophie.</li><li><strong>⚡ "Thunder Legacy"</strong> - La nouvelle référence du shonen par les créateurs de Demon Slayer.</li><li><strong>🌌 "Echoes of the Void"</strong> - Un chef-d'œuvre de science-fiction psychologique.</li><li><strong>🔥 "Flame Reborn"</strong> - Le retour tant attendu d'une licence culte.</li><li><strong>🎭 "The Last Theatre"</strong> - Un drame poignant sur l'amour et l'art.</li></ul><p>Testez vos connaissances sur ces animés et bien d'autres dans notre catégorie "Anime/Manga" ! Qui sera le roi des quiz ?</p></div>
+                <button class="read-more" data-blog="blog2">Lire la suite →</button>
+            </article>
+
+            <article class="blog-article" id="blog3">
+                <h3>⚽ Pourquoi les quiz de sport sont bons pour votre culture générale</h3>
+                <p class="blog-date">📅 Publié le 20 mars 2026</p>
+                <div class="blog-short"><p>Le sport est un phénomène culturel mondial...</p></div>
+                <div class="blog-content" id="blog3-content"><p>Le sport dépasse largement le simple cadre de la compétition. Il façonne des générations, crée des légendes et rassemble des milliards de personnes à travers le monde.</p><p><strong>🏆 Pourquoi les quiz sportifs sont essentiels :</strong></p><ul><li>Ils vous connectent à l'histoire mondiale (JO, Coupes du Monde).</li><li>Ils développent votre mémoire des noms, dates et chiffres.</li><li>Ils facilitent les conversations et le réseautage social.</li><li>Ils vous tiennent informé des records et performances historiques.</li></ul><p>Notre catégorie "Sports & Musique" réunit plus de 40 légendes du football, basketball, tennis et bien plus encore. Pouvez-vous tous les nommer ?</p></div>
+                <button class="read-more" data-blog="blog3">Lire la suite →</button>
+            </article>
+
+            <article class="blog-article" id="blog4">
+                <h3>💡 Les bienfaits cognitifs des jeux de mémoire</h3>
+                <p class="blog-date">📅 Publié le 15 avril 2026</p>
+                <div class="blog-short"><p>Les jeux de mémoire réduisent le risque de déclin cognitif...</p></div>
+                <div class="blog-content" id="blog4-content"><p>Des études récentes menées par l'Université de Californie démontrent que 15 minutes de jeux de mémoire par jour peuvent réduire de 30% le risque de déclin cognitif lié à l'âge.</p><p><strong>🧠 Les effets positifs mesurés :</strong></p><ul><li>Amélioration de la mémoire à court terme (+25% en moyenne)</li><li>Meilleure concentration et attention aux détails</li><li>Réduction du stress et de l'anxiété</li><li>Augmentation de la vitesse de traitement de l'information</li><li>Prévention des maladies neurodégénératives (Alzheimer, Parkinson)</li></ul><p>Memoriz a été conçu avec des experts en neurosciences pour maximiser ces bénéfices. Chaque quiz est chronométré pour stimuler vos réflexes cognitifs et renforcer votre mémoire à long terme.</p><p>Alors, prêt à relever le défi ? Lancez un quiz dès maintenant !</p></div>
+                <button class="read-more" data-blog="blog4">Lire la suite →</button>
+            </article>
+        </section>
+        
+        <footer class="main-footer">
+            <div class="footer-links">
+                <a href="#" id="privacy-link">🔒 Confidentialité</a>
+                <a href="#" id="terms-link">📜 Conditions générales</a>
+                <a href="#" id="mentions-link">⚖️ Mentions légales</a>
+                <a href="#" id="about-link">ℹ️ À propos</a>
+                <a href="#" id="contact-link">📧 Contact</a>
+            </div>
+            <div class="social-links">
+                <a href="https://youtube.com/@noironik" target="_blank" class="social-link youtube" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="20"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.376.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.376-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg> YouTube</a>
+                <a href="https://tiktok.com/@noironik" target="_blank" class="social-link tiktok" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="20"><path d="M19.589 6.686a4.993 4.993 0 0 1-3.77-4.245V2h-3.445v13.672a2.945 2.945 0 0 1-2.942 2.94 2.945 2.945 0 0 1-2.942-2.94 2.945 2.945 0 0 1 2.942-2.94c.345 0 .675.06.98.164V8.233a6.424 6.424 0 0 0-5.4 6.273 6.424 6.424 0 0 0 6.4 6.4 6.424 6.424 0 0 0 6.4-6.4c0-.14-.007-.28-.014-.418V8.956a7.235 7.235 0 0 0 4.218 1.336V7.081a4.314 4.314 0 0 1-2.185-.395z"/></svg> TikTok</a>
+                <a href="https://twitch.tv/noironik1" target="_blank" class="social-link twitch" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="20"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm10.857 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714V11.143z"/></svg> Twitch</a>
+                <a href="https://wa.me/2250708608958?text=Salut%20Memoriz%20!" target="_blank" class="social-link whatsapp" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.472-.149-.67.149-.197.298-.767.94-.94 1.165-.173.198-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.019-.458.13-.606.134-.134.298-.347.447-.521.149-.174.198-.298.297-.497.099-.198.05-.372-.025-.521-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.372-.01-.571-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.235.612 4.334 1.678 6.147L0 24l6.001-1.676A11.97 11.97 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.878 0-3.628-.547-5.111-1.486l-.364-.216-3.563.995.995-3.555-.223-.369A9.94 9.94 0 0 1 2 12c0-5.514 4.486-10 10-10s10 4.486 10 10-4.486 10-10 10z"/></svg> WhatsApp</a>
+                <a href="https://www.sapeo.org/memoriz-quiz" target="_blank" class="social-link sapeo" rel="noopener noreferrer" style="background: #00A859; color: white;">❤️ Soutenir Memoriz</a>
+            </div>
+            <div class="copyright">© 2022-2026 Memoriz - Tous droits réservés | Hébergé par Render Inc. | Sharingan Edition</div>
+        </footer>
     </div>
 
+    <div id="legal-modal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><div id="modal-body"></div></div></div>
+
     <script>
-        // ============================================================
-        // SUPABASE
-        // ============================================================
-        const SUPABASE_URL = 'https://azgstzbslxcwsecqrevv.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6Z3N0emJzbHhjd3NlY3FyZXZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzMzI4OTEsImV4cCI6MjA5ODkwODg5MX0.ZPG31y8f4BHNP3v-d5DMejzNhOkhSgzdg0EZD8UC4f0';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // ========== FOND ANIMÉ AVEC PARTICULES ==========
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
 
-        // ============================================================
-        // CATÉGORIES
-        // ============================================================
-        const categories = [
-            { key: 'series', label: '📺 Séries TV', data: ["Walter White","Jon Snow","Daenerys","Sherlock","Rick Grimes","Michael Scott","Tyrion","Eleven","Wednesday","Joey","House","Dexter","Don Draper","Carrie","Tony Soprano","Loki","Geralt","Elliot","Klaus","Joe Goldberg"] },
-            { key: 'films', label: '🎬 Cinéma', data: ["Harry Potter","Luke Skywalker","Jack Sparrow","James Bond","Indiana Jones","Forrest Gump","John Wick","Tony Stark","Peter Parker","Bruce Wayne","Ellen Ripley","Neo","Tyler Durden","Michael Corleone","Hannibal","Joker","Willy Wonka","Rocky","Ethan Hunt","John McClane"] },
-            { key: 'anime', label: '🌍 Anime/Manga', data: ["Son Goku","Naruto","Luffy","Pikachu","Sailor Moon","Ichigo","Eren Yeager","Light Yagami","Levi","Sasuke","Vegeta","Gojo","Tanjiro","Killua","Gon","Edward Elric","Mikasa","Kakashi","Itachi","Zoro","Natsu","Deku","All Might","Saitama","Ken Kaneki","L","Ash","Alucard","Spike","Jotaro"] },
-            { key: 'sports', label: '⚽ Sports', data: ["Messi","Ronaldo","Neymar","Mbappe","Zidane","Beckham","Ronaldinho","Maradona","Pele","Benzema","LeBron","Jordan","Kobe","Curry","Durant","Shaq","Magic","Bird","Giannis","Iverson","Serena","Federer","Nadal","Tyson","Ali","Bolt","Phelps","Brady","Woods","Biles"] },
-            { key: 'musique', label: '🎵 Musique', data: ["Michael Jackson","Beyonce","Taylor Swift","Drake","Eminem","Rihanna","Bieber","Ed Sheeran","Ariana Grande","Kanye West","Adele","Bruno Mars","Lady Gaga","Weeknd","Dua Lipa"] },
-            { key: 'football', label: '⚽ Foot Légendes', data: ["Messi","Pelé","Maradona","Cristiano Ronaldo","Cruyff","Zidane","Ronaldo Nazário","Platini","Beckenbauer","Di Stéfano","Ronaldinho","Xavi","Iniesta","Maldini","Best"] },
-            { key: 'mangas', label: '📖 Meilleurs Mangas', data: ["One Piece","Dragon Ball","Naruto","Detective Conan","Doraemon","Demon Slayer","Jujutsu Kaisen","Attack on Titan","Slam Dunk","Bleach","Hunter x Hunter","JoJo","Fist of the North Star","Astro Boy","Golgo 13"] },
-            { key: 'jeuxvideo', label: '🎮 Jeux Vidéo', data: ["Super Mario","Zelda","Tetris","Minecraft","GTA V","Final Fantasy","Metal Gear Solid","Half-Life 2","Witcher 3","Dark Souls"] },
-            { key: 'superheros', label: '🦸 Super-héros', data: ["Spider-Man","Batman","Superman","Iron Man","Joker","Captain America","Wolverine","Wonder Woman","Deadpool","Harley Quinn","Thor","Hulk","Flash","Black Panther","Thanos","Doctor Doom","Green Lantern","Magneto","Aquaman","Darkseid"] },
-            { key: 'rap', label: '🎤 Rap', data: ["Tupac","Notorious B.I.G.","Jay-Z","Eminem","IAM","Nas","Booba","Kendrick Lamar","NTM","Dr. Dre","MC Solaar","Soprano","Snoop Dogg","Kaaris","Lil Wayne"] }
-        ];
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
-        // ============================================================
-        // JEU SOLO
-        // ============================================================
-        let currentGame = null, timerInterval = null, isMultiplayerGame = false;
-
-        function normalize(str) { if (!str) return ''; return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s]/g,'').trim(); }
-
-        class QuizGame {
-            constructor(label, data) { this.label=label; this.questions=[...data]; this.correct=new Array(this.questions.length).fill(false); this.score=0; this.timeLeft=600; this.active=true; }
-            find(a) { const n=normalize(a); for(let i=0;i<this.questions.length;i++){ if(!this.correct[i] && n===normalize(this.questions[i])) return i; } return -1; }
-            submit(a) { if(!this.active) return {success:false}; const i=this.find(a.trim()); if(i===-1) return {success:false,notFound:true}; if(this.correct[i]) return {success:false,already:true}; this.correct[i]=true; this.score++; return {success:true,index:i,name:this.questions[i]}; }
-            isComplete() { return this.correct.every(c=>c); }
-            getProgress() { const a=this.correct.filter(c=>c).length; return {answered:a,total:this.questions.length}; }
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 4 + 1;
+                this.speedX = (Math.random() - 0.5) * 0.8;
+                this.speedY = (Math.random() - 0.5) * 0.8;
+                this.opacity = Math.random() * 0.6 + 0.2;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                const color = document.body.classList.contains('light-mode') ? 'rgba(0, 0, 0, 0.25)' : `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.fillStyle = color;
+                ctx.fill();
+            }
         }
 
-        function showGame(key, multi=false) {
-            if(currentGame) closeGame();
-            isMultiplayerGame=multi;
-            const cat=categories.find(c=>c.key===key); if(!cat) return;
-            currentGame=new QuizGame(cat.label, cat.data);
-            let rows='';
-            for(let i=0;i<currentGame.questions.length;i++) rows+=`<tr id="row-${i}"><td>${i+1}</td><td id="ans-${i}">❓ ???</td><td id="stat-${i}" style="text-align:center;width:50px;">⏳</td></tr>`;
-            const badge=multi?'<span class="mp-badge">👥 Multijoueur</span>':'';
-            const html=`<div class="game-panel" id="gamePanel"><div class="game-container"><div class="game-header"><h2>${cat.label} ${badge}</h2><button class="restart-btn" onclick="restartGame()">🔄 Recommencer</button><div class="timer" id="timer">10:00</div><div class="score" id="score">🎯 0/${currentGame.questions.length}</div><button class="close-game" onclick="closeGame()">✕ Fermer</button></div><div class="progress" id="progress">📊 0/${currentGame.questions.length} (0%)</div><div class="quiz-table"><table><thead><tr><th style="width:40px;">#</th><th>Personnage</th><th style="width:50px;">✅</th></tr></thead><tbody>${rows}</tbody></table></div><div class="input-group"><input type="text" id="quick-input" placeholder="✏️ Tape un nom..." autocomplete="off"><button id="quick-submit">🎮 Valider</button></div><div id="message"></div><div id="found-list"></div></div></div>`;
-            document.body.insertAdjacentHTML('beforeend',html);
+        function initParticles(count = 120) {
+            particles = [];
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle());
+            }
+        }
+        initParticles(120);
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let p of particles) {
+                p.update();
+                p.draw();
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        function updateParticlesForTheme() {
+            // Les particules se mettent à jour automatiquement
+        }
+
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', function() {
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('memoriz_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        });
+
+        // ============================================================
+        // SOCKET.IO MULTIJOUEUR
+        // ============================================================
+        const socket = io();
+
+        let mpState = {
+            roomCode: null,
+            playerName: 'Joueur',
+            isHost: false,
+            isInRoom: false,
+            players: {},
+            scores: {},
+            gameStarted: false
+        };
+
+        function showMpMsg(msg, type) {
+            const el = document.getElementById('mpMessage');
+            el.textContent = msg;
+            el.className = 'mp-message';
+            el.style.display = 'block';
+            if (type === 'success') el.style.background = 'rgba(0,184,148,0.15)';
+            else if (type === 'error') el.style.background = 'rgba(225,112,85,0.15)';
+            else el.style.background = 'rgba(108,92,231,0.15)';
+            el.style.borderLeft = '4px solid ' + (type === 'success' ? '#00b894' : type === 'error' ? '#e17055' : '#6c5ce7');
+            setTimeout(() => { el.style.display = 'none'; }, 5000);
+        }
+
+        function updateStatus(connected, msg) {
+            const el = document.getElementById('connectionStatus');
+            if (connected) {
+                el.innerHTML = '🟢 <span class="status-online">Connecté</span>' + (msg ? ' | ' + msg : '');
+            } else {
+                el.innerHTML = '⚪ <span class="status-offline">Déconnecté</span>';
+            }
+        }
+
+        function updatePlayers() {
+            const list = document.getElementById('playersList');
+            const count = document.getElementById('playerCount');
+            list.innerHTML = '';
+            const ids = Object.keys(mpState.players);
+            count.textContent = ids.length;
+            
+            ids.forEach(id => {
+                const div = document.createElement('div');
+                div.className = 'player-card' + (id === socket.id ? ' you' : '');
+                const score = mpState.scores[id] || 0;
+                const name = mpState.players[id] || 'Joueur';
+                div.innerHTML = `<span class="name">${name}</span><span class="score-mp">🎯 ${score}</span>`;
+                list.appendChild(div);
+            });
+        }
+
+        function getPlayerName() {
+            const input = document.getElementById('pseudoInput');
+            return (input && input.value.trim()) || 'Joueur';
+        }
+
+        // ÉVÉNEMENTS SOCKET
+        socket.on('connect', () => updateStatus(true));
+        socket.on('disconnect', () => { updateStatus(false); showMpMsg('🔌 Déconnecté', 'error'); });
+
+        socket.on('roomCreated', (data) => {
+            mpState.roomCode = data.roomCode;
+            mpState.isHost = true;
+            mpState.isInRoom = true;
+            mpState.players = data.players;
+            mpState.scores = data.scores;
+            
+            document.getElementById('roomInfo').style.display = 'block';
+            document.getElementById('roomCodeDisplay').textContent = data.roomCode;
+            document.getElementById('leaveRoomBtn').style.display = 'inline-block';
+            document.getElementById('mpGameControls').style.display = 'block';
+            document.getElementById('createRoomBtn').disabled = true;
+            document.getElementById('joinRoomBtn').disabled = true;
+            document.getElementById('roomCodeInput').disabled = true;
+            document.getElementById('roomStatus').textContent = '👑 Hôte';
+            
+            updatePlayers();
+            showMpMsg('✅ Salle créée ! Code : ' + data.roomCode, 'success');
+            updateStatus(true, 'Salle ' + data.roomCode + ' (Hôte)');
+        });
+
+        socket.on('joinSuccess', (data) => {
+            mpState.roomCode = data.roomCode;
+            mpState.isHost = data.isHost;
+            mpState.isInRoom = true;
+            mpState.players = data.players;
+            mpState.scores = data.scores;
+            
+            document.getElementById('roomInfo').style.display = 'block';
+            document.getElementById('roomCodeDisplay').textContent = data.roomCode;
+            document.getElementById('leaveRoomBtn').style.display = 'inline-block';
+            document.getElementById('mpGameControls').style.display = 'block';
+            document.getElementById('createRoomBtn').disabled = true;
+            document.getElementById('joinRoomBtn').disabled = true;
+            document.getElementById('roomCodeInput').disabled = true;
+            document.getElementById('roomStatus').textContent = '👥 Joueur';
+            
+            updatePlayers();
+            showMpMsg('✅ Rejoint la salle ' + data.roomCode + ' !', 'success');
+            updateStatus(true, 'Salle ' + data.roomCode);
+        });
+
+        socket.on('joinError', (msg) => showMpMsg(msg, 'error'));
+
+        socket.on('playersUpdate', (data) => {
+            mpState.players = data.players;
+            mpState.scores = data.scores;
+            mpState.isHost = socket.id === data.host;
+            updatePlayers();
+            document.getElementById('roomStatus').textContent = mpState.isHost ? '👑 Hôte' : '👥 Joueur';
+            document.querySelectorAll('#mpCategoryList button').forEach(btn => btn.disabled = !mpState.isHost);
+        });
+
+        socket.on('gameStarted', (data) => {
+            mpState.gameStarted = true;
+            showMpMsg('🎮 Quiz "' + data.category + '" commencé !', 'success');
+            if (!document.getElementById('game-panel')) {
+                setTimeout(() => {
+                    const catKey = Object.keys(categoryMapping).find(k => k === data.category);
+                    if (catKey) showGamePanel(catKey, true);
+                }, 300);
+            }
+        });
+
+        socket.on('gameEnded', () => {
+            mpState.gameStarted = false;
+            showMpMsg('🏁 Quiz terminé !', 'info');
+        });
+
+        socket.on('gameError', (msg) => showMpMsg(msg, 'error'));
+
+        // ACTIONS
+        function createRoom() { socket.emit('createRoom', getPlayerName()); }
+        function joinRoom() {
+            const code = document.getElementById('roomCodeInput').value.toUpperCase().trim();
+            if (!code || code.length !== 6) { showMpMsg('❌ Code invalide (6 caractères)', 'error'); return; }
+            socket.emit('joinRoom', { roomCode: code, playerName: getPlayerName() });
+        }
+        function leaveRoom() {
+            if (mpState.roomCode) {
+                socket.emit('leaveRoom', { roomCode: mpState.roomCode });
+                resetMPUI();
+                showMpMsg('🚪 Vous avez quitté la salle', 'info');
+                if (currentGame) closeGame();
+            }
+        }
+
+        function resetMPUI() {
+            document.getElementById('roomInfo').style.display = 'none';
+            document.getElementById('leaveRoomBtn').style.display = 'none';
+            document.getElementById('mpGameControls').style.display = 'none';
+            document.getElementById('createRoomBtn').disabled = false;
+            document.getElementById('joinRoomBtn').disabled = false;
+            document.getElementById('roomCodeInput').disabled = false;
+            document.getElementById('roomCodeInput').value = '';
+            document.getElementById('playersList').innerHTML = '';
+            document.getElementById('playerCount').textContent = '0';
+            updateStatus(false);
+            mpState.isInRoom = false;
+            mpState.roomCode = null;
+            mpState.players = {};
+            mpState.scores = {};
+            mpState.gameStarted = false;
+            mpState.isHost = false;
+        }
+
+        function startMpGame(categoryKey) {
+            if (!mpState.isHost) { showMpMsg('❌ Seul l\'hôte peut lancer', 'error'); return; }
+            if (mpState.gameStarted) { showMpMsg('⚠️ Quiz déjà en cours', 'error'); return; }
+            Object.keys(mpState.scores).forEach(id => mpState.scores[id] = 0);
+            updatePlayers();
+            socket.emit('startGame', { roomCode: mpState.roomCode, category: categoryKey });
+        }
+
+        function updateScoreMp(score) {
+            if (mpState.roomCode) socket.emit('scoreUpdate', { roomCode: mpState.roomCode, score: score });
+        }
+
+        // ============================================================
+        // DONNÉES DU JEU
+        // ============================================================
+        const animeCelebresList = ["Son Goku", "Naruto Uzumaki", "Monkey D. Luffy", "Pikachu", "Sailor Moon", "Ichigo Kurosaki", "Eren Yeager", "Light Yagami", "Levi Ackerman", "Sasuke Uchiha", "Vegeta", "Gojo Satoru", "Tanjiro Kamado", "Killua Zoldyck", "Gon Freecss", "Edward Elric", "Mikasa Ackerman", "Kakashi Hatake", "Itachi Uchiha", "Roronoa Zoro", "Natsu Dragneel", "Deku", "All Might", "Saitama", "Ken Kaneki", "L", "Ash Ketchum", "Alucard", "Spike Spiegel", "Jotaro Kujo"];
+        const animeDetesteList = ["Shou Tucker", "Griffith", "Danzo Shimura", "Rachel", "Mahito", "Sakura Haruno", "Mineta", "Gabi Braun", "Akainu", "Blackbeard", "Frieza", "Kazuya Kinoshita", "Makima", "Orochimaru", "Envy", "Sugou Nobuyuki", "Yukiteru Amano", "Shinji Ikari", "Near", "Malty Melromarc"];
+        const animeFortsList = ["Featherine Augustus Aurora", "The Creator", "Lambdadelta", "Bernkastel", "Akuto Sai", "Zeno", "Ren Fuji", "Mercurius", "Madoka Kaname", "Akemi Homura", "Othinus", "Kami Tenchi", "Rimuru Tempest", "Anos Voldigoad", "Altair", "Medaka Kurokami", "Ajimu Najimi", "Ryougi Shiki", "Sailor Cosmos", "Haruhi Suzumiya"];
+        const animeIntelligentsList = ["Light Yagami", "L", "Johan Liebert", "Lelouch Lamperouge", "Sosuke Aizen", "Ayanokoji Kiyotaka", "Kisuke Urahara", "Senku Ishigami", "Itachi Uchiha", "Shikamaru Nara", "Armin Arlert", "Bulma", "Kurisu Makise", "Sora", "Norman"];
+        const seriesList = ["Walter White", "Jon Snow", "Daenerys Targaryen", "Sherlock Holmes", "Rick Grimes", "Michael Scott", "Tyrion Lannister", "Eleven", "Wednesday Addams", "Joey Tribbiani", "Gregory House", "Dexter Morgan", "Don Draper", "Carrie Bradshaw", "Tony Soprano", "Loki", "Geralt de Riv", "Elliot Alderson", "Klaus Hargreeves", "Joe Goldberg"];
+        const filmsList = ["Harry Potter", "Luke Skywalker", "Jack Sparrow", "James Bond", "Indiana Jones", "Forrest Gump", "John Wick", "Tony Stark", "Peter Parker", "Bruce Wayne", "Ellen Ripley", "Neo", "Tyler Durden", "Michael Corleone", "Hannibal Lecter", "Joker", "Willy Wonka", "Rocky Balboa", "Ethan Hunt", "John McClane"];
+        const sportsMusiqueList = ["Lionel Messi", "Cristiano Ronaldo", "Neymar", "Kylian Mbappe", "Zinedine Zidane", "David Beckham", "Ronaldinho", "Diego Maradona", "Pele", "Karim Benzema", "LeBron James", "Michael Jordan", "Kobe Bryant", "Stephen Curry", "Kevin Durant", "Shaquille O'Neal", "Magic Johnson", "Larry Bird", "Giannis Antetokounmpo", "Allen Iverson", "Serena Williams", "Roger Federer", "Rafael Nadal", "Mike Tyson", "Muhammad Ali", "Usain Bolt", "Michael Phelps", "Tom Brady", "Tiger Woods", "Simone Biles", "Michael Jackson", "Beyonce", "Taylor Swift", "Drake", "Eminem", "Rihanna", "Justin Bieber", "Ed Sheeran", "Ariana Grande", "Kanye West"];
+        const seriesDetesteList = ["Joffrey Baratheon", "Ramsay Bolton", "Dolores Umbridge", "Negan", "Cersei Lannister", "Geoffrey", "Petyr Baelish", "The Night King", "White Walkers", "Umbridge"];
+        const fillesPuissantesList = ["Featherine Augustus Aurora", "Lambdadelta", "Bernkastel", "Beatrice", "Madoka Kaname", "Akemi Homura", "Haruhi Suzumiya", "Altair", "Sailor Cosmos", "Sailor Moon", "Ryougi Shiki", "Medaka Kurokami", "Ajimu Najimi", "Othinus", "Kaguya Otsutsuki"];
+        const meilleursFootballeursList = ["Lionel Messi", "Pelé", "Diego Maradona", "Cristiano Ronaldo", "Johan Cruyff", "Zinedine Zidane", "Ronaldo Nazário", "Michel Platini", "Franz Beckenbauer", "Alfredo Di Stéfano", "Ronaldinho", "Xavi Hernandez", "Andrés Iniesta", "Paolo Maldini", "George Best"];
+        const meilleursEntraineursList = ["Sir Alex Ferguson", "Pep Guardiola", "Rinus Michels", "Arrigo Sacchi", "Carlo Ancelotti", "Johan Cruyff", "José Mourinho", "Viktor Maslov", "Valeriy Lobanovskyi", "Vicente del Bosque"];
+        const meilleursMangasList = ["One Piece", "Golgo 13", "Dragon Ball", "Naruto", "Detective Conan", "Doraemon", "Demon Slayer", "Jujutsu Kaisen", "Attack on Titan", "Slam Dunk", "Bleach", "Hunter x Hunter", "JoJo's Bizarre Adventure", "Fist of the North Star", "Astro Boy"];
+        const meilleursAnimesList = ["Attack on Titan", "Fullmetal Alchemist: Brotherhood", "One Piece", "Hunter × Hunter", "Death Note", "Naruto", "Steins;Gate", "Code Geass", "Dragon Ball Z", "Bleach", "Vinland Saga", "Jujutsu Kaisen", "Demon Slayer: Kimetsu no Yaiba", "Frieren: Beyond Journey's End", "Monster"];
+        const animeIdiotsList = ["Naruto Uzumaki", "Son Goku", "Luffy", "Mineta", "Zenitsu Agatsuma", "Aqua", "Kazuma Satou", "Patrick Star", "Mako Mankanshoku", "Ritsu Kageyama"];
+        const meilleursCombatsList = ["Naruto Uzumaki vs Sasuke Uchiha", "Gogeta vs Broly", "Kakashi Hatake vs Obito Uchiha", "Goku vs Jiren", "Naruto Uzumaki & Sasuke Uchiha vs Momoshiki Ōtsutsuki", "Luffy vs Katakuri", "Netero vs Meruem", "Rock Lee vs Gaara", "Ichigo Kurosaki vs Ulquiorra Cifer", "Satoru Gojo vs Ryomen Sukuna", "Goku vs Frieza", "Luffy vs Kaido", "Yuji Itadori & Aoi Todo vs Mahito", "Sasuke Uchiha vs Itachi Uchiha", "Tengen Uzui vs Gyutaro", "Gohan vs Cell", "Ichigo Kurosaki vs Byakuya Kuchiki", "Jotaro Kujo vs DIO", "Might Guy vs Madara Uchiha", "Rengoku vs Akaza"];
+        const meilleursArcsList = ["Fourmis Chimères", "Marineford", "Shiganshina", "Shibuya", "Soul Society", "Pain", "York Shin City", "Wano", "Freezer", "Coalition"];
+        const meilleuresTechniquesList = ["Kamehameha", "Rasengan", "Bankai", "Genkidama", "Getsuga Tenshō", "Chidori", "Ultra Instinct", "Domain Expansion", "Gear 5", "Amaterasu"];
+        const meilleuresTransformationsList = ["Super Saiyan", "Ultra Instinct", "Super Saiyan 2 Gohan", "Sage Mode", "Madara Rikudo", "Vasto Lorde Ichigo", "Gear 5", "Baryon Mode", "Gon Adulte", "Mugetsu"];
+        const ldcAnnees = [2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026];
+        const ldcValeurs = ["Real Madrid", "Bayern Munich", "Real Madrid", "AC Milan", "FC Porto", "Liverpool", "FC Barcelona", "AC Milan", "Manchester United", "FC Barcelona", "Inter Milan", "FC Barcelona", "Chelsea", "Bayern Munich", "Real Madrid", "FC Barcelona", "Real Madrid", "Real Madrid", "Real Madrid", "Liverpool", "Bayern Munich", "Chelsea", "Real Madrid", "Manchester City", "Real Madrid", "Paris Saint-Germain", "Paris Saint-Germain"];
+        const ballonAnnees = [2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2021,2022,2023,2024,2025];
+        const ballonValeurs = ["Luis Figo", "Michael Owen", "Ronaldo Nazário", "Pavel Nedvěd", "Andriy Shevchenko", "Ronaldinho", "Fabio Cannavaro", "Kaká", "Cristiano Ronaldo", "Lionel Messi", "Lionel Messi", "Lionel Messi", "Lionel Messi", "Cristiano Ronaldo", "Cristiano Ronaldo", "Lionel Messi", "Cristiano Ronaldo", "Cristiano Ronaldo", "Luka Modrić", "Lionel Messi", "Lionel Messi", "Karim Benzema", "Lionel Messi", "Rodri", "Ousmane Dembélé"];
+        const ligueDesChampionsList = ldcAnnees.map((a, i) => `${a} : ${ldcValeurs[i]}`);
+        const ballonDorList = ballonAnnees.map((a, i) => `${a} : ${ballonValeurs[i]}`);
+        const jeuxVideoList = ["Super Mario Bros.", "The Legend of Zelda", "Tetris", "Minecraft", "Grand Theft Auto V", "Final Fantasy", "Metal Gear Solid", "Half-Life 2", "The Witcher 3: Wild Hunt", "Dark Souls"];
+        const superHerosList = ["Spider-Man", "Batman", "Superman", "Iron Man", "Joker", "Captain America", "Wolverine", "Wonder Woman", "Deadpool", "Harley Quinn", "Thor", "Hulk", "Flash", "Black Panther", "Thanos", "Doctor Doom", "Green Lantern", "Magneto", "Aquaman", "Darkseid"];
+        const rapFrUsList = ["Tupac Shakur", "The Notorious B.I.G.", "Jay-Z", "Eminem", "IAM", "Nas", "Booba", "Kendrick Lamar", "NTM", "Dr. Dre", "MC Solaar", "Soprano", "Snoop Dogg", "Kaaris", "Lil Wayne"];
+        
+        const quizData = {
+            series: seriesList, films: filmsList, animeCelebres: animeCelebresList, animeDeteste: animeDetesteList,
+            animeForts: animeFortsList, animeIntelligents: animeIntelligentsList, sportsMusique: sportsMusiqueList,
+            seriesDeteste: seriesDetesteList, fillesPuissantes: fillesPuissantesList, meilleursFootballeurs: meilleursFootballeursList,
+            meilleursEntraineurs: meilleursEntraineursList, meilleursMangas: meilleursMangasList, meilleursAnimes: meilleursAnimesList,
+            animeIdiots: animeIdiotsList, meilleursCombats: meilleursCombatsList, meilleursArcs: meilleursArcsList,
+            meilleuresTechniques: meilleuresTechniquesList, meilleuresTransformations: meilleuresTransformationsList,
+            ligueDesChampions: ligueDesChampionsList, ballonDor: ballonDorList,
+            jeuxVideo: jeuxVideoList, superHeros: superHerosList, rapFrUs: rapFrUsList
+        };
+        
+        const categoryMapping = {
+            series: { data: quizData.series, title: "📺 Séries TV - Top 20 des légendes", showYears: false, yearsList: null },
+            films: { data: quizData.films, title: "🎬 Cinéma - Top 20 des icônes", showYears: false, yearsList: null },
+            animeCelebres: { data: quizData.animeCelebres, title: "🌍 Anime/Manga - Top 30 des plus célèbres au monde", showYears: false, yearsList: null },
+            animeDeteste: { data: quizData.animeDeteste, title: "💀 Anime/Manga - Top 20 des plus détestés", showYears: false, yearsList: null },
+            animeForts: { data: quizData.animeForts, title: "🌌 Anime/Manga - Top 20 des plus puissants (Version Ultime)", showYears: false, yearsList: null },
+            animeIntelligents: { data: quizData.animeIntelligents, title: "🧠 Anime/Manga - Top 15 des génies ultimes", showYears: false, yearsList: null },
+            sportsMusique: { data: quizData.sportsMusique, title: "⚽🏀🎵 Sports & Musique - Top 40 des stars mondiales", showYears: false, yearsList: null },
+            seriesDeteste: { data: quizData.seriesDeteste, title: "👎 Séries TV - Top 10 des plus détestés", showYears: false, yearsList: null },
+            fillesPuissantes: { data: quizData.fillesPuissantes, title: "👸 Anime/Manga - Top 15 des filles les plus puissantes", showYears: false, yearsList: null },
+            meilleursFootballeurs: { data: quizData.meilleursFootballeurs, title: "⚽ Football - Top 15 des meilleurs joueurs de tous les temps", showYears: false, yearsList: null },
+            meilleursEntraineurs: { data: quizData.meilleursEntraineurs, title: "📋 Football - Top 10 des meilleurs entraîneurs de tous les temps", showYears: false, yearsList: null },
+            meilleursMangas: { data: quizData.meilleursMangas, title: "📖 Mangas - Top 15 des meilleurs mangas de tous les temps", showYears: false, yearsList: null },
+            meilleursAnimes: { data: quizData.meilleursAnimes, title: "🎬 Animes - Top 15 des meilleurs animes de tous les temps", showYears: false, yearsList: null },
+            animeIdiots: { data: quizData.animeIdiots, title: "🤪 Anime/Manga - Top 10 des personnages les plus idiots", showYears: false, yearsList: null },
+            meilleursCombats: { data: quizData.meilleursCombats, title: "⚔️ Anime/Manga - Top 20 des meilleurs combats (tapez le nom avec 'vs')", showYears: false, yearsList: null },
+            meilleursArcs: { data: quizData.meilleursArcs, title: "📖 Anime/Manga - Top 10 des meilleurs arcs", showYears: false, yearsList: null },
+            meilleuresTechniques: { data: quizData.meilleuresTechniques, title: "✨ Anime/Manga - Top 10 des meilleures techniques", showYears: false, yearsList: null },
+            meilleuresTransformations: { data: quizData.meilleuresTransformations, title: "🔄 Anime/Manga - Top 10 des meilleures transformations", showYears: false, yearsList: null },
+            ligueDesChampions: { data: quizData.ligueDesChampions, title: "🏆 Ligue des Champions - Vainqueurs de 2000 à 2026", showYears: true, yearsList: ldcAnnees },
+            ballonDor: { data: quizData.ballonDor, title: "🥇 Ballon d'Or - Vainqueurs de 2000 à 2025", showYears: true, yearsList: ballonAnnees },
+            jeuxVideo: { data: quizData.jeuxVideo, title: "🎮 Légendes du Jeu Vidéo - Top 10 des jeux cultes", showYears: false, yearsList: null },
+            superHeros: { data: quizData.superHeros, title: "🦸 Super-héros Marvel & DC - Top 20", showYears: false, yearsList: null },
+            rapFrUs: { data: quizData.rapFrUs, title: "🎤 Rap Français & US - Top 15 des légendes", showYears: false, yearsList: null }
+        };
+        
+        function normalizeString(str) { if (!str) return ''; let normalized = str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); normalized = normalized.replace(/^\d{4}\s*:\s*/, ''); normalized = normalized.replace(/[^a-z0-9\s]/g, '').trim(); return normalized; }
+        let currentGame = null; let timerInterval = null; let isMultiplayerGame = false;
+
+        class QuizGame { constructor(category, categoryKey, questionsList, showYears, yearsList) { this.category = category; this.categoryKey = categoryKey; this.questions = [...questionsList]; this.showYears = showYears; this.yearsList = yearsList; this.correctAnswers = new Array(this.questions.length).fill(false); this.score = 0; this.timeLeft = 600; this.gameActive = true; }
+            findMatchingQuestion(answer) { const normalizedAnswer = normalizeString(answer); for (let i = 0; i < this.questions.length; i++) { if (!this.correctAnswers[i]) { let normalizedQuestion = normalizeString(this.questions[i]); if (normalizedAnswer === normalizedQuestion) return i; const firstWord = normalizedQuestion.split(' ')[0]; if (normalizedAnswer === firstWord && firstWord.length > 2) return i; const words = normalizedQuestion.split(' '); if (words.length > 1 && !normalizedQuestion.includes(':')) { const lastName = words[words.length - 1]; if (normalizedAnswer === lastName && lastName.length > 2) return i; } } } return -1; }
+            submitAnswer(answer) { if (!this.gameActive) return { success: false, gameInactive: true }; const sanitizedAnswer = answer.trim(); const matchIndex = this.findMatchingQuestion(sanitizedAnswer); if (matchIndex === -1) return { success: false, notFound: true }; if (this.correctAnswers[matchIndex]) return { success: false, alreadyAnswered: true }; this.correctAnswers[matchIndex] = true; this.score++; return { success: true, index: matchIndex, correctName: this.questions[matchIndex] }; }
+            isComplete() { return this.correctAnswers.every(correct => correct === true); }
+            getProgress() { const answered = this.correctAnswers.filter(c => c === true).length; return { answered, total: this.questions.length, percentage: (answered / this.questions.length) * 100 }; }
+        }
+
+        function showGamePanel(categoryKey, multiplayer = false) {
+            if (currentGame) closeGame();
+            isMultiplayerGame = multiplayer;
+            const category = categoryMapping[categoryKey];
+            if (!category) return;
+            currentGame = new QuizGame(category, categoryKey, category.data, category.showYears, category.yearsList);
+            let tableRows = '';
+            for (let i = 0; i < currentGame.questions.length; i++) {
+                let displayText = "❓ ???";
+                if (currentGame.showYears && currentGame.yearsList && currentGame.yearsList[i]) {
+                    displayText = `📅 ${currentGame.yearsList[i]} : ???`;
+                }
+                tableRows += `<tr id="row-${i}"><td style="width:60px;text-align:center;font-weight:bold;">${i+1}<\/td><td id="answer-display-${i}">${displayText}<\/td><td id="status-${i}" style="width:70px;text-align:center;">⏳<\/td><\/tr>`;
+            }
+            let infoHtml = '';
+            if (categoryKey === 'meilleursCombats') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez le nom complet avec "vs" (ex: "Naruto Uzumaki vs Sasuke Uchiha").</div>`;
+            else if (categoryKey === 'meilleursArcs') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez juste le nom (ex: "Fourmis Chimères" ou "Pain").</div>`;
+            else if (categoryKey === 'ligueDesChampions') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez le nom du club (ex: "Real Madrid", "Bayern Munich"). L'année est automatiquement associée.</div>`;
+            else if (categoryKey === 'ballonDor') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez le nom du joueur (ex: "Lionel Messi", "Cristiano Ronaldo"). L'année est automatiquement associée.</div>`;
+            const mpBadge = multiplayer ? '<span style="background:#6c5ce7;color:white;padding:4px 14px;border-radius:40px;font-size:0.7rem;margin-left:10px;">👥 Multijoueur</span>' : '';
+            const gameHTML = `<div class="game-panel" id="game-panel"><div class="game-container"><div class="game-header"><h2>${category.title} ${mpBadge}</h2><button class="restart-category-btn" id="restart-category-btn">🔄 Recommencer cette catégorie</button><div class="timer" id="timer">10:00</div><div class="score" id="score">🎯 0/${currentGame.questions.length}</div><button class="close-game" id="close-game-btn">✕ Fermer</button></div><div class="progress" id="progress">📊 Progression: 0/${currentGame.questions.length} (0%)</div>${infoHtml}<div class="quiz-table"><table><thead><tr><th>#</th><th>Année / Personnage</th><th>✅ Statut</th></tr></thead><tbody>${tableRows}</tbody></table></div><div class="input-area"><div class="input-group"><input type="text" id="quick-input" placeholder="✏️ Tape un nom ici..." autocomplete="off"><button id="quick-submit">🎮 Valider</button></div><div id="message"></div><div id="found-list"></div></div></div></div>`;
+            document.body.insertAdjacentHTML('beforeend', gameHTML);
             startTimer();
-            document.getElementById('quick-submit').onclick=handleSubmit;
-            document.getElementById('quick-input').onkeypress=e=>{if(e.key==='Enter')handleSubmit();};
+            document.getElementById('quick-submit').onclick = () => handleQuickSubmit();
+            document.getElementById('quick-input').onkeypress = (e) => { if (e.key === 'Enter') handleQuickSubmit(); };
+            document.getElementById('close-game-btn').onclick = () => closeGame();
+            document.getElementById('restart-category-btn').onclick = () => restartGame();
             document.getElementById('quick-input').focus();
         }
 
-        function handleSubmit() {
-            if(!currentGame||!currentGame.active) return;
-            const input=document.getElementById('quick-input'), a=input.value.trim();
-            if(!a){showMsg('📝 Entrez un nom','error');return;}
-            const r=currentGame.submit(a);
-            if(r.success){
-                playSound(true);
-                document.getElementById(`ans-${r.index}`).textContent=`✅ ${r.name}`;
-                document.getElementById(`ans-${r.index}`).style.color='#28a745';
-                document.getElementById(`stat-${r.index}`).textContent='✓';
-                document.getElementById(`stat-${r.index}`).style.color='#28a745';
-                updateScore();
-                showMsg(`✅ "${r.name}" trouvé !`,'success');
-                input.value=''; input.focus();
-                updateFoundList();
-                if(isMultiplayerGame && mpState.isInRoom) updatePlayerScoreMp(mpState.playerId,currentGame.score);
-                if(currentGame.isComplete()) endGame(true);
-            } else if(r.notFound){ playSound(false); showMsg(`❌ "${a}" pas dans la liste`,'error'); input.value=''; input.focus(); }
-            else if(r.already){ playSound(false); showMsg(`⚠️ "${a}" déjà trouvé`,'error'); input.value=''; input.focus(); }
+        function playSoundCorrect() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 880;
+                gainNode.gain.value = 0.2;
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.15);
+                setTimeout(() => {
+                    const osc2 = audioCtx.createOscillator();
+                    const gain2 = audioCtx.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(audioCtx.destination);
+                    osc2.type = 'sine';
+                    osc2.frequency.value = 1100;
+                    gain2.gain.value = 0.15;
+                    osc2.start();
+                    osc2.stop(audioCtx.currentTime + 0.15);
+                }, 120);
+            } catch (e) {}
         }
 
-        function updateScore(){ const p=currentGame.getProgress(); document.getElementById('score').textContent=`🎯 ${currentGame.score}/${currentGame.questions.length}`; document.getElementById('progress').textContent=`📊 ${p.answered}/${p.total} (${Math.round(p.answered/p.total*100)}%)`; }
-        function updateFoundList(){ const el=document.getElementById('found-list'); if(!el)return; const f=[]; for(let i=0;i<currentGame.questions.length;i++) if(currentGame.correct[i]) f.push(currentGame.questions[i]); el.innerHTML=f.length?`<strong>Trouvés (${f.length}/${currentGame.questions.length}) :</strong> ${f.join(', ')}`:'💡 Tape un nom pour commencer !'; }
-        function startTimer(){ if(timerInterval)clearInterval(timerInterval); timerInterval=setInterval(()=>{ if(!currentGame||!currentGame.active)return; currentGame.timeLeft--; const el=document.getElementById('timer'); if(el){ const m=Math.floor(currentGame.timeLeft/60), s=currentGame.timeLeft%60; el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; if(currentGame.timeLeft<=60)el.style.background='#ff4757'; } if(currentGame.timeLeft<=0)endGame(false); },1000); }
-        function endGame(win){ if(!currentGame)return; currentGame.active=false; if(timerInterval)clearInterval(timerInterval); for(let i=0;i<currentGame.questions.length;i++){ if(!currentGame.correct[i]){ const el=document.getElementById(`ans-${i}`); if(el){el.textContent=`❌ ${currentGame.questions[i]}`;el.style.color='#dc3545';} } } const container=document.querySelector('.game-container'); const pct=Math.round((currentGame.score/currentGame.questions.length)*100); container.innerHTML=`<div class="game-complete"><h2>${win?'🏆 FÉLICITATIONS !':'⏰ TEMPS ÉCOULÉ !'}</h2><p style="font-size:1.5rem;margin:20px 0;">Score : ${currentGame.score}/${currentGame.questions.length} (${pct}%)</p><button class="play-again" onclick="closeGame()">🏠 Retour</button><button class="play-again" onclick="restartGame()">🔄 Rejouer</button></div>`; if(isMultiplayerGame&&mpState.isInRoom&&mpState.isHost)broadcastGameUpdateMp({type:'game_end'}); }
-        function closeGame(){ if(timerInterval){clearInterval(timerInterval);timerInterval=null;} const panel=document.getElementById('gamePanel'); if(panel)panel.remove(); currentGame=null; isMultiplayerGame=false; }
-        function restartGame(){ if(currentGame){ const key=categories.find(c=>c.label===currentGame.label)?.key; const mp=isMultiplayerGame; closeGame(); if(key)setTimeout(()=>showGame(key,mp),50); } }
-        function playSound(good){ try{ const ctx=new(window.AudioContext||window.webkitAudioContext)(); const osc=ctx.createOscillator(), gain=ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.type=good?'sine':'sawtooth'; osc.frequency.value=good?880:300; gain.gain.value=good?0.2:0.1; osc.start(); osc.stop(ctx.currentTime+(good?0.15:0.25)); if(good){setTimeout(()=>{const o2=ctx.createOscillator(),g2=ctx.createGain();o2.connect(g2);g2.connect(ctx.destination);o2.type='sine';o2.frequency.value=1100;g2.gain.value=0.15;o2.start();o2.stop(ctx.currentTime+0.15);},120);} }catch(e){} }
-        function showMsg(msg,type){ const el=document.getElementById('message'); if(!el)return; el.innerHTML=`<div class="message ${type}">${msg}</div>`; setTimeout(()=>el.innerHTML='',3000); }
+        function playSoundWrong() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.value = 300;
+                gainNode.gain.value = 0.1;
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.25);
+            } catch (e) {}
+        }
+
+        function handleQuickSubmit() { 
+            if (!currentGame || !currentGame.gameActive) return; 
+            const input = document.getElementById('quick-input'); 
+            if (!input) return; 
+            const answer = input.value.trim(); 
+            if (answer === '') { 
+                showMessage('📝 Veuillez entrer un nom', 'error'); 
+                return; 
+            } 
+            const result = currentGame.submitAnswer(answer); 
+            if (result.success) { 
+                playSoundCorrect();
+                updateRow(result.index, result.correctName); 
+                updateScoreAndProgress(); 
+                showMessage(`✅ BRAVO ! "${result.correctName}" ajouté !`, 'success'); 
+                input.value = ''; 
+                input.focus(); 
+                updateFoundList(); 
+                if (isMultiplayerGame && mpState.isInRoom) {
+                    updateScoreMp(currentGame.score);
+                }
+                if (currentGame.isComplete()) endGame(true); 
+            } else if (result.notFound) {
+                playSoundWrong();
+                showMessage(`❌ "${answer}" n'est pas dans la liste. Réessaie !`, 'error');
+            } else if (result.alreadyAnswered) {
+                playSoundWrong();
+                showMessage(`⚠️ "${answer}" a déjà été trouvé !`, 'error');
+            } 
+            input.value = ''; 
+            input.focus(); 
+        }
+
+        function updateRow(index, correctName) { const answerDisplay = document.getElementById(`answer-display-${index}`); const statusCell = document.getElementById(`status-${index}`); if (answerDisplay) { if (currentGame.showYears && currentGame.yearsList && currentGame.yearsList[index]) { answerDisplay.innerHTML = `✅ ${currentGame.yearsList[index]} : ${correctName.replace(/^\d{4}\s*:\s*/, '')}`; } else { answerDisplay.innerHTML = `✅ ${correctName}`; } answerDisplay.style.color = '#28a745'; answerDisplay.style.fontWeight = 'bold'; } if (statusCell) { statusCell.innerHTML = '✓'; statusCell.style.color = '#28a745'; statusCell.style.fontSize = '20px'; statusCell.style.fontWeight = 'bold'; } }
+        function updateFoundList() { const foundListDiv = document.getElementById('found-list'); if (!foundListDiv) return; const found = []; const notFound = []; for (let i = 0; i < currentGame.questions.length; i++) { if (currentGame.correctAnswers[i]) { let display = currentGame.questions[i]; if (currentGame.showYears && currentGame.yearsList) { display = `${currentGame.yearsList[i]} : ${display.replace(/^\d{4}\s*:\s*/, '')}`; } found.push(display); } else notFound.push(i + 1); } if (found.length > 0) foundListDiv.innerHTML = `<strong>🏆 Déjà trouvés (${found.length}/${currentGame.questions.length}) :</strong> ${found.join(', ')}<br><strong>⏳ Restants :</strong> positions ${notFound.join(', ')}`; else foundListDiv.innerHTML = `💡 Tape un nom pour commencer l'aventure Memoriz !`; }
+        function updateScoreAndProgress() { const progress = currentGame.getProgress(); const scoreElement = document.getElementById('score'); const progressElement = document.getElementById('progress'); if (scoreElement) scoreElement.textContent = `🎯 ${currentGame.score}/${currentGame.questions.length}`; if (progressElement) progressElement.textContent = `📊 Progression: ${progress.answered}/${progress.total} (${Math.round(progress.percentage)}%)`; }
+        function startTimer() { if (timerInterval) clearInterval(timerInterval); timerInterval = setInterval(() => { if (!currentGame || !currentGame.gameActive) return; if (currentGame.timeLeft <= 0) endGame(false); else { currentGame.timeLeft--; const timerElement = document.getElementById('timer'); if (timerElement) { const minutes = Math.floor(currentGame.timeLeft / 60); const seconds = currentGame.timeLeft % 60; timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`; if (currentGame.timeLeft <= 60) timerElement.classList.add('warning'); } } }, 1000); }
+        function showMessage(msg, type) { const messageDiv = document.getElementById('message'); if (!messageDiv) return; messageDiv.innerHTML = `<div class="message ${type}">${msg}</div>`; setTimeout(() => { if (messageDiv) messageDiv.innerHTML = ''; }, 3000); }
+        function shareOnWhatsApp() { if (!currentGame) return; const text = `🎯 J'ai fait ${currentGame.score}/${currentGame.questions.length} (${Math.round(currentGame.getProgress().percentage)}%) au quiz Memoriz !`; window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank'); }
+        function shareOnTwitter() { if (!currentGame) return; const text = `🎯 J'ai fait ${currentGame.score}/${currentGame.questions.length} (${Math.round(currentGame.getProgress().percentage)}%) au quiz Memoriz !`; window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank'); }
+        function endGame(completed) { if (!currentGame || !currentGame.gameActive) return; currentGame.gameActive = false; if (timerInterval) clearInterval(timerInterval); const gameContainer = document.querySelector('.game-container'); if (!gameContainer) return; const percentage = (currentGame.score / currentGame.questions.length) * 100; for (let i = 0; i < currentGame.questions.length; i++) { const answerDisplay = document.getElementById(`answer-display-${i}`); if (answerDisplay && !currentGame.correctAnswers[i]) { if (currentGame.showYears && currentGame.yearsList) { answerDisplay.innerHTML = `❌ ${currentGame.yearsList[i]} : ${currentGame.questions[i].replace(/^\d{4}\s*:\s*/, '')}`; } else { answerDisplay.innerHTML = `❌ ${currentGame.questions[i]}`; } answerDisplay.style.color = '#dc3545'; } } 
+            if (isMultiplayerGame && mpState.isInRoom && mpState.isHost) {
+                socket.emit('gameEnd', { roomCode: mpState.roomCode });
+            }
+            gameContainer.innerHTML = `<div class="game-complete"><h2>${completed ? '🏆 FÉLICITATIONS ! 🏆' : '⏰ TEMPS ÉCOULÉ ! ⏰'}</h2><p style="font-size:1.5rem;margin:20px 0;">Ton score : ${currentGame.score}/${currentGame.questions.length} (${Math.round(percentage)}%)</p><p>${completed ? 'Tu as dominé ce défi Memoriz !' : 'Continue à t\'entraîner, tu vas y arriver !'}</p><button class="play-again" onclick="closeGame()">🏠 Retour aux catégories</button><button class="play-again" onclick="restartGame()">🔄 Rejouer</button><div style="margin-top:20px;"><button class="share-btn" onclick="shareOnWhatsApp()">💬 Partager sur WhatsApp</button><button class="share-btn share-twitter" onclick="shareOnTwitter()">🐦 Partager sur X (Twitter)</button></div></div>`; }
+        function closeGame() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } const gamePanel = document.getElementById('game-panel'); if (gamePanel) gamePanel.remove(); currentGame = null; isMultiplayerGame = false; }
+        function restartGame() { if (currentGame) { const categoryKey = currentGame.categoryKey; const mp = isMultiplayerGame; closeGame(); setTimeout(() => showGamePanel(categoryKey, mp), 50); } }
 
         // ============================================================
-        // MULTIJOUEUR
+        // LEGAL, BLOG, THEME
         // ============================================================
-        let mpState={roomCode:null,playerId:null,playerName:'Joueur',isHost:false,isInRoom:false,players:[],scores:{},gameStarted:false};
-        let mpChannel=null;
-
-        function getPlayerId(){ if(!mpState.playerId) mpState.playerId='p_'+Date.now()+'_'+Math.random().toString(36).substr(2,4); return mpState.playerId; }
-        function getPlayerName(){ const input=document.getElementById('pseudoInput'); if(input&&input.value.trim()) mpState.playerName=input.value.trim(); return mpState.playerName||'Joueur'; }
-        function showMpMsg(msg,type='info'){ const el=document.getElementById('mpMessage'); el.textContent=msg; el.className='mp-message '+type; setTimeout(()=>{el.className='mp-message';},5000); }
-        function updateStatus(connected,msg=''){ const el=document.getElementById('connectionStatus'); el.innerHTML=connected?'🟢 <span class="status-online">Connecté</span>'+(msg?' | '+msg:''):'⚪ <span class="status-offline">Déconnecté</span>'; }
-        function updatePlayers(){ const list=document.getElementById('playersList'), count=document.getElementById('playerCount'); list.innerHTML=''; count.textContent=mpState.players.length; mpState.players.forEach(p=>{ const div=document.createElement('div'); div.className='player-card'+(p.id===mpState.playerId?' you':''); const score=mpState.scores[p.id]||0; div.innerHTML=`<span>${p.name}</span><span class="score-mp">🎯 ${score}</span><span class="status-badge">${p.id===mpState.playerId?'👤 Toi':p.isHost?'👑 Hôte':''}</span>`; list.appendChild(div); }); }
-
-        async function loadPlayers(roomCode){ try{ const {data,error}=await supabase.from('players').select('*').eq('room_code',roomCode); if(error)throw error; mpState.players=data.map(p=>({id:p.player_id,name:p.player_name,isHost:p.is_host})); const {data:scores}=await supabase.from('room_scores').select('*').eq('room_code',roomCode); if(scores){mpState.scores={};scores.forEach(s=>{mpState.scores[s.player_id]=s.score||0;});} updatePlayers(); }catch(e){console.error(e);} }
-
-        function setupChannel(roomCode){ if(mpChannel)supabase.removeChannel(mpChannel); mpChannel=supabase.channel(`room-${roomCode}`); mpChannel.on('postgres_changes',{event:'*',schema:'public',table:'players',filter:`room_code=eq.${roomCode}`},async()=>{await loadPlayers(roomCode);}); mpChannel.on('postgres_changes',{event:'*',schema:'public',table:'room_scores',filter:`room_code=eq.${roomCode}`},async()=>{await loadPlayers(roomCode);}); mpChannel.on('broadcast',{event:'game_update'},(payload)=>{const d=payload.payload; if(d.type==='score_update'){mpState.scores[d.playerId]=d.score; updatePlayers();} if(d.type==='game_start'&&d.category){mpState.gameCategory=d.category; mpState.gameStarted=true; showMpMsg(`🎮 Quiz "${d.category}" commencé !`,'success'); if(!document.getElementById('gamePanel'))setTimeout(()=>showGame(d.category,true),300);} if(d.type==='game_end'){mpState.gameStarted=false; showMpMsg('🏁 Quiz terminé !','info');} }); mpChannel.subscribe(); }
-
-        async function broadcastGameUpdateMp(data){ if(!mpChannel||!mpState.roomCode)return; mpChannel.send({type:'broadcast',event:'game_update',payload:data}); }
-
-        async function updatePlayerScoreMp(playerId,score){ if(!mpState.roomCode)return; mpState.scores[playerId]=score; updatePlayers(); broadcastGameUpdateMp({type:'score_update',playerId,score}); try{await supabase.from('room_scores').upsert({room_code:mpState.roomCode,player_id:playerId,score,updated_at:new Date().toISOString()},{onConflict:'room_code, player_id'});}catch(e){} }
-
-        async function createRoomMp(){ const id=getPlayerId(), name=getPlayerName(); if(!name.trim()){showMpMsg('❌ Entrez un pseudo','error');return;} let code='', attempts=0, exists=true; while(exists&&attempts<20){ code=generateCode(); const {data}=await supabase.from('rooms').select('code').eq('code',code).maybeSingle(); exists=data!==null; attempts++; } if(attempts>=20){showMpMsg('❌ Erreur création','error');return;} try{ await supabase.from('rooms').insert([{code,created_by:id,status:'waiting'}]); await supabase.from('players').insert([{room_code:code,player_id:id,player_name:name,is_host:true}]); mpState.roomCode=code; mpState.isInRoom=true; mpState.isHost=true; mpState.playerId=id; mpState.playerName=name; mpState.players=[{id,name,isHost:true}]; mpState.scores={}; mpState.scores[id]=0; setupChannel(code); updateUI(); showMpMsg(`✅ Salle créée ! Code : ${code}`,'success'); updateStatus(true,`Salle ${code} (Hôte)`); }catch(e){showMpMsg('❌ Erreur: '+e.message,'error');} }
-
-        function generateCode(){ const c='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; let r=''; for(let i=0;i<6;i++)r+=c.charAt(Math.floor(Math.random()*c.length)); return r; }
-
-        async function joinRoomMp(code){ const id=getPlayerId(), name=getPlayerName(); if(!code||code.length!==6){showMpMsg('❌ Code invalide (6 caractères)','error');return;} if(!name.trim()){showMpMsg('❌ Entrez un pseudo','error');return;} try{ const {data:room}=await supabase.from('rooms').select('*').eq('code',code.toUpperCase()).single(); if(!room){showMpMsg('❌ Salle introuvable','error');return;} await supabase.from('players').insert([{room_code:code.toUpperCase(),player_id:id,player_name:name,is_host:false}]); mpState.roomCode=code.toUpperCase(); mpState.isInRoom=true; mpState.isHost=false; mpState.playerId=id; mpState.playerName=name; setupChannel(code.toUpperCase()); await loadPlayers(code.toUpperCase()); updateUI(); showMpMsg(`✅ Rejoint ${code.toUpperCase()} !`,'success'); updateStatus(true,`Salle ${code.toUpperCase()}`); }catch(e){showMpMsg('❌ Erreur: '+e.message,'error');} }
-
-        async function leaveRoomMp(){ if(!mpState.roomCode||!mpState.playerId)return; try{ await supabase.from('players').delete().eq('room_code',mpState.roomCode).eq('player_id',mpState.playerId); if(mpState.isHost){await supabase.from('rooms').delete().eq('code',mpState.roomCode); await supabase.from('room_scores').delete().eq('room_code',mpState.roomCode); showMpMsg('🚪 Salle fermée','info');}else showMpMsg('🚪 Vous avez quitté','info'); }catch(e){} resetUI(); if(currentGame)closeGame(); }
-
-        function resetUI(){ document.getElementById('roomInfo').style.display='none'; document.getElementById('leaveRoomBtn').style.display='none'; document.getElementById('mpGameControls').style.display='none'; document.getElementById('createRoomBtn').disabled=false; document.getElementById('joinRoomBtn').disabled=false; document.getElementById('roomCodeInput').disabled=false; document.getElementById('roomCodeInput').value=''; document.getElementById('playersList').innerHTML=''; document.getElementById('playerCount').textContent='0'; updateStatus(false); if(mpChannel){supabase.removeChannel(mpChannel);mpChannel=null;} mpState.isInRoom=false; mpState.roomCode=null; mpState.players=[]; mpState.scores={}; mpState.gameStarted=false; mpState.isHost=false; }
-
-        function updateUI(){ document.getElementById('roomInfo').style.display='block'; document.getElementById('roomCodeDisplay').textContent=mpState.roomCode; document.getElementById('leaveRoomBtn').style.display='inline-block'; document.getElementById('mpGameControls').style.display='block'; document.getElementById('createRoomBtn').disabled=true; document.getElementById('joinRoomBtn').disabled=true; document.getElementById('roomCodeInput').disabled=true; document.getElementById('roomStatus').textContent=mpState.isHost?'👑 Hôte (peut lancer les quiz)':'👥 Joueur'; updatePlayers(); const list=document.getElementById('mpCategoryList'); list.innerHTML=''; const mpKeys=['series','films','anime','sports','musique','football','mangas','jeuxvideo','superheros','rap']; mpKeys.forEach(key=>{const def=categories.find(c=>c.key===key); if(!def)return; const btn=document.createElement('button'); btn.className='mp-btn secondary'; btn.textContent=def.label; btn.style.fontSize='0.75rem'; btn.style.padding='5px 14px'; btn.onclick=()=>startMpGame(key); if(!mpState.isHost)btn.disabled=true; list.appendChild(btn);}); }
-
-        async function startMpGame(key){ if(!mpState.isHost){showMpMsg('❌ Seul l\'hôte peut lancer','error');return;} if(mpState.gameStarted){showMpMsg('⚠️ Quiz déjà en cours','error');return;} try{await supabase.from('room_scores').delete().eq('room_code',mpState.roomCode);}catch(e){} mpState.scores={}; mpState.players.forEach(p=>{mpState.scores[p.id]=0;}); updatePlayers(); broadcastGameUpdateMp({type:'game_start',category:key,hostId:mpState.playerId}); if(currentGame)closeGame(); setTimeout(()=>showGame(key,true),300); }
+        const legalContent = { 
+            privacy: { title: "🔒 Confidentialité", content: "<h2>Politique de Confidentialité</h2><p>Chez Memoriz, la protection de vos données est notre priorité. Nous ne collectons aucune information personnelle vous concernant. Aucun cookie de traçage n'est utilisé sur notre site. Votre activité de quiz reste strictement anonyme. Pour toute question, contactez-nous à : <strong>jitihh700@gmail.com</strong></p>" }, 
+            terms: { title: "📜 Conditions Générales", content: "<h2>Conditions Générales d'Utilisation</h2><p><strong>1. Acceptation des conditions</strong><br>En utilisant Memoriz, vous acceptez pleinement nos conditions.</p><p><strong>2. Service gratuit</strong><br>Memoriz est entièrement gratuit. Aucun abonnement ni paiement n'est requis.</p><p><strong>3. Propriété intellectuelle</strong><br>Le contenu des quiz (noms de personnages, œuvres) appartient à leurs propriétaires respectifs. Memoriz est un site éducatif et ludique.</p><p><strong>4. Limitation de responsabilité</strong><br>Memoriz s'efforce de maintenir l'exactitude des informations mais ne peut garantir l'absence d'erreur.</p><p><strong>5. Contact</strong><br>Pour toute réclamation : <strong>jitihh700@gmail.com</strong></p>" }, 
+            mentions: { title: "⚖️ Mentions légales", content: "<h2>Mentions légales</h2><p><strong>Éditeur du site :</strong><br>Memoriz<br>Email : jitihh700@gmail.com</p><p><strong>Hébergement :</strong><br>Render Inc.<br>525 Brannan St, San Francisco, CA 94107, États-Unis</p><p><strong>Directeur de publication :</strong><br>L'équipe Memoriz</p><p><strong>Propriété intellectuelle :</strong><br>L'ensemble des contenus textuels et graphiques de Memoriz sont protégés par le droit d'auteur. Les noms de personnages et œuvres cités appartiennent à leurs ayants droit respectifs.</p>" }, 
+            about: { title: "ℹ️ À propos de Memoriz", content: "<h2>Notre histoire</h2><p>Memoriz est né en 2022 d'une passion commune pour les quiz, la culture pop et les jeux de mémoire. Notre mission : rendre l'apprentissage ludique et accessible à tous.</p><p><strong>🎯 Notre objectif :</strong> Créer la plus grande base de quiz francophone sur les célébrités, animés, sports et musiques.</p><p><strong>📈 Chiffres clés :</strong><br>- 20 catégories de quiz<br>- Plus de 300 questions uniques<br>- Des milliers de joueurs chaque mois</p><p><strong>💡 Pour nous contacter :</strong> jitihh700@gmail.com</p><p><strong>📱 Retrouvez-nous sur les réseaux :</strong><br>YouTube, TikTok, Twitch, WhatsApp - Tous les liens sont en bas de page !</p>" }, 
+            contact: { title: "📧 Contact", content: "<h2>Contactez-nous</h2><p>Une question ? Une suggestion de quiz ? Un problème technique ? Nous sommes là pour vous !</p><p><strong>📨 Email :</strong> <a href='mailto:jitihh700@gmail.com'>jitihh700@gmail.com</a></p><p><strong>⏰ Délai de réponse :</strong> Sous 48h ouvrées.</p><p><strong>📱 Réseaux sociaux :</strong></p><ul><li>🎥 YouTube : <a href='https://youtube.com/@noironik' target='_blank'>@noironik</a></li><li>🎵 TikTok : <a href='https://tiktok.com/@noironik' target='_blank'>@noironik</a></li><li>📺 Twitch : <a href='https://twitch.tv/noironik1' target='_blank'>noironik1</a></li><li>💬 WhatsApp : <a href='https://wa.me/2250708608958?text=Salut%20Memoriz%20!' target='_blank'>noironik</a></li></ul><p>N'hésitez pas à nous suivre pour ne rien rater des nouveautés Memoriz !</p>" } 
+        };
+        
+        function showLegalPage(page) { const modal = document.getElementById('legal-modal'); const modalBody = document.getElementById('modal-body'); const content = legalContent[page]; if (content) { modalBody.innerHTML = `<div class="legal-content">${content.content}</div>`; modal.style.display = 'block'; } }
+        function initLegalPages() { const modal = document.getElementById('legal-modal'); const closeBtn = document.querySelector('.close-modal'); document.getElementById('privacy-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('privacy'); }); document.getElementById('terms-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('terms'); }); document.getElementById('mentions-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('mentions'); }); document.getElementById('about-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('about'); }); document.getElementById('contact-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('contact'); }); if (closeBtn) closeBtn.onclick = () => { modal.style.display = 'none'; }; window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; }; }
+        function initBlogArticles() { document.querySelectorAll('.read-more').forEach(button => { button.addEventListener('click', (e) => { const blogId = button.getAttribute('data-blog'); const content = document.getElementById(`${blogId}-content`); if (content) { const isVisible = content.classList.contains('show'); if (!isVisible) { content.classList.add('show'); button.textContent = 'Réduire ↑'; } else { content.classList.remove('show'); button.textContent = 'Lire la suite →'; } } }); }); }
+        function initTheme() { const savedTheme = localStorage.getItem('memoriz_theme'); if (savedTheme === 'light') document.body.classList.add('light-mode'); document.getElementById('themeToggle').addEventListener('click', () => { document.body.classList.toggle('light-mode'); localStorage.setItem('memoriz_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); }); }
 
         // ============================================================
-        // RENDU CATÉGORIES + INIT
+        // INIT
         // ============================================================
-        function renderCategories(){ const grid=document.getElementById('categoryGrid'); grid.innerHTML=''; categories.forEach(cat=>{ const card=document.createElement('div'); card.className='category-card'; card.innerHTML=`<h3>${cat.label}</h3><span class="questions-count">${cat.data.length} pers.</span>`; card.onclick=()=>showGame(cat.key,false); grid.appendChild(card); }); }
-
-        document.addEventListener('DOMContentLoaded',()=>{
-            renderCategories();
-            document.getElementById('createRoomBtn').onclick=createRoomMp;
-            document.getElementById('joinRoomBtn').onclick=()=>{const code=document.getElementById('roomCodeInput').value.toUpperCase().trim(); joinRoomMp(code);};
-            document.getElementById('leaveRoomBtn').onclick=leaveRoomMp;
-            document.getElementById('copyRoomCodeBtn').onclick=()=>{if(mpState.roomCode){navigator.clipboard?.writeText(mpState.roomCode); showMpMsg('📋 Copié !','success');}};
-            document.getElementById('roomCodeInput').onkeypress=e=>{if(e.key==='Enter'){const code=document.getElementById('roomCodeInput').value.toUpperCase().trim(); joinRoomMp(code);}};
-            document.getElementById('pseudoInput').value='Joueur_'+Math.floor(Math.random()*1000);
+        document.addEventListener('DOMContentLoaded', () => {
+            // Catégories solo
+            document.querySelectorAll('.category-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const category = card.getAttribute('data-category');
+                    if (category) showGamePanel(category, false);
+                });
+            });
+            
+            // Multijoueur
+            document.getElementById('createRoomBtn').onclick = createRoom;
+            document.getElementById('joinRoomBtn').onclick = joinRoom;
+            document.getElementById('leaveRoomBtn').onclick = leaveRoom;
+            document.getElementById('copyRoomCodeBtn').onclick = () => {
+                if (mpState.roomCode) {
+                    navigator.clipboard?.writeText(mpState.roomCode);
+                    showMpMsg('📋 Copié !', 'success');
+                }
+            };
+            document.getElementById('roomCodeInput').onkeypress = (e) => {
+                if (e.key === 'Enter') joinRoom();
+            };
+            
+            // Catégories multijoueur
+            const mpCategoryList = document.getElementById('mpCategoryList');
+            const mpKeys = ['series', 'films', 'animeCelebres', 'sportsMusique', 'meilleursFootballeurs', 
+                           'meilleursMangas', 'meilleursAnimes', 'ligueDesChampions', 'ballonDor', 
+                           'jeuxVideo', 'superHeros', 'rapFrUs'];
+            mpKeys.forEach(key => {
+                const def = categoryMapping[key];
+                if (!def) return;
+                const btn = document.createElement('button');
+                btn.className = 'mp-btn secondary';
+                btn.textContent = def.title.split(' - ')[0];
+                btn.style.fontSize = '0.75rem';
+                btn.style.padding = '6px 14px';
+                btn.onclick = () => startMpGame(key);
+                btn.disabled = true;
+                mpCategoryList.appendChild(btn);
+            });
+            
+            initLegalPages();
+            initBlogArticles();
+            initTheme();
+            
+            document.getElementById('pseudoInput').value = 'Joueur_' + Math.floor(Math.random() * 1000);
             updateStatus(false);
         });
 
-        window.closeGame=closeGame; window.restartGame=restartGame;
+        window.closeGame = closeGame;
+        window.restartGame = restartGame;
+        window.shareOnWhatsApp = shareOnWhatsApp;
+        window.shareOnTwitter = shareOnTwitter;
     </script>
 </body>
 </html>
