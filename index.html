@@ -36,9 +36,6 @@
     <meta name="twitter:description" content="Testez vos connaissances sur les célébrités, anime, sports, musiques, jeux vidéo, super-héros et rap. Quiz gratuit avec chronomètre.">
     <meta name="twitter:image" content="https://memoriz.onrender.com/favicon-96x96.png">
 
-    <!-- Socket.IO -->
-    <script src="/socket.io/socket.io.js"></script>
-
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -321,109 +318,6 @@
         .category-card p { opacity: 0.85; margin-bottom: 12px; }
         .questions-count { display: inline-block; background: linear-gradient(135deg, #ff4757, #ff6b6b); color: white; padding: 5px 18px; border-radius: 40px; font-size: 0.85rem; font-weight: bold; }
         
-        /* ===== MULTIJOUEUR ===== */
-        .multiplayer-section {
-            background: rgba(255,255,255,0.05);
-            border-radius: 30px;
-            padding: 25px 30px;
-            margin-bottom: 40px;
-            border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-        }
-        .multiplayer-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        .multiplayer-header h2 {
-            font-size: 1.8rem;
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .mp-btn {
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            color: white;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            font-size: 0.95rem;
-        }
-        .mp-btn:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(108,92,231,0.4); }
-        .mp-btn.secondary { background: linear-gradient(135deg, #00b894, #00cec9); }
-        .mp-btn.danger { background: linear-gradient(135deg, #e17055, #d63031); }
-        .mp-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        
-        .room-controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            align-items: center;
-        }
-        .room-controls input {
-            padding: 10px 18px;
-            border-radius: 50px;
-            border: 2px solid rgba(255,255,255,0.2);
-            background: rgba(255,255,255,0.1);
-            color: white;
-            font-size: 1rem;
-            flex: 1;
-            min-width: 150px;
-            outline: none;
-        }
-        .room-controls input:focus { border-color: #6c5ce7; }
-        
-        .players-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 12px;
-        }
-        .player-card {
-            background: rgba(255,255,255,0.08);
-            padding: 10px 18px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .player-card .name { font-weight: 600; }
-        .player-card .score-mp { 
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            padding: 2px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            color: white;
-        }
-        .player-card.you { border-color: #6c5ce7; background: rgba(108,92,231,0.15); }
-        
-        .mp-message {
-            padding: 12px 20px;
-            border-radius: 20px;
-            margin-top: 10px;
-            display: none;
-        }
-        .mp-message.success { display: block; background: rgba(0,184,148,0.15); border-left: 4px solid #00b894; }
-        .mp-message.error { display: block; background: rgba(225,112,85,0.15); border-left: 4px solid #e17055; }
-        .mp-message.info { display: block; background: rgba(108,92,231,0.15); border-left: 4px solid #6c5ce7; }
-        
-        #roomInfo { margin-top: 12px; display: none; }
-        #mpGameControls { margin-top: 12px; display: none; }
-        #mpCategoryList { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-        #mpCategoryList button { font-size: 0.75rem; padding: 6px 14px; }
-        
-        .status-online { color: #00b894; }
-        .status-offline { color: #e17055; }
-        /* ===== FIN MULTIJOUEUR ===== */
-        
         .blog-section { max-width: 800px; margin: 40px auto; padding: 20px; }
         .blog-section h2 { text-align: center; margin-bottom: 30px; font-size: 2rem; background: linear-gradient(135deg, #ffa502, #ff6b6b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .blog-article { background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); padding: 30px; border-radius: 24px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s ease, background 0.3s ease; cursor: pointer; }
@@ -549,43 +443,6 @@
             </a>
         </header>
 
-        <!-- ===== MULTIJOUEUR ===== -->
-        <div class="multiplayer-section">
-            <div class="multiplayer-header">
-                <h2>👥 Mode Multijoueur</h2>
-                <span id="connectionStatus" style="font-size:0.9rem;">⚪ <span class="status-offline">Déconnecté</span></span>
-            </div>
-            
-            <div class="room-controls">
-                <input type="text" id="pseudoInput" placeholder="👤 Pseudo" value="Joueur" style="flex:0.5; min-width:100px;">
-                <input type="text" id="roomCodeInput" placeholder="🔑 Code (6 caractères)" maxlength="6">
-                <button class="mp-btn" id="createRoomBtn">🆕 Créer</button>
-                <button class="mp-btn secondary" id="joinRoomBtn">🔗 Rejoindre</button>
-                <button class="mp-btn danger" id="leaveRoomBtn" style="display:none;">🚪 Quitter</button>
-            </div>
-            
-            <div id="roomInfo" style="margin-top:12px; display:none;">
-                <p><strong>🏠 Salle :</strong> <span id="roomCodeDisplay"></span> 
-                    <button class="mp-btn" style="padding:4px 12px; font-size:0.7rem;" id="copyRoomCodeBtn">📋 Copier</button>
-                    <span style="margin-left:15px; font-size:0.9rem; opacity:0.7;" id="roomStatus">En attente...</span>
-                </p>
-            </div>
-            
-            <div id="playersContainer">
-                <p style="opacity:0.7;">👥 Joueurs : <span id="playerCount">0</span></p>
-                <div class="players-list" id="playersList"></div>
-            </div>
-            
-            <div id="mpMessage" class="mp-message"></div>
-            
-            <div id="mpGameControls" style="margin-top:12px; display:none;">
-                <hr style="border-color:rgba(255,255,255,0.1); margin:12px 0;">
-                <p><strong>🎮 Lancer un quiz :</strong> <span style="font-size:0.8rem; opacity:0.6;">(hôte uniquement)</span></p>
-                <div id="mpCategoryList"></div>
-            </div>
-        </div>
-        <!-- ===== FIN MULTIJOUEUR ===== -->
-
         <div class="categories">
             <h2>📚 Choisis ton défi</h2>
             <div class="category-grid">
@@ -708,12 +565,12 @@
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                const color = document.body.classList.contains('light-mode') ? 'rgba(0, 0, 0, 0.25)' : `rgba(255, 255, 255, ${this.opacity})`;
-                ctx.fillStyle = color;
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
                 ctx.fill();
             }
         }
 
+        // Création des particules
         function initParticles(count = 120) {
             particles = [];
             for (let i = 0; i < count; i++) {
@@ -722,6 +579,7 @@
         }
         initParticles(120);
 
+        // Animation
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let p of particles) {
@@ -732,199 +590,29 @@
         }
         animateParticles();
 
-        function updateParticlesForTheme() {
-            // Les particules se mettent à jour automatiquement
+        // Adapter les couleurs en mode clair
+        function updateParticlesForTheme(isLight) {
+            // On change juste la couleur au prochain frame (via un flag)
+            // On va redéfinir le draw des particules en fonction du thème
+            Particle.prototype.draw = function() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                const color = document.body.classList.contains('light-mode') ? 'rgba(0, 0, 0, 0.25)' : `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.fillStyle = color;
+                ctx.fill();
+            };
         }
+        updateParticlesForTheme(false);
 
+        // Observer le changement de thème
         const themeToggle = document.getElementById('themeToggle');
         themeToggle.addEventListener('click', function() {
-            document.body.classList.toggle('light-mode');
-            localStorage.setItem('memoriz_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+            setTimeout(() => {
+                updateParticlesForTheme(document.body.classList.contains('light-mode'));
+            }, 50);
         });
 
-        // ============================================================
-        // SOCKET.IO MULTIJOUEUR
-        // ============================================================
-        const socket = io();
-
-        let mpState = {
-            roomCode: null,
-            playerName: 'Joueur',
-            isHost: false,
-            isInRoom: false,
-            players: {},
-            scores: {},
-            gameStarted: false
-        };
-
-        function showMpMsg(msg, type) {
-            const el = document.getElementById('mpMessage');
-            el.textContent = msg;
-            el.className = 'mp-message';
-            el.style.display = 'block';
-            if (type === 'success') el.style.background = 'rgba(0,184,148,0.15)';
-            else if (type === 'error') el.style.background = 'rgba(225,112,85,0.15)';
-            else el.style.background = 'rgba(108,92,231,0.15)';
-            el.style.borderLeft = '4px solid ' + (type === 'success' ? '#00b894' : type === 'error' ? '#e17055' : '#6c5ce7');
-            setTimeout(() => { el.style.display = 'none'; }, 5000);
-        }
-
-        function updateStatus(connected, msg) {
-            const el = document.getElementById('connectionStatus');
-            if (connected) {
-                el.innerHTML = '🟢 <span class="status-online">Connecté</span>' + (msg ? ' | ' + msg : '');
-            } else {
-                el.innerHTML = '⚪ <span class="status-offline">Déconnecté</span>';
-            }
-        }
-
-        function updatePlayers() {
-            const list = document.getElementById('playersList');
-            const count = document.getElementById('playerCount');
-            list.innerHTML = '';
-            const ids = Object.keys(mpState.players);
-            count.textContent = ids.length;
-            
-            ids.forEach(id => {
-                const div = document.createElement('div');
-                div.className = 'player-card' + (id === socket.id ? ' you' : '');
-                const score = mpState.scores[id] || 0;
-                const name = mpState.players[id] || 'Joueur';
-                div.innerHTML = `<span class="name">${name}</span><span class="score-mp">🎯 ${score}</span>`;
-                list.appendChild(div);
-            });
-        }
-
-        function getPlayerName() {
-            const input = document.getElementById('pseudoInput');
-            return (input && input.value.trim()) || 'Joueur';
-        }
-
-        // ÉVÉNEMENTS SOCKET
-        socket.on('connect', () => updateStatus(true));
-        socket.on('disconnect', () => { updateStatus(false); showMpMsg('🔌 Déconnecté', 'error'); });
-
-        socket.on('roomCreated', (data) => {
-            mpState.roomCode = data.roomCode;
-            mpState.isHost = true;
-            mpState.isInRoom = true;
-            mpState.players = data.players;
-            mpState.scores = data.scores;
-            
-            document.getElementById('roomInfo').style.display = 'block';
-            document.getElementById('roomCodeDisplay').textContent = data.roomCode;
-            document.getElementById('leaveRoomBtn').style.display = 'inline-block';
-            document.getElementById('mpGameControls').style.display = 'block';
-            document.getElementById('createRoomBtn').disabled = true;
-            document.getElementById('joinRoomBtn').disabled = true;
-            document.getElementById('roomCodeInput').disabled = true;
-            document.getElementById('roomStatus').textContent = '👑 Hôte';
-            
-            updatePlayers();
-            showMpMsg('✅ Salle créée ! Code : ' + data.roomCode, 'success');
-            updateStatus(true, 'Salle ' + data.roomCode + ' (Hôte)');
-        });
-
-        socket.on('joinSuccess', (data) => {
-            mpState.roomCode = data.roomCode;
-            mpState.isHost = data.isHost;
-            mpState.isInRoom = true;
-            mpState.players = data.players;
-            mpState.scores = data.scores;
-            
-            document.getElementById('roomInfo').style.display = 'block';
-            document.getElementById('roomCodeDisplay').textContent = data.roomCode;
-            document.getElementById('leaveRoomBtn').style.display = 'inline-block';
-            document.getElementById('mpGameControls').style.display = 'block';
-            document.getElementById('createRoomBtn').disabled = true;
-            document.getElementById('joinRoomBtn').disabled = true;
-            document.getElementById('roomCodeInput').disabled = true;
-            document.getElementById('roomStatus').textContent = '👥 Joueur';
-            
-            updatePlayers();
-            showMpMsg('✅ Rejoint la salle ' + data.roomCode + ' !', 'success');
-            updateStatus(true, 'Salle ' + data.roomCode);
-        });
-
-        socket.on('joinError', (msg) => showMpMsg(msg, 'error'));
-
-        socket.on('playersUpdate', (data) => {
-            mpState.players = data.players;
-            mpState.scores = data.scores;
-            mpState.isHost = socket.id === data.host;
-            updatePlayers();
-            document.getElementById('roomStatus').textContent = mpState.isHost ? '👑 Hôte' : '👥 Joueur';
-            document.querySelectorAll('#mpCategoryList button').forEach(btn => btn.disabled = !mpState.isHost);
-        });
-
-        socket.on('gameStarted', (data) => {
-            mpState.gameStarted = true;
-            showMpMsg('🎮 Quiz "' + data.category + '" commencé !', 'success');
-            if (!document.getElementById('game-panel')) {
-                setTimeout(() => {
-                    const catKey = Object.keys(categoryMapping).find(k => k === data.category);
-                    if (catKey) showGamePanel(catKey, true);
-                }, 300);
-            }
-        });
-
-        socket.on('gameEnded', () => {
-            mpState.gameStarted = false;
-            showMpMsg('🏁 Quiz terminé !', 'info');
-        });
-
-        socket.on('gameError', (msg) => showMpMsg(msg, 'error'));
-
-        // ACTIONS
-        function createRoom() { socket.emit('createRoom', getPlayerName()); }
-        function joinRoom() {
-            const code = document.getElementById('roomCodeInput').value.toUpperCase().trim();
-            if (!code || code.length !== 6) { showMpMsg('❌ Code invalide (6 caractères)', 'error'); return; }
-            socket.emit('joinRoom', { roomCode: code, playerName: getPlayerName() });
-        }
-        function leaveRoom() {
-            if (mpState.roomCode) {
-                socket.emit('leaveRoom', { roomCode: mpState.roomCode });
-                resetMPUI();
-                showMpMsg('🚪 Vous avez quitté la salle', 'info');
-                if (currentGame) closeGame();
-            }
-        }
-
-        function resetMPUI() {
-            document.getElementById('roomInfo').style.display = 'none';
-            document.getElementById('leaveRoomBtn').style.display = 'none';
-            document.getElementById('mpGameControls').style.display = 'none';
-            document.getElementById('createRoomBtn').disabled = false;
-            document.getElementById('joinRoomBtn').disabled = false;
-            document.getElementById('roomCodeInput').disabled = false;
-            document.getElementById('roomCodeInput').value = '';
-            document.getElementById('playersList').innerHTML = '';
-            document.getElementById('playerCount').textContent = '0';
-            updateStatus(false);
-            mpState.isInRoom = false;
-            mpState.roomCode = null;
-            mpState.players = {};
-            mpState.scores = {};
-            mpState.gameStarted = false;
-            mpState.isHost = false;
-        }
-
-        function startMpGame(categoryKey) {
-            if (!mpState.isHost) { showMpMsg('❌ Seul l\'hôte peut lancer', 'error'); return; }
-            if (mpState.gameStarted) { showMpMsg('⚠️ Quiz déjà en cours', 'error'); return; }
-            Object.keys(mpState.scores).forEach(id => mpState.scores[id] = 0);
-            updatePlayers();
-            socket.emit('startGame', { roomCode: mpState.roomCode, category: categoryKey });
-        }
-
-        function updateScoreMp(score) {
-            if (mpState.roomCode) socket.emit('scoreUpdate', { roomCode: mpState.roomCode, score: score });
-        }
-
-        // ============================================================
-        // DONNÉES DU JEU
-        // ============================================================
+        // ==================== DONNÉES EXISTANTES ====================
         const animeCelebresList = ["Son Goku", "Naruto Uzumaki", "Monkey D. Luffy", "Pikachu", "Sailor Moon", "Ichigo Kurosaki", "Eren Yeager", "Light Yagami", "Levi Ackerman", "Sasuke Uchiha", "Vegeta", "Gojo Satoru", "Tanjiro Kamado", "Killua Zoldyck", "Gon Freecss", "Edward Elric", "Mikasa Ackerman", "Kakashi Hatake", "Itachi Uchiha", "Roronoa Zoro", "Natsu Dragneel", "Deku", "All Might", "Saitama", "Ken Kaneki", "L", "Ash Ketchum", "Alucard", "Spike Spiegel", "Jotaro Kujo"];
         const animeDetesteList = ["Shou Tucker", "Griffith", "Danzo Shimura", "Rachel", "Mahito", "Sakura Haruno", "Mineta", "Gabi Braun", "Akainu", "Blackbeard", "Frieza", "Kazuya Kinoshita", "Makima", "Orochimaru", "Envy", "Sugou Nobuyuki", "Yukiteru Amano", "Shinji Ikari", "Near", "Malty Melromarc"];
         const animeFortsList = ["Featherine Augustus Aurora", "The Creator", "Lambdadelta", "Bernkastel", "Akuto Sai", "Zeno", "Ren Fuji", "Mercurius", "Madoka Kaname", "Akemi Homura", "Othinus", "Kami Tenchi", "Rimuru Tempest", "Anos Voldigoad", "Altair", "Medaka Kurokami", "Ajimu Najimi", "Ryougi Shiki", "Sailor Cosmos", "Haruhi Suzumiya"];
@@ -949,6 +637,8 @@
         const ballonValeurs = ["Luis Figo", "Michael Owen", "Ronaldo Nazário", "Pavel Nedvěd", "Andriy Shevchenko", "Ronaldinho", "Fabio Cannavaro", "Kaká", "Cristiano Ronaldo", "Lionel Messi", "Lionel Messi", "Lionel Messi", "Lionel Messi", "Cristiano Ronaldo", "Cristiano Ronaldo", "Lionel Messi", "Cristiano Ronaldo", "Cristiano Ronaldo", "Luka Modrić", "Lionel Messi", "Lionel Messi", "Karim Benzema", "Lionel Messi", "Rodri", "Ousmane Dembélé"];
         const ligueDesChampionsList = ldcAnnees.map((a, i) => `${a} : ${ldcValeurs[i]}`);
         const ballonDorList = ballonAnnees.map((a, i) => `${a} : ${ballonValeurs[i]}`);
+        
+        // ========== NOUVELLES CATÉGORIES (sans Drapeaux) ==========
         const jeuxVideoList = ["Super Mario Bros.", "The Legend of Zelda", "Tetris", "Minecraft", "Grand Theft Auto V", "Final Fantasy", "Metal Gear Solid", "Half-Life 2", "The Witcher 3: Wild Hunt", "Dark Souls"];
         const superHerosList = ["Spider-Man", "Batman", "Superman", "Iron Man", "Joker", "Captain America", "Wolverine", "Wonder Woman", "Deadpool", "Harley Quinn", "Thor", "Hulk", "Flash", "Black Panther", "Thanos", "Doctor Doom", "Green Lantern", "Magneto", "Aquaman", "Darkseid"];
         const rapFrUsList = ["Tupac Shakur", "The Notorious B.I.G.", "Jay-Z", "Eminem", "IAM", "Nas", "Booba", "Kendrick Lamar", "NTM", "Dr. Dre", "MC Solaar", "Soprano", "Snoop Dogg", "Kaaris", "Lil Wayne"];
@@ -991,45 +681,16 @@
         };
         
         function normalizeString(str) { if (!str) return ''; let normalized = str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); normalized = normalized.replace(/^\d{4}\s*:\s*/, ''); normalized = normalized.replace(/[^a-z0-9\s]/g, '').trim(); return normalized; }
-        let currentGame = null; let timerInterval = null; let isMultiplayerGame = false;
-
+        let currentGame = null; let timerInterval = null;
         class QuizGame { constructor(category, categoryKey, questionsList, showYears, yearsList) { this.category = category; this.categoryKey = categoryKey; this.questions = [...questionsList]; this.showYears = showYears; this.yearsList = yearsList; this.correctAnswers = new Array(this.questions.length).fill(false); this.score = 0; this.timeLeft = 600; this.gameActive = true; }
             findMatchingQuestion(answer) { const normalizedAnswer = normalizeString(answer); for (let i = 0; i < this.questions.length; i++) { if (!this.correctAnswers[i]) { let normalizedQuestion = normalizeString(this.questions[i]); if (normalizedAnswer === normalizedQuestion) return i; const firstWord = normalizedQuestion.split(' ')[0]; if (normalizedAnswer === firstWord && firstWord.length > 2) return i; const words = normalizedQuestion.split(' '); if (words.length > 1 && !normalizedQuestion.includes(':')) { const lastName = words[words.length - 1]; if (normalizedAnswer === lastName && lastName.length > 2) return i; } } } return -1; }
             submitAnswer(answer) { if (!this.gameActive) return { success: false, gameInactive: true }; const sanitizedAnswer = answer.trim(); const matchIndex = this.findMatchingQuestion(sanitizedAnswer); if (matchIndex === -1) return { success: false, notFound: true }; if (this.correctAnswers[matchIndex]) return { success: false, alreadyAnswered: true }; this.correctAnswers[matchIndex] = true; this.score++; return { success: true, index: matchIndex, correctName: this.questions[matchIndex] }; }
             isComplete() { return this.correctAnswers.every(correct => correct === true); }
             getProgress() { const answered = this.correctAnswers.filter(c => c === true).length; return { answered, total: this.questions.length, percentage: (answered / this.questions.length) * 100 }; }
         }
+        function showGamePanel(categoryKey) { if (currentGame) closeGame(); const category = categoryMapping[categoryKey]; if (!category) return; currentGame = new QuizGame(category, categoryKey, category.data, category.showYears, category.yearsList); let tableRows = ''; for (let i = 0; i < currentGame.questions.length; i++) { let displayText = "❓ ???"; if (currentGame.showYears && currentGame.yearsList && currentGame.yearsList[i]) { displayText = `📅 ${currentGame.yearsList[i]} : ???`; } tableRows += `<tr id="row-${i}"><td style="width:60px;text-align:center;font-weight:bold;">${i+1}<\/td><td id="answer-display-${i}">${displayText}<\/td><td id="status-${i}" style="width:70px;text-align:center;">⏳<\/td><\/tr>`; } let infoHtml = ''; if (categoryKey === 'meilleursCombats') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez le nom complet avec "vs" (ex: "Naruto Uzumaki vs Sasuke Uchiha").</div>`; else if (categoryKey === 'meilleursArcs') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez juste le nom (ex: "Fourmis Chimères" ou "Pain").</div>`; else if (categoryKey === 'ligueDesChampions') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez le nom du club (ex: "Real Madrid", "Bayern Munich"). L'année est automatiquement associée.</div>`; else if (categoryKey === 'ballonDor') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez le nom du joueur (ex: "Lionel Messi", "Cristiano Ronaldo"). L'année est automatiquement associée.</div>`; const gameHTML = `<div class="game-panel" id="game-panel"><div class="game-container"><div class="game-header"><h2>${category.title}</h2><button class="restart-category-btn" id="restart-category-btn">🔄 Recommencer cette catégorie</button><div class="timer" id="timer">10:00</div><div class="score" id="score">🎯 0/${currentGame.questions.length}</div><button class="close-game" id="close-game-btn">✕ Fermer</button></div><div class="progress" id="progress">📊 Progression: 0/${currentGame.questions.length} (0%)</div>${infoHtml}<div class="quiz-table"><table><thead><tr><th>#</th><th>Année / Personnage</th><th>✅ Statut</th></tr></thead><tbody>${tableRows}</tbody></table></div><div class="input-area"><div class="input-group"><input type="text" id="quick-input" placeholder="✏️ Tape un nom ici..." autocomplete="off"><button id="quick-submit">🎮 Valider</button></div><div id="message"></div><div id="found-list"></div></div></div></div>`; document.body.insertAdjacentHTML('beforeend', gameHTML); startTimer(); document.getElementById('quick-submit').onclick = () => handleQuickSubmit(); document.getElementById('quick-input').onkeypress = (e) => { if (e.key === 'Enter') handleQuickSubmit(); }; document.getElementById('close-game-btn').onclick = () => closeGame(); document.getElementById('restart-category-btn').onclick = () => restartGame(); document.getElementById('quick-input').focus(); }
 
-        function showGamePanel(categoryKey, multiplayer = false) {
-            if (currentGame) closeGame();
-            isMultiplayerGame = multiplayer;
-            const category = categoryMapping[categoryKey];
-            if (!category) return;
-            currentGame = new QuizGame(category, categoryKey, category.data, category.showYears, category.yearsList);
-            let tableRows = '';
-            for (let i = 0; i < currentGame.questions.length; i++) {
-                let displayText = "❓ ???";
-                if (currentGame.showYears && currentGame.yearsList && currentGame.yearsList[i]) {
-                    displayText = `📅 ${currentGame.yearsList[i]} : ???`;
-                }
-                tableRows += `<tr id="row-${i}"><td style="width:60px;text-align:center;font-weight:bold;">${i+1}<\/td><td id="answer-display-${i}">${displayText}<\/td><td id="status-${i}" style="width:70px;text-align:center;">⏳<\/td><\/tr>`;
-            }
-            let infoHtml = '';
-            if (categoryKey === 'meilleursCombats') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez le nom complet avec "vs" (ex: "Naruto Uzumaki vs Sasuke Uchiha").</div>`;
-            else if (categoryKey === 'meilleursArcs') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez juste le nom (ex: "Fourmis Chimères" ou "Pain").</div>`;
-            else if (categoryKey === 'ligueDesChampions') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez le nom du club (ex: "Real Madrid", "Bayern Munich"). L'année est automatiquement associée.</div>`;
-            else if (categoryKey === 'ballonDor') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez le nom du joueur (ex: "Lionel Messi", "Cristiano Ronaldo"). L'année est automatiquement associée.</div>`;
-            const mpBadge = multiplayer ? '<span style="background:#6c5ce7;color:white;padding:4px 14px;border-radius:40px;font-size:0.7rem;margin-left:10px;">👥 Multijoueur</span>' : '';
-            const gameHTML = `<div class="game-panel" id="game-panel"><div class="game-container"><div class="game-header"><h2>${category.title} ${mpBadge}</h2><button class="restart-category-btn" id="restart-category-btn">🔄 Recommencer cette catégorie</button><div class="timer" id="timer">10:00</div><div class="score" id="score">🎯 0/${currentGame.questions.length}</div><button class="close-game" id="close-game-btn">✕ Fermer</button></div><div class="progress" id="progress">📊 Progression: 0/${currentGame.questions.length} (0%)</div>${infoHtml}<div class="quiz-table"><table><thead><tr><th>#</th><th>Année / Personnage</th><th>✅ Statut</th></tr></thead><tbody>${tableRows}</tbody></table></div><div class="input-area"><div class="input-group"><input type="text" id="quick-input" placeholder="✏️ Tape un nom ici..." autocomplete="off"><button id="quick-submit">🎮 Valider</button></div><div id="message"></div><div id="found-list"></div></div></div></div>`;
-            document.body.insertAdjacentHTML('beforeend', gameHTML);
-            startTimer();
-            document.getElementById('quick-submit').onclick = () => handleQuickSubmit();
-            document.getElementById('quick-input').onkeypress = (e) => { if (e.key === 'Enter') handleQuickSubmit(); };
-            document.getElementById('close-game-btn').onclick = () => closeGame();
-            document.getElementById('restart-category-btn').onclick = () => restartGame();
-            document.getElementById('quick-input').focus();
-        }
-
+        // ========== FONCTIONS AUDIO AJOUTÉES ==========
         function playSoundCorrect() {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1038,10 +699,11 @@
                 oscillator.connect(gainNode);
                 gainNode.connect(audioCtx.destination);
                 oscillator.type = 'sine';
-                oscillator.frequency.value = 880;
+                oscillator.frequency.value = 880; // La note La5
                 gainNode.gain.value = 0.2;
                 oscillator.start();
                 oscillator.stop(audioCtx.currentTime + 0.15);
+                // Petit délai avant le 2e son pour faire un "ding-dong"
                 setTimeout(() => {
                     const osc2 = audioCtx.createOscillator();
                     const gain2 = audioCtx.createGain();
@@ -1053,7 +715,7 @@
                     osc2.start();
                     osc2.stop(audioCtx.currentTime + 0.15);
                 }, 120);
-            } catch (e) {}
+            } catch (e) { /* silencieux si navigateur ne supporte pas */ }
         }
 
         function playSoundWrong() {
@@ -1068,7 +730,7 @@
                 gainNode.gain.value = 0.1;
                 oscillator.start();
                 oscillator.stop(audioCtx.currentTime + 0.25);
-            } catch (e) {}
+            } catch (e) { /* silencieux si navigateur ne supporte pas */ }
         }
 
         function handleQuickSubmit() { 
@@ -1082,22 +744,19 @@
             } 
             const result = currentGame.submitAnswer(answer); 
             if (result.success) { 
-                playSoundCorrect();
+                playSoundCorrect(); // SON POUR BONNE RÉPONSE
                 updateRow(result.index, result.correctName); 
                 updateScoreAndProgress(); 
                 showMessage(`✅ BRAVO ! "${result.correctName}" ajouté !`, 'success'); 
                 input.value = ''; 
                 input.focus(); 
                 updateFoundList(); 
-                if (isMultiplayerGame && mpState.isInRoom) {
-                    updateScoreMp(currentGame.score);
-                }
                 if (currentGame.isComplete()) endGame(true); 
             } else if (result.notFound) {
-                playSoundWrong();
+                playSoundWrong(); // SON POUR MAUVAISE RÉPONSE
                 showMessage(`❌ "${answer}" n'est pas dans la liste. Réessaie !`, 'error');
             } else if (result.alreadyAnswered) {
-                playSoundWrong();
+                playSoundWrong(); // SON POUR DÉJÀ RÉPONDU (on considère comme une erreur)
                 showMessage(`⚠️ "${answer}" a déjà été trouvé !`, 'error');
             } 
             input.value = ''; 
@@ -1111,86 +770,16 @@
         function showMessage(msg, type) { const messageDiv = document.getElementById('message'); if (!messageDiv) return; messageDiv.innerHTML = `<div class="message ${type}">${msg}</div>`; setTimeout(() => { if (messageDiv) messageDiv.innerHTML = ''; }, 3000); }
         function shareOnWhatsApp() { if (!currentGame) return; const text = `🎯 J'ai fait ${currentGame.score}/${currentGame.questions.length} (${Math.round(currentGame.getProgress().percentage)}%) au quiz Memoriz !`; window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank'); }
         function shareOnTwitter() { if (!currentGame) return; const text = `🎯 J'ai fait ${currentGame.score}/${currentGame.questions.length} (${Math.round(currentGame.getProgress().percentage)}%) au quiz Memoriz !`; window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank'); }
-        function endGame(completed) { if (!currentGame || !currentGame.gameActive) return; currentGame.gameActive = false; if (timerInterval) clearInterval(timerInterval); const gameContainer = document.querySelector('.game-container'); if (!gameContainer) return; const percentage = (currentGame.score / currentGame.questions.length) * 100; for (let i = 0; i < currentGame.questions.length; i++) { const answerDisplay = document.getElementById(`answer-display-${i}`); if (answerDisplay && !currentGame.correctAnswers[i]) { if (currentGame.showYears && currentGame.yearsList) { answerDisplay.innerHTML = `❌ ${currentGame.yearsList[i]} : ${currentGame.questions[i].replace(/^\d{4}\s*:\s*/, '')}`; } else { answerDisplay.innerHTML = `❌ ${currentGame.questions[i]}`; } answerDisplay.style.color = '#dc3545'; } } 
-            if (isMultiplayerGame && mpState.isInRoom && mpState.isHost) {
-                socket.emit('gameEnd', { roomCode: mpState.roomCode });
-            }
-            gameContainer.innerHTML = `<div class="game-complete"><h2>${completed ? '🏆 FÉLICITATIONS ! 🏆' : '⏰ TEMPS ÉCOULÉ ! ⏰'}</h2><p style="font-size:1.5rem;margin:20px 0;">Ton score : ${currentGame.score}/${currentGame.questions.length} (${Math.round(percentage)}%)</p><p>${completed ? 'Tu as dominé ce défi Memoriz !' : 'Continue à t\'entraîner, tu vas y arriver !'}</p><button class="play-again" onclick="closeGame()">🏠 Retour aux catégories</button><button class="play-again" onclick="restartGame()">🔄 Rejouer</button><div style="margin-top:20px;"><button class="share-btn" onclick="shareOnWhatsApp()">💬 Partager sur WhatsApp</button><button class="share-btn share-twitter" onclick="shareOnTwitter()">🐦 Partager sur X (Twitter)</button></div></div>`; }
-        function closeGame() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } const gamePanel = document.getElementById('game-panel'); if (gamePanel) gamePanel.remove(); currentGame = null; isMultiplayerGame = false; }
-        function restartGame() { if (currentGame) { const categoryKey = currentGame.categoryKey; const mp = isMultiplayerGame; closeGame(); setTimeout(() => showGamePanel(categoryKey, mp), 50); } }
-
-        // ============================================================
-        // LEGAL, BLOG, THEME
-        // ============================================================
-        const legalContent = { 
-            privacy: { title: "🔒 Confidentialité", content: "<h2>Politique de Confidentialité</h2><p>Chez Memoriz, la protection de vos données est notre priorité. Nous ne collectons aucune information personnelle vous concernant. Aucun cookie de traçage n'est utilisé sur notre site. Votre activité de quiz reste strictement anonyme. Pour toute question, contactez-nous à : <strong>jitihh700@gmail.com</strong></p>" }, 
-            terms: { title: "📜 Conditions Générales", content: "<h2>Conditions Générales d'Utilisation</h2><p><strong>1. Acceptation des conditions</strong><br>En utilisant Memoriz, vous acceptez pleinement nos conditions.</p><p><strong>2. Service gratuit</strong><br>Memoriz est entièrement gratuit. Aucun abonnement ni paiement n'est requis.</p><p><strong>3. Propriété intellectuelle</strong><br>Le contenu des quiz (noms de personnages, œuvres) appartient à leurs propriétaires respectifs. Memoriz est un site éducatif et ludique.</p><p><strong>4. Limitation de responsabilité</strong><br>Memoriz s'efforce de maintenir l'exactitude des informations mais ne peut garantir l'absence d'erreur.</p><p><strong>5. Contact</strong><br>Pour toute réclamation : <strong>jitihh700@gmail.com</strong></p>" }, 
-            mentions: { title: "⚖️ Mentions légales", content: "<h2>Mentions légales</h2><p><strong>Éditeur du site :</strong><br>Memoriz<br>Email : jitihh700@gmail.com</p><p><strong>Hébergement :</strong><br>Render Inc.<br>525 Brannan St, San Francisco, CA 94107, États-Unis</p><p><strong>Directeur de publication :</strong><br>L'équipe Memoriz</p><p><strong>Propriété intellectuelle :</strong><br>L'ensemble des contenus textuels et graphiques de Memoriz sont protégés par le droit d'auteur. Les noms de personnages et œuvres cités appartiennent à leurs ayants droit respectifs.</p>" }, 
-            about: { title: "ℹ️ À propos de Memoriz", content: "<h2>Notre histoire</h2><p>Memoriz est né en 2022 d'une passion commune pour les quiz, la culture pop et les jeux de mémoire. Notre mission : rendre l'apprentissage ludique et accessible à tous.</p><p><strong>🎯 Notre objectif :</strong> Créer la plus grande base de quiz francophone sur les célébrités, animés, sports et musiques.</p><p><strong>📈 Chiffres clés :</strong><br>- 20 catégories de quiz<br>- Plus de 300 questions uniques<br>- Des milliers de joueurs chaque mois</p><p><strong>💡 Pour nous contacter :</strong> jitihh700@gmail.com</p><p><strong>📱 Retrouvez-nous sur les réseaux :</strong><br>YouTube, TikTok, Twitch, WhatsApp - Tous les liens sont en bas de page !</p>" }, 
-            contact: { title: "📧 Contact", content: "<h2>Contactez-nous</h2><p>Une question ? Une suggestion de quiz ? Un problème technique ? Nous sommes là pour vous !</p><p><strong>📨 Email :</strong> <a href='mailto:jitihh700@gmail.com'>jitihh700@gmail.com</a></p><p><strong>⏰ Délai de réponse :</strong> Sous 48h ouvrées.</p><p><strong>📱 Réseaux sociaux :</strong></p><ul><li>🎥 YouTube : <a href='https://youtube.com/@noironik' target='_blank'>@noironik</a></li><li>🎵 TikTok : <a href='https://tiktok.com/@noironik' target='_blank'>@noironik</a></li><li>📺 Twitch : <a href='https://twitch.tv/noironik1' target='_blank'>noironik1</a></li><li>💬 WhatsApp : <a href='https://wa.me/2250708608958?text=Salut%20Memoriz%20!' target='_blank'>noironik</a></li></ul><p>N'hésitez pas à nous suivre pour ne rien rater des nouveautés Memoriz !</p>" } 
-        };
-        
+        function endGame(completed) { if (!currentGame || !currentGame.gameActive) return; currentGame.gameActive = false; if (timerInterval) clearInterval(timerInterval); const gameContainer = document.querySelector('.game-container'); if (!gameContainer) return; const percentage = (currentGame.score / currentGame.questions.length) * 100; for (let i = 0; i < currentGame.questions.length; i++) { const answerDisplay = document.getElementById(`answer-display-${i}`); if (answerDisplay && !currentGame.correctAnswers[i]) { if (currentGame.showYears && currentGame.yearsList) { answerDisplay.innerHTML = `❌ ${currentGame.yearsList[i]} : ${currentGame.questions[i].replace(/^\d{4}\s*:\s*/, '')}`; } else { answerDisplay.innerHTML = `❌ ${currentGame.questions[i]}`; } answerDisplay.style.color = '#dc3545'; } } gameContainer.innerHTML = `<div class="game-complete"><h2>${completed ? '🏆 FÉLICITATIONS ! 🏆' : '⏰ TEMPS ÉCOULÉ ! ⏰'}</h2><p style="font-size:1.5rem;margin:20px 0;">Ton score : ${currentGame.score}/${currentGame.questions.length} (${Math.round(percentage)}%)</p><p>${completed ? 'Tu as dominé ce défi Memoriz !' : 'Continue à t\'entraîner, tu vas y arriver !'}</p><button class="play-again" onclick="closeGame()">🏠 Retour aux catégories</button><button class="play-again" onclick="restartGame()">🔄 Rejouer</button><div style="margin-top:20px;"><button class="share-btn" onclick="shareOnWhatsApp()">💬 Partager sur WhatsApp</button><button class="share-btn share-twitter" onclick="shareOnTwitter()">🐦 Partager sur X (Twitter)</button></div></div>`; }
+        function closeGame() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } const gamePanel = document.getElementById('game-panel'); if (gamePanel) gamePanel.remove(); currentGame = null; }
+        function restartGame() { if (currentGame) { const categoryKey = currentGame.categoryKey; closeGame(); setTimeout(() => showGamePanel(categoryKey), 50); } }
+        const legalContent = { privacy: { title: "🔒 Confidentialité", content: "<h2>Politique de Confidentialité</h2><p>Chez Memoriz, la protection de vos données est notre priorité. Nous ne collectons aucune information personnelle vous concernant. Aucun cookie de traçage n'est utilisé sur notre site. Votre activité de quiz reste strictement anonyme. Nous n'utilisons pas de services tiers susceptibles de vous identifier. Pour toute question, contactez-nous à : <strong>jitihh700@gmail.com</strong></p>" }, terms: { title: "📜 Conditions Générales", content: "<h2>Conditions Générales d'Utilisation</h2><p><strong>1. Acceptation des conditions</strong><br>En utilisant Memoriz, vous acceptez pleinement nos conditions.</p><p><strong>2. Service gratuit</strong><br>Memoriz est entièrement gratuit. Aucun abonnement ni paiement n'est requis.</p><p><strong>3. Propriété intellectuelle</strong><br>Le contenu des quiz (noms de personnages, œuvres) appartient à leurs propriétaires respectifs. Memoriz est un site éducatif et ludique.</p><p><strong>4. Limitation de responsabilité</strong><br>Memoriz s'efforce de maintenir l'exactitude des informations mais ne peut garantir l'absence d'erreur.</p><p><strong>5. Contact</strong><br>Pour toute réclamation : <strong>jitihh700@gmail.com</strong></p>" }, mentions: { title: "⚖️ Mentions légales", content: "<h2>Mentions légales</h2><p><strong>Éditeur du site :</strong><br>Memoriz<br>Email : jitihh700@gmail.com</p><p><strong>Hébergement :</strong><br>Render Inc.<br>525 Brannan St, San Francisco, CA 94107, États-Unis</p><p><strong>Directeur de publication :</strong><br>L'équipe Memoriz</p><p><strong>Propriété intellectuelle :</strong><br>L'ensemble des contenus textuels et graphiques de Memoriz sont protégés par le droit d'auteur. Les noms de personnages et œuvres cités appartiennent à leurs ayants droit respectifs.</p>" }, about: { title: "ℹ️ À propos de Memoriz", content: "<h2>Notre histoire</h2><p>Memoriz est né en 2022 d'une passion commune pour les quiz, la culture pop et les jeux de mémoire. Notre mission : rendre l'apprentissage ludique et accessible à tous.</p><p><strong>🎯 Notre objectif :</strong> Créer la plus grande base de quiz francophone sur les célébrités, animés, sports et musiques.</p><p><strong>📈 Chiffres clés :</strong><br>- 20 catégories de quiz<br>- Plus de 300 questions uniques<br>- Des milliers de joueurs chaque mois</p><p><strong>💡 Pour nous contacter :</strong> jitihh700@gmail.com</p><p><strong>📱 Retrouvez-nous sur les réseaux :</strong><br>YouTube, TikTok, Twitch, WhatsApp - Tous les liens sont en bas de page !</p>" }, contact: { title: "📧 Contact", content: "<h2>Contactez-nous</h2><p>Une question ? Une suggestion de quiz ? Un problème technique ? Nous sommes là pour vous !</p><p><strong>📨 Email :</strong> <a href='mailto:jitihh700@gmail.com'>jitihh700@gmail.com</a></p><p><strong>⏰ Délai de réponse :</strong> Sous 48h ouvrées.</p><p><strong>📱 Réseaux sociaux :</strong></p><ul><li>🎥 YouTube : <a href='https://youtube.com/@noironik' target='_blank'>@noironik</a></li><li>🎵 TikTok : <a href='https://tiktok.com/@noironik' target='_blank'>@noironik</a></li><li>📺 Twitch : <a href='https://twitch.tv/noironik1' target='_blank'>noironik1</a></li><li>💬 WhatsApp : <a href='https://wa.me/2250708608958?text=Salut%20Memoriz%20!' target='_blank'>noironik</a></li></ul><p>N'hésitez pas à nous suivre pour ne rien rater des nouveautés Memoriz !</p>" } };
         function showLegalPage(page) { const modal = document.getElementById('legal-modal'); const modalBody = document.getElementById('modal-body'); const content = legalContent[page]; if (content) { modalBody.innerHTML = `<div class="legal-content">${content.content}</div>`; modal.style.display = 'block'; } }
         function initLegalPages() { const modal = document.getElementById('legal-modal'); const closeBtn = document.querySelector('.close-modal'); document.getElementById('privacy-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('privacy'); }); document.getElementById('terms-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('terms'); }); document.getElementById('mentions-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('mentions'); }); document.getElementById('about-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('about'); }); document.getElementById('contact-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('contact'); }); if (closeBtn) closeBtn.onclick = () => { modal.style.display = 'none'; }; window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; }; }
         function initBlogArticles() { document.querySelectorAll('.read-more').forEach(button => { button.addEventListener('click', (e) => { const blogId = button.getAttribute('data-blog'); const content = document.getElementById(`${blogId}-content`); if (content) { const isVisible = content.classList.contains('show'); if (!isVisible) { content.classList.add('show'); button.textContent = 'Réduire ↑'; } else { content.classList.remove('show'); button.textContent = 'Lire la suite →'; } } }); }); }
         function initTheme() { const savedTheme = localStorage.getItem('memoriz_theme'); if (savedTheme === 'light') document.body.classList.add('light-mode'); document.getElementById('themeToggle').addEventListener('click', () => { document.body.classList.toggle('light-mode'); localStorage.setItem('memoriz_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); }); }
-
-        // ============================================================
-        // INIT
-        // ============================================================
-        document.addEventListener('DOMContentLoaded', () => {
-            // Catégories solo
-            document.querySelectorAll('.category-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    const category = card.getAttribute('data-category');
-                    if (category) showGamePanel(category, false);
-                });
-            });
-            
-            // Multijoueur
-            document.getElementById('createRoomBtn').onclick = createRoom;
-            document.getElementById('joinRoomBtn').onclick = joinRoom;
-            document.getElementById('leaveRoomBtn').onclick = leaveRoom;
-            document.getElementById('copyRoomCodeBtn').onclick = () => {
-                if (mpState.roomCode) {
-                    navigator.clipboard?.writeText(mpState.roomCode);
-                    showMpMsg('📋 Copié !', 'success');
-                }
-            };
-            document.getElementById('roomCodeInput').onkeypress = (e) => {
-                if (e.key === 'Enter') joinRoom();
-            };
-            
-            // Catégories multijoueur
-            const mpCategoryList = document.getElementById('mpCategoryList');
-            const mpKeys = ['series', 'films', 'animeCelebres', 'sportsMusique', 'meilleursFootballeurs', 
-                           'meilleursMangas', 'meilleursAnimes', 'ligueDesChampions', 'ballonDor', 
-                           'jeuxVideo', 'superHeros', 'rapFrUs'];
-            mpKeys.forEach(key => {
-                const def = categoryMapping[key];
-                if (!def) return;
-                const btn = document.createElement('button');
-                btn.className = 'mp-btn secondary';
-                btn.textContent = def.title.split(' - ')[0];
-                btn.style.fontSize = '0.75rem';
-                btn.style.padding = '6px 14px';
-                btn.onclick = () => startMpGame(key);
-                btn.disabled = true;
-                mpCategoryList.appendChild(btn);
-            });
-            
-            initLegalPages();
-            initBlogArticles();
-            initTheme();
-            
-            document.getElementById('pseudoInput').value = 'Joueur_' + Math.floor(Math.random() * 1000);
-            updateStatus(false);
-        });
-
-        window.closeGame = closeGame;
-        window.restartGame = restartGame;
-        window.shareOnWhatsApp = shareOnWhatsApp;
-        window.shareOnTwitter = shareOnTwitter;
+        document.addEventListener('DOMContentLoaded', () => { document.querySelectorAll('.category-card').forEach(card => { card.addEventListener('click', () => { const category = card.getAttribute('data-category'); if (category) showGamePanel(category); }); }); initLegalPages(); initBlogArticles(); initTheme(); });
+        window.closeGame = closeGame; window.restartGame = restartGame; window.shareOnWhatsApp = shareOnWhatsApp; window.shareOnTwitter = shareOnTwitter;
     </script>
 </body>
 </html>
