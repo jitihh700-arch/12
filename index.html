@@ -441,7 +441,7 @@
             <h1>🧠 MEMORIZ 🧠</h1>
             <p>"Ce que tu sais, tu le mémorises. Ce que tu ne sais pas, tu l'apprends."</p>
             <div class="badge">✨ Plus de 400 personnages et thèmes à découvrir ✨</div>
-            <p style="font-size: 0.9rem; margin-top: 10px;">🎯 23 catégories | ⏱️ 10 minutes par quiz | 🏆 Teste-toi !</p>
+            <p style="font-size: 0.9rem; margin-top: 10px;">🎯 26 catégories | ⏱️ 10 minutes par quiz | 🏆 Teste-toi !</p>
             
             <a href="https://www.sapeo.org/memoriz-quiz" target="_blank" class="support-banner">
                 <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
@@ -476,10 +476,19 @@
                 <div class="category-card" data-category="ligueDesChampions"><h3>🏆 Ligue des Champions</h3><p>Vainqueurs de 2000 à 2026</p><span class="questions-count">27 clubs</span></div>
                 <div class="category-card" data-category="ballonDor"><h3>🥇 Ballon d'Or</h3><p>Vainqueurs de 2000 à 2025</p><span class="questions-count">25 joueurs</span></div>
                 
-                <!-- NOUVELLES CATÉGORIES AJOUTÉES (sans Drapeaux) -->
+                <!-- NOUVELLES CATÉGORIES AJOUTÉES -->
                 <div class="category-card" data-category="jeuxVideo"><h3>🎮 Légendes du Jeu Vidéo</h3><p>Top 10 des jeux cultes</p><span class="questions-count">10 jeux</span></div>
                 <div class="category-card" data-category="superHeros"><h3>🦸 Super-héros Marvel & DC</h3><p>Top 20 des héros et vilains</p><span class="questions-count">20 personnages</span></div>
                 <div class="category-card" data-category="rapFrUs"><h3>🎤 Rap Français & US</h3><p>Top 15 des plus grandes légendes</p><span class="questions-count">15 artistes</span></div>
+                
+                <!-- === NOUVELLES CATÉGORIES : TROUVE L'ANIME === -->
+                <div class="category-card" data-category="trouveAnime"><h3>🔍 Trouve l'Anime (Emojis)</h3><p>Trouve l'anime grâce aux emojis !</p><span class="questions-count">15 animes</span></div>
+                
+                <!-- === NOUVELLE CATÉGORIE : DEVINE LE PERSONNAGE === -->
+                <div class="category-card" data-category="devinePersonnage"><h3>🎭 Devine le Personnage</h3><p>Trouve le personnage grâce à l'indice</p><span class="questions-count">20 personnages</span></div>
+                
+                <!-- === NOUVELLE CATÉGORIE : DEVINE L'ANIME PAR ORGANISATION === -->
+                <div class="category-card" data-category="animeParOrganisation"><h3>🏛️ Anime par Organisation</h3><p>Trouve l'anime de l'organisation</p><span class="questions-count">9 organisations</span></div>
             </div>
         </div>
 
@@ -518,7 +527,23 @@
                 <button class="read-more" data-blog="blog4">Lire la suite →</button>
             </article>
         </section>
-        
+                <!-- ========== SECTION COMMENTAIRES SUPABASE ========== -->
+        <div id="comments-section" style="max-width:800px; margin:40px auto; padding:20px; background:rgba(255,255,255,0.05); border-radius:24px; backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.1);">
+            <h2 style="text-align:center; margin-bottom:30px; font-size:2rem; background:linear-gradient(135deg, #ffa502, #ff6b6b); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">💬 Commentaires</h2>
+            
+            <div id="supabase-comments" style="margin-bottom:20px; max-height:400px; overflow-y:auto; padding:10px; border-radius:16px; background:rgba(0,0,0,0.15);">
+                <p style="opacity:0.6; text-align:center; padding:20px;">⏳ Chargement des commentaires...</p>
+            </div>
+            
+            <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:15px;">
+                <input type="text" id="sb-pseudo" placeholder="👤 Ton pseudo" value="Anonyme" style="flex:1; min-width:120px; padding:14px 20px; border-radius:60px; border:2px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.08); color:white; font-size:1rem; outline:none; transition:all 0.3s;">
+                <input type="text" id="sb-input" placeholder="✏️ Écris ton commentaire..." style="flex:3; min-width:200px; padding:14px 20px; border-radius:60px; border:2px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.08); color:white; font-size:1rem; outline:none; transition:all 0.3s;">
+                <button id="sb-submit" style="padding:14px 32px; background:linear-gradient(135deg, #ff4757, #ff6b6b); color:white; border:none; border-radius:60px; cursor:pointer; font-weight:bold; font-size:1rem; transition:all 0.3s; box-shadow:0 4px 15px rgba(255,71,87,0.3);">
+                    ✉️ Envoyer
+                </button>
+            </div>
+            <p style="font-size:0.8rem; opacity:0.5; margin-top:12px; text-align:center;">🔒 Les commentaires sont publics et stockés sur Supabase</p>
+        </div>
         <footer class="main-footer">
             <div class="footer-links">
                 <a href="#" id="privacy-link">🔒 Confidentialité</a>
@@ -600,8 +625,6 @@
 
         // Adapter les couleurs en mode clair
         function updateParticlesForTheme(isLight) {
-            // On change juste la couleur au prochain frame (via un flag)
-            // On va redéfinir le draw des particules en fonction du thème
             Particle.prototype.draw = function() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
@@ -646,11 +669,68 @@
         const ligueDesChampionsList = ldcAnnees.map((a, i) => `${a} : ${ldcValeurs[i]}`);
         const ballonDorList = ballonAnnees.map((a, i) => `${a} : ${ballonValeurs[i]}`);
         
-        // ========== NOUVELLES CATÉGORIES (sans Drapeaux) ==========
+        // ========== NOUVELLES CATÉGORIES ==========
         const jeuxVideoList = ["Super Mario Bros.", "The Legend of Zelda", "Tetris", "Minecraft", "Grand Theft Auto V", "Final Fantasy", "Metal Gear Solid", "Half-Life 2", "The Witcher 3: Wild Hunt", "Dark Souls"];
         const superHerosList = ["Spider-Man", "Batman", "Superman", "Iron Man", "Joker", "Captain America", "Wolverine", "Wonder Woman", "Deadpool", "Harley Quinn", "Thor", "Hulk", "Flash", "Black Panther", "Thanos", "Doctor Doom", "Green Lantern", "Magneto", "Aquaman", "Darkseid"];
         const rapFrUsList = ["Tupac Shakur", "The Notorious B.I.G.", "Jay-Z", "Eminem", "IAM", "Nas", "Booba", "Kendrick Lamar", "NTM", "Dr. Dre", "MC Solaar", "Soprano", "Snoop Dogg", "Kaaris", "Lil Wayne"];
         
+        // === TROUVE L'ANIME (EMOJIS) ===
+        const trouveAnimeList = [
+            "One Piece",
+            "Naruto",
+            "Dragon Ball",
+            "Demon Slayer",
+            "Jujutsu Kaisen",
+            "Attack on Titan",
+            "Death Note",
+            "Fullmetal Alchemist: Brotherhood",
+            "Hunter × Hunter",
+            "Bleach",
+            "My Hero Academia",
+            "Haikyuu!!",
+            "Fate/Zero",
+            "Your Lie in April",
+            "Neon Genesis Evangelion"
+        ];
+
+        // === DEVINE LE PERSONNAGE (INDICES) ===
+        const devinePersonnageList = [
+            "Naruto Uzumaki",
+            "Monkey D. Luffy",
+            "Son Goku",
+            "Roronoa Zoro",
+            "Gojo Satoru",
+            "Light Yagami",
+            "L",
+            "Naruto Uzumaki",
+            "Itachi Uchiha",
+            "Tanjiro Kamado",
+            "Inosuke Hashibira",
+            "Zenitsu Agatsuma",
+            "Saitama",
+            "Gon Freecss",
+            "Killua Zoldyck",
+            "Eren Yeager",
+            "Mikasa Ackerman",
+            "Obito Uchiha",
+            "Lelouch Lamperouge",
+            "Edward Elric"
+        ];
+
+        // === DEVINE L'ANIME PAR ORGANISATION ===
+        const animeParOrganisationList = [
+            "Naruto",
+            "One Piece",
+            "One Piece",
+            "Hunter × Hunter",
+            "Attack on Titan",
+            "Bleach",
+            "Bleach",
+            "My Hero Academia",
+            "The Seven Deadly Sins"
+        ];
+
+        // ========== QUIZ DATA ==========
         const quizData = {
             series: seriesList, films: filmsList, animeCelebres: animeCelebresList, animeDeteste: animeDetesteList,
             animeForts: animeFortsList, animeIntelligents: animeIntelligentsList, sportsMusique: sportsMusiqueList,
@@ -659,46 +739,109 @@
             animeIdiots: animeIdiotsList, meilleursCombats: meilleursCombatsList, meilleursArcs: meilleursArcsList,
             meilleuresTechniques: meilleuresTechniquesList, meilleuresTransformations: meilleuresTransformationsList,
             ligueDesChampions: ligueDesChampionsList, ballonDor: ballonDorList,
-            jeuxVideo: jeuxVideoList, superHeros: superHerosList, rapFrUs: rapFrUsList
+            jeuxVideo: jeuxVideoList, superHeros: superHerosList, rapFrUs: rapFrUsList,
+            trouveAnime: trouveAnimeList,
+            devinePersonnage: devinePersonnageList,
+            animeParOrganisation: animeParOrganisationList
         };
-        
+
+        // Indices pour la catégorie "Devine le Personnage"
+        const devinePersonnageIndices = [
+            "🍜 Rêve de devenir Hokage.",
+            "🍖 Veut devenir le Roi des Pirates.",
+            "🟠 Devient plus fort après chaque combat.",
+            "⚔️ Porte trois sabres.",
+            "⚡ Possède les Six Yeux.",
+            "📓 Tue en écrivant des noms.",
+            "🍎 Adore les pommes et enquête sur Kira.",
+            "🦊 Possède Kyûbi en lui.",
+            "🔥 Son frère s'appelle Sasuke.",
+            "⚔️ A perdu sa famille à cause des démons.",
+            "🐗 Porte un masque de sanglier.",
+            "⚡ Dort pour devenir très puissant.",
+            "👊 Peut battre n'importe qui d'un seul coup.",
+            "🕷️ Utilise une canne à pêche comme arme.",
+            "⚡ Est un assassin de la famille Zoldyck.",
+            "🩸 Cherche à exterminer les Titans.",
+            "🧣 Porte toujours une écharpe rouge.",
+            "🎭 Cache son identité derrière un masque orange.",
+            "👑 Dirige Britannia avec le Geass.",
+            "⚗️ A perdu un bras et une jambe en voulant ressusciter sa mère."
+        ];
+
+        // Indices pour la catégorie "Trouve l'Anime" (emojis)
+        const trouveAnimeEmojis = [
+            "🏴‍☠️👒🍖",
+            "🦊🍥🍃",
+            "🐉⚡🥋",
+            "👹⚔️🌸",
+            "🤛👻⚫",
+            "🧱🩸👹",
+            "📓🍎💀",
+            "🧪⚗️🤖",
+            "🕷️🃏🎣",
+            "👒⚔️🔥",
+            "🧊🔥🏫",
+            "🏐🦅🏆",
+            "⚔️🏺👑",
+            "🎹🎻💙",
+            "🤖🌎❤️"
+        ];
+
+        // Indices pour "Anime par Organisation"
+        const animeParOrganisationIndices = [
+            "Akatsuki",
+            "Marine",
+            "Chapeaux de Paille",
+            "Phantom Troupe",
+            "Survey Corps (Bataillon d'Exploration)",
+            "Gotei 13",
+            "Espada",
+            "Hero Association / Villain League",
+            "Ten Commandments"
+        ];
+
         const categoryMapping = {
-            series: { data: quizData.series, title: "📺 Séries TV - Top 20 des légendes", showYears: false, yearsList: null },
-            films: { data: quizData.films, title: "🎬 Cinéma - Top 20 des icônes", showYears: false, yearsList: null },
-            animeCelebres: { data: quizData.animeCelebres, title: "🌍 Anime/Manga - Top 30 des plus célèbres au monde", showYears: false, yearsList: null },
-            animeDeteste: { data: quizData.animeDeteste, title: "💀 Anime/Manga - Top 20 des plus détestés", showYears: false, yearsList: null },
-            animeForts: { data: quizData.animeForts, title: "🌌 Anime/Manga - Top 20 des plus puissants (Version Ultime)", showYears: false, yearsList: null },
-            animeIntelligents: { data: quizData.animeIntelligents, title: "🧠 Anime/Manga - Top 15 des génies ultimes", showYears: false, yearsList: null },
-            sportsMusique: { data: quizData.sportsMusique, title: "⚽🏀🎵 Sports & Musique - Top 40 des stars mondiales", showYears: false, yearsList: null },
-            seriesDeteste: { data: quizData.seriesDeteste, title: "👎 Séries TV - Top 10 des plus détestés", showYears: false, yearsList: null },
-            fillesPuissantes: { data: quizData.fillesPuissantes, title: "👸 Anime/Manga - Top 15 des filles les plus puissantes", showYears: false, yearsList: null },
-            meilleursFootballeurs: { data: quizData.meilleursFootballeurs, title: "⚽ Football - Top 15 des meilleurs joueurs de tous les temps", showYears: false, yearsList: null },
-            meilleursEntraineurs: { data: quizData.meilleursEntraineurs, title: "📋 Football - Top 10 des meilleurs entraîneurs de tous les temps", showYears: false, yearsList: null },
-            meilleursMangas: { data: quizData.meilleursMangas, title: "📖 Mangas - Top 15 des meilleurs mangas de tous les temps", showYears: false, yearsList: null },
-            meilleursAnimes: { data: quizData.meilleursAnimes, title: "🎬 Animes - Top 15 des meilleurs animes de tous les temps", showYears: false, yearsList: null },
-            animeIdiots: { data: quizData.animeIdiots, title: "🤪 Anime/Manga - Top 10 des personnages les plus idiots", showYears: false, yearsList: null },
-            meilleursCombats: { data: quizData.meilleursCombats, title: "⚔️ Anime/Manga - Top 20 des meilleurs combats (tapez le nom avec 'vs')", showYears: false, yearsList: null },
-            meilleursArcs: { data: quizData.meilleursArcs, title: "📖 Anime/Manga - Top 10 des meilleurs arcs", showYears: false, yearsList: null },
-            meilleuresTechniques: { data: quizData.meilleuresTechniques, title: "✨ Anime/Manga - Top 10 des meilleures techniques", showYears: false, yearsList: null },
-            meilleuresTransformations: { data: quizData.meilleuresTransformations, title: "🔄 Anime/Manga - Top 10 des meilleures transformations", showYears: false, yearsList: null },
-            ligueDesChampions: { data: quizData.ligueDesChampions, title: "🏆 Ligue des Champions - Vainqueurs de 2000 à 2026", showYears: true, yearsList: ldcAnnees },
-            ballonDor: { data: quizData.ballonDor, title: "🥇 Ballon d'Or - Vainqueurs de 2000 à 2025", showYears: true, yearsList: ballonAnnees },
-            jeuxVideo: { data: quizData.jeuxVideo, title: "🎮 Légendes du Jeu Vidéo - Top 10 des jeux cultes", showYears: false, yearsList: null },
-            superHeros: { data: quizData.superHeros, title: "🦸 Super-héros Marvel & DC - Top 20", showYears: false, yearsList: null },
-            rapFrUs: { data: quizData.rapFrUs, title: "🎤 Rap Français & US - Top 15 des légendes", showYears: false, yearsList: null }
+            series: { data: quizData.series, title: "📺 Séries TV - Top 20 des légendes", showYears: false, yearsList: null, hintList: null },
+            films: { data: quizData.films, title: "🎬 Cinéma - Top 20 des icônes", showYears: false, yearsList: null, hintList: null },
+            animeCelebres: { data: quizData.animeCelebres, title: "🌍 Anime/Manga - Top 30 des plus célèbres au monde", showYears: false, yearsList: null, hintList: null },
+            animeDeteste: { data: quizData.animeDeteste, title: "💀 Anime/Manga - Top 20 des plus détestés", showYears: false, yearsList: null, hintList: null },
+            animeForts: { data: quizData.animeForts, title: "🌌 Anime/Manga - Top 20 des plus puissants (Version Ultime)", showYears: false, yearsList: null, hintList: null },
+            animeIntelligents: { data: quizData.animeIntelligents, title: "🧠 Anime/Manga - Top 15 des génies ultimes", showYears: false, yearsList: null, hintList: null },
+            sportsMusique: { data: quizData.sportsMusique, title: "⚽🏀🎵 Sports & Musique - Top 40 des stars mondiales", showYears: false, yearsList: null, hintList: null },
+            seriesDeteste: { data: quizData.seriesDeteste, title: "👎 Séries TV - Top 10 des plus détestés", showYears: false, yearsList: null, hintList: null },
+            fillesPuissantes: { data: quizData.fillesPuissantes, title: "👸 Anime/Manga - Top 15 des filles les plus puissantes", showYears: false, yearsList: null, hintList: null },
+            meilleursFootballeurs: { data: quizData.meilleursFootballeurs, title: "⚽ Football - Top 15 des meilleurs joueurs de tous les temps", showYears: false, yearsList: null, hintList: null },
+            meilleursEntraineurs: { data: quizData.meilleursEntraineurs, title: "📋 Football - Top 10 des meilleurs entraîneurs de tous les temps", showYears: false, yearsList: null, hintList: null },
+            meilleursMangas: { data: quizData.meilleursMangas, title: "📖 Mangas - Top 15 des meilleurs mangas de tous les temps", showYears: false, yearsList: null, hintList: null },
+            meilleursAnimes: { data: quizData.meilleursAnimes, title: "🎬 Animes - Top 15 des meilleurs animes de tous les temps", showYears: false, yearsList: null, hintList: null },
+            animeIdiots: { data: quizData.animeIdiots, title: "🤪 Anime/Manga - Top 10 des personnages les plus idiots", showYears: false, yearsList: null, hintList: null },
+            meilleursCombats: { data: quizData.meilleursCombats, title: "⚔️ Anime/Manga - Top 20 des meilleurs combats (tapez le nom avec 'vs')", showYears: false, yearsList: null, hintList: null },
+            meilleursArcs: { data: quizData.meilleursArcs, title: "📖 Anime/Manga - Top 10 des meilleurs arcs", showYears: false, yearsList: null, hintList: null },
+            meilleuresTechniques: { data: quizData.meilleuresTechniques, title: "✨ Anime/Manga - Top 10 des meilleures techniques", showYears: false, yearsList: null, hintList: null },
+            meilleuresTransformations: { data: quizData.meilleuresTransformations, title: "🔄 Anime/Manga - Top 10 des meilleures transformations", showYears: false, yearsList: null, hintList: null },
+            ligueDesChampions: { data: quizData.ligueDesChampions, title: "🏆 Ligue des Champions - Vainqueurs de 2000 à 2026", showYears: true, yearsList: ldcAnnees, hintList: null },
+            ballonDor: { data: quizData.ballonDor, title: "🥇 Ballon d'Or - Vainqueurs de 2000 à 2025", showYears: true, yearsList: ballonAnnees, hintList: null },
+            jeuxVideo: { data: quizData.jeuxVideo, title: "🎮 Légendes du Jeu Vidéo - Top 10 des jeux cultes", showYears: false, yearsList: null, hintList: null },
+            superHeros: { data: quizData.superHeros, title: "🦸 Super-héros Marvel & DC - Top 20", showYears: false, yearsList: null, hintList: null },
+            rapFrUs: { data: quizData.rapFrUs, title: "🎤 Rap Français & US - Top 15 des légendes", showYears: false, yearsList: null, hintList: null },
+            // NOUVELLES CATÉGORIES
+            trouveAnime: { data: quizData.trouveAnime, title: "🔍 Trouve l'Anime (Emojis)", showYears: false, yearsList: null, hintList: trouveAnimeEmojis },
+            devinePersonnage: { data: quizData.devinePersonnage, title: "🎭 Devine le Personnage (Indices)", showYears: false, yearsList: null, hintList: devinePersonnageIndices },
+            animeParOrganisation: { data: quizData.animeParOrganisation, title: "🏛️ Anime par Organisation", showYears: false, yearsList: null, hintList: animeParOrganisationIndices }
         };
         
         function normalizeString(str) { if (!str) return ''; let normalized = str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); normalized = normalized.replace(/^\d{4}\s*:\s*/, ''); normalized = normalized.replace(/[^a-z0-9\s]/g, '').trim(); return normalized; }
         let currentGame = null; let timerInterval = null;
-        class QuizGame { constructor(category, categoryKey, questionsList, showYears, yearsList) { this.category = category; this.categoryKey = categoryKey; this.questions = [...questionsList]; this.showYears = showYears; this.yearsList = yearsList; this.correctAnswers = new Array(this.questions.length).fill(false); this.score = 0; this.timeLeft = 600; this.gameActive = true; }
+        class QuizGame { constructor(category, categoryKey, questionsList, showYears, yearsList, hintList) { this.category = category; this.categoryKey = categoryKey; this.questions = [...questionsList]; this.showYears = showYears; this.yearsList = yearsList; this.hintList = hintList; this.correctAnswers = new Array(this.questions.length).fill(false); this.score = 0; this.timeLeft = 600; this.gameActive = true; }
             findMatchingQuestion(answer) { const normalizedAnswer = normalizeString(answer); for (let i = 0; i < this.questions.length; i++) { if (!this.correctAnswers[i]) { let normalizedQuestion = normalizeString(this.questions[i]); if (normalizedAnswer === normalizedQuestion) return i; const firstWord = normalizedQuestion.split(' ')[0]; if (normalizedAnswer === firstWord && firstWord.length > 2) return i; const words = normalizedQuestion.split(' '); if (words.length > 1 && !normalizedQuestion.includes(':')) { const lastName = words[words.length - 1]; if (normalizedAnswer === lastName && lastName.length > 2) return i; } } } return -1; }
             submitAnswer(answer) { if (!this.gameActive) return { success: false, gameInactive: true }; const sanitizedAnswer = answer.trim(); const matchIndex = this.findMatchingQuestion(sanitizedAnswer); if (matchIndex === -1) return { success: false, notFound: true }; if (this.correctAnswers[matchIndex]) return { success: false, alreadyAnswered: true }; this.correctAnswers[matchIndex] = true; this.score++; return { success: true, index: matchIndex, correctName: this.questions[matchIndex] }; }
             isComplete() { return this.correctAnswers.every(correct => correct === true); }
             getProgress() { const answered = this.correctAnswers.filter(c => c === true).length; return { answered, total: this.questions.length, percentage: (answered / this.questions.length) * 100 }; }
         }
-        function showGamePanel(categoryKey) { if (currentGame) closeGame(); const category = categoryMapping[categoryKey]; if (!category) return; currentGame = new QuizGame(category, categoryKey, category.data, category.showYears, category.yearsList); let tableRows = ''; for (let i = 0; i < currentGame.questions.length; i++) { let displayText = "❓ ???"; if (currentGame.showYears && currentGame.yearsList && currentGame.yearsList[i]) { displayText = `📅 ${currentGame.yearsList[i]} : ???`; } tableRows += `<tr id="row-${i}"><td style="width:60px;text-align:center;font-weight:bold;">${i+1}<\/td><td id="answer-display-${i}">${displayText}<\/td><td id="status-${i}" style="width:70px;text-align:center;">⏳<\/td><\/tr>`; } let infoHtml = ''; if (categoryKey === 'meilleursCombats') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez le nom complet avec "vs" (ex: "Naruto Uzumaki vs Sasuke Uchiha").</div>`; else if (categoryKey === 'meilleursArcs') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez juste le nom (ex: "Fourmis Chimères" ou "Pain").</div>`; else if (categoryKey === 'ligueDesChampions') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez le nom du club (ex: "Real Madrid", "Bayern Munich"). L'année est automatiquement associée.</div>`; else if (categoryKey === 'ballonDor') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez le nom du joueur (ex: "Lionel Messi", "Cristiano Ronaldo"). L'année est automatiquement associée.</div>`; const gameHTML = `<div class="game-panel" id="game-panel"><div class="game-container"><div class="game-header"><h2>${category.title}</h2><button class="restart-category-btn" id="restart-category-btn">🔄 Recommencer cette catégorie</button><div class="timer" id="timer">10:00</div><div class="score" id="score">🎯 0/${currentGame.questions.length}</div><button class="close-game" id="close-game-btn">✕ Fermer</button></div><div class="progress" id="progress">📊 Progression: 0/${currentGame.questions.length} (0%)</div>${infoHtml}<div class="quiz-table"><table><thead><tr><th>#</th><th>Année / Personnage</th><th>✅ Statut</th></tr></thead><tbody>${tableRows}</tbody></table></div><div class="input-area"><div class="input-group"><input type="text" id="quick-input" placeholder="✏️ Tape un nom ici..." autocomplete="off"><button id="quick-submit">🎮 Valider</button></div><div id="message"></div><div id="found-list"></div></div></div></div>`; document.body.insertAdjacentHTML('beforeend', gameHTML); startTimer(); document.getElementById('quick-submit').onclick = () => handleQuickSubmit(); document.getElementById('quick-input').onkeypress = (e) => { if (e.key === 'Enter') handleQuickSubmit(); }; document.getElementById('close-game-btn').onclick = () => closeGame(); document.getElementById('restart-category-btn').onclick = () => restartGame(); document.getElementById('quick-input').focus(); }
+        function showGamePanel(categoryKey) { if (currentGame) closeGame(); const category = categoryMapping[categoryKey]; if (!category) return; currentGame = new QuizGame(category, categoryKey, category.data, category.showYears, category.yearsList, category.hintList); let tableRows = ''; for (let i = 0; i < currentGame.questions.length; i++) { let displayText = "❓ ???"; if (currentGame.showYears && currentGame.yearsList && currentGame.yearsList[i]) { displayText = `📅 ${currentGame.yearsList[i]} : ???`; } else if (currentGame.hintList && currentGame.hintList[i]) { displayText = `${currentGame.hintList[i]}`; } tableRows += `<tr id="row-${i}"><td style="width:60px;text-align:center;font-weight:bold;">${i+1}<\/td><td id="answer-display-${i}">${displayText}<\/td><td id="status-${i}" style="width:70px;text-align:center;">⏳<\/td><\/tr>`; } let infoHtml = ''; if (categoryKey === 'meilleursCombats') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez le nom complet avec "vs" (ex: "Naruto Uzumaki vs Sasuke Uchiha").</div>`; else if (categoryKey === 'meilleursArcs') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez juste le nom (ex: "Fourmis Chimères" ou "Pain").</div>`; else if (categoryKey === 'ligueDesChampions') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez le nom du club (ex: "Real Madrid", "Bayern Munich"). L'année est automatiquement associée.</div>`; else if (categoryKey === 'ballonDor') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Tapez le nom du joueur (ex: "Lionel Messi", "Cristiano Ronaldo"). L'année est automatiquement associée.</div>`; else if (categoryKey === 'trouveAnime') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Trouve l'anime grâce aux emojis ! Tape le nom complet (ex: "One Piece", "Naruto").</div>`; else if (categoryKey === 'devinePersonnage') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Devine le personnage grâce à l'indice ! Tape son nom complet.</div>`; else if (categoryKey === 'animeParOrganisation') infoHtml = `<div class="info-note">💡 <strong>Info :</strong> Trouve l'anime dont vient l'organisation ! Tape le nom de l'anime.</div>`; const gameHTML = `<div class="game-panel" id="game-panel"><div class="game-container"><div class="game-header"><h2>${category.title}</h2><button class="restart-category-btn" id="restart-category-btn">🔄 Recommencer cette catégorie</button><div class="timer" id="timer">10:00</div><div class="score" id="score">🎯 0/${currentGame.questions.length}</div><button class="close-game" id="close-game-btn">✕ Fermer</button></div><div class="progress" id="progress">📊 Progression: 0/${currentGame.questions.length} (0%)</div>${infoHtml}<div class="quiz-table"><table><thead><tr><th>#</th><th>${currentGame.hintList ? 'Indice' : (currentGame.showYears ? 'Année' : 'Nom')}</th><th>✅ Statut</th></tr></thead><tbody>${tableRows}</tbody></table></div><div class="input-area"><div class="input-group"><input type="text" id="quick-input" placeholder="✏️ Tape ta réponse ici..." autocomplete="off"><button id="quick-submit">🎮 Valider</button></div><div id="message"></div><div id="found-list"></div></div></div></div>`; document.body.insertAdjacentHTML('beforeend', gameHTML); startTimer(); document.getElementById('quick-submit').onclick = () => handleQuickSubmit(); document.getElementById('quick-input').onkeypress = (e) => { if (e.key === 'Enter') handleQuickSubmit(); }; document.getElementById('close-game-btn').onclick = () => closeGame(); document.getElementById('restart-category-btn').onclick = () => restartGame(); document.getElementById('quick-input').focus(); }
 
-        // ========== FONCTIONS AUDIO AJOUTÉES ==========
+        // ========== FONCTIONS AUDIO ==========
         function playSoundCorrect() {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -707,11 +850,10 @@
                 oscillator.connect(gainNode);
                 gainNode.connect(audioCtx.destination);
                 oscillator.type = 'sine';
-                oscillator.frequency.value = 880; // La note La5
+                oscillator.frequency.value = 880;
                 gainNode.gain.value = 0.2;
                 oscillator.start();
                 oscillator.stop(audioCtx.currentTime + 0.15);
-                // Petit délai avant le 2e son pour faire un "ding-dong"
                 setTimeout(() => {
                     const osc2 = audioCtx.createOscillator();
                     const gain2 = audioCtx.createGain();
@@ -723,7 +865,7 @@
                     osc2.start();
                     osc2.stop(audioCtx.currentTime + 0.15);
                 }, 120);
-            } catch (e) { /* silencieux si navigateur ne supporte pas */ }
+            } catch (e) { /* silencieux */ }
         }
 
         function playSoundWrong() {
@@ -738,7 +880,7 @@
                 gainNode.gain.value = 0.1;
                 oscillator.start();
                 oscillator.stop(audioCtx.currentTime + 0.25);
-            } catch (e) { /* silencieux si navigateur ne supporte pas */ }
+            } catch (e) { /* silencieux */ }
         }
 
         function handleQuickSubmit() { 
@@ -747,38 +889,38 @@
             if (!input) return; 
             const answer = input.value.trim(); 
             if (answer === '') { 
-                showMessage('📝 Veuillez entrer un nom', 'error'); 
+                showMessage('📝 Veuillez entrer une réponse', 'error'); 
                 return; 
             } 
             const result = currentGame.submitAnswer(answer); 
             if (result.success) { 
-                playSoundCorrect(); // SON POUR BONNE RÉPONSE
+                playSoundCorrect();
                 updateRow(result.index, result.correctName); 
                 updateScoreAndProgress(); 
-                showMessage(`✅ BRAVO ! "${result.correctName}" ajouté !`, 'success'); 
+                showMessage(`✅ BRAVO ! "${result.correctName}" trouvé !`, 'success'); 
                 input.value = ''; 
                 input.focus(); 
                 updateFoundList(); 
                 if (currentGame.isComplete()) endGame(true); 
             } else if (result.notFound) {
-                playSoundWrong(); // SON POUR MAUVAISE RÉPONSE
+                playSoundWrong();
                 showMessage(`❌ "${answer}" n'est pas dans la liste. Réessaie !`, 'error');
             } else if (result.alreadyAnswered) {
-                playSoundWrong(); // SON POUR DÉJÀ RÉPONDU (on considère comme une erreur)
+                playSoundWrong();
                 showMessage(`⚠️ "${answer}" a déjà été trouvé !`, 'error');
             } 
             input.value = ''; 
             input.focus(); 
         }
 
-        function updateRow(index, correctName) { const answerDisplay = document.getElementById(`answer-display-${index}`); const statusCell = document.getElementById(`status-${index}`); if (answerDisplay) { if (currentGame.showYears && currentGame.yearsList && currentGame.yearsList[index]) { answerDisplay.innerHTML = `✅ ${currentGame.yearsList[index]} : ${correctName.replace(/^\d{4}\s*:\s*/, '')}`; } else { answerDisplay.innerHTML = `✅ ${correctName}`; } answerDisplay.style.color = '#28a745'; answerDisplay.style.fontWeight = 'bold'; } if (statusCell) { statusCell.innerHTML = '✓'; statusCell.style.color = '#28a745'; statusCell.style.fontSize = '20px'; statusCell.style.fontWeight = 'bold'; } }
-        function updateFoundList() { const foundListDiv = document.getElementById('found-list'); if (!foundListDiv) return; const found = []; const notFound = []; for (let i = 0; i < currentGame.questions.length; i++) { if (currentGame.correctAnswers[i]) { let display = currentGame.questions[i]; if (currentGame.showYears && currentGame.yearsList) { display = `${currentGame.yearsList[i]} : ${display.replace(/^\d{4}\s*:\s*/, '')}`; } found.push(display); } else notFound.push(i + 1); } if (found.length > 0) foundListDiv.innerHTML = `<strong>🏆 Déjà trouvés (${found.length}/${currentGame.questions.length}) :</strong> ${found.join(', ')}<br><strong>⏳ Restants :</strong> positions ${notFound.join(', ')}`; else foundListDiv.innerHTML = `💡 Tape un nom pour commencer l'aventure Memoriz !`; }
+        function updateRow(index, correctName) { const answerDisplay = document.getElementById(`answer-display-${index}`); const statusCell = document.getElementById(`status-${index}`); if (answerDisplay) { if (currentGame.showYears && currentGame.yearsList && currentGame.yearsList[index]) { answerDisplay.innerHTML = `✅ ${currentGame.yearsList[index]} : ${correctName.replace(/^\d{4}\s*:\s*/, '')}`; } else if (currentGame.hintList && currentGame.hintList[index]) { answerDisplay.innerHTML = `✅ ${currentGame.hintList[index]} → ${correctName}`; } else { answerDisplay.innerHTML = `✅ ${correctName}`; } answerDisplay.style.color = '#28a745'; answerDisplay.style.fontWeight = 'bold'; } if (statusCell) { statusCell.innerHTML = '✓'; statusCell.style.color = '#28a745'; statusCell.style.fontSize = '20px'; statusCell.style.fontWeight = 'bold'; } }
+        function updateFoundList() { const foundListDiv = document.getElementById('found-list'); if (!foundListDiv) return; const found = []; const notFound = []; for (let i = 0; i < currentGame.questions.length; i++) { if (currentGame.correctAnswers[i]) { let display = currentGame.questions[i]; if (currentGame.showYears && currentGame.yearsList) { display = `${currentGame.yearsList[i]} : ${display.replace(/^\d{4}\s*:\s*/, '')}`; } else if (currentGame.hintList && currentGame.hintList[i]) { display = `${currentGame.hintList[i]} → ${display}`; } found.push(display); } else notFound.push(i + 1); } if (found.length > 0) foundListDiv.innerHTML = `<strong>🏆 Déjà trouvés (${found.length}/${currentGame.questions.length}) :</strong> ${found.join(', ')}<br><strong>⏳ Restants :</strong> positions ${notFound.join(', ')}`; else foundListDiv.innerHTML = `💡 Tape une réponse pour commencer l'aventure Memoriz !`; }
         function updateScoreAndProgress() { const progress = currentGame.getProgress(); const scoreElement = document.getElementById('score'); const progressElement = document.getElementById('progress'); if (scoreElement) scoreElement.textContent = `🎯 ${currentGame.score}/${currentGame.questions.length}`; if (progressElement) progressElement.textContent = `📊 Progression: ${progress.answered}/${progress.total} (${Math.round(progress.percentage)}%)`; }
         function startTimer() { if (timerInterval) clearInterval(timerInterval); timerInterval = setInterval(() => { if (!currentGame || !currentGame.gameActive) return; if (currentGame.timeLeft <= 0) endGame(false); else { currentGame.timeLeft--; const timerElement = document.getElementById('timer'); if (timerElement) { const minutes = Math.floor(currentGame.timeLeft / 60); const seconds = currentGame.timeLeft % 60; timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`; if (currentGame.timeLeft <= 60) timerElement.classList.add('warning'); } } }, 1000); }
         function showMessage(msg, type) { const messageDiv = document.getElementById('message'); if (!messageDiv) return; messageDiv.innerHTML = `<div class="message ${type}">${msg}</div>`; setTimeout(() => { if (messageDiv) messageDiv.innerHTML = ''; }, 3000); }
         function shareOnWhatsApp() { if (!currentGame) return; const text = `🎯 J'ai fait ${currentGame.score}/${currentGame.questions.length} (${Math.round(currentGame.getProgress().percentage)}%) au quiz Memoriz !`; window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank'); }
         function shareOnTwitter() { if (!currentGame) return; const text = `🎯 J'ai fait ${currentGame.score}/${currentGame.questions.length} (${Math.round(currentGame.getProgress().percentage)}%) au quiz Memoriz !`; window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank'); }
-        function endGame(completed) { if (!currentGame || !currentGame.gameActive) return; currentGame.gameActive = false; if (timerInterval) clearInterval(timerInterval); const gameContainer = document.querySelector('.game-container'); if (!gameContainer) return; const percentage = (currentGame.score / currentGame.questions.length) * 100; for (let i = 0; i < currentGame.questions.length; i++) { const answerDisplay = document.getElementById(`answer-display-${i}`); if (answerDisplay && !currentGame.correctAnswers[i]) { if (currentGame.showYears && currentGame.yearsList) { answerDisplay.innerHTML = `❌ ${currentGame.yearsList[i]} : ${currentGame.questions[i].replace(/^\d{4}\s*:\s*/, '')}`; } else { answerDisplay.innerHTML = `❌ ${currentGame.questions[i]}`; } answerDisplay.style.color = '#dc3545'; } } gameContainer.innerHTML = `<div class="game-complete"><h2>${completed ? '🏆 FÉLICITATIONS ! 🏆' : '⏰ TEMPS ÉCOULÉ ! ⏰'}</h2><p style="font-size:1.5rem;margin:20px 0;">Ton score : ${currentGame.score}/${currentGame.questions.length} (${Math.round(percentage)}%)</p><p>${completed ? 'Tu as dominé ce défi Memoriz !' : 'Continue à t\'entraîner, tu vas y arriver !'}</p><button class="play-again" onclick="closeGame()">🏠 Retour aux catégories</button><button class="play-again" onclick="restartGame()">🔄 Rejouer</button><div style="margin-top:20px;"><button class="share-btn" onclick="shareOnWhatsApp()">💬 Partager sur WhatsApp</button><button class="share-btn share-twitter" onclick="shareOnTwitter()">🐦 Partager sur X (Twitter)</button></div></div>`; }
+        function endGame(completed) { if (!currentGame || !currentGame.gameActive) return; currentGame.gameActive = false; if (timerInterval) clearInterval(timerInterval); const gameContainer = document.querySelector('.game-container'); if (!gameContainer) return; const percentage = (currentGame.score / currentGame.questions.length) * 100; for (let i = 0; i < currentGame.questions.length; i++) { const answerDisplay = document.getElementById(`answer-display-${i}`); if (answerDisplay && !currentGame.correctAnswers[i]) { if (currentGame.showYears && currentGame.yearsList) { answerDisplay.innerHTML = `❌ ${currentGame.yearsList[i]} : ${currentGame.questions[i].replace(/^\d{4}\s*:\s*/, '')}`; } else if (currentGame.hintList && currentGame.hintList[i]) { answerDisplay.innerHTML = `❌ ${currentGame.hintList[i]} → ${currentGame.questions[i]}`; } else { answerDisplay.innerHTML = `❌ ${currentGame.questions[i]}`; } answerDisplay.style.color = '#dc3545'; } } gameContainer.innerHTML = `<div class="game-complete"><h2>${completed ? '🏆 FÉLICITATIONS ! 🏆' : '⏰ TEMPS ÉCOULÉ ! ⏰'}</h2><p style="font-size:1.5rem;margin:20px 0;">Ton score : ${currentGame.score}/${currentGame.questions.length} (${Math.round(percentage)}%)</p><p>${completed ? 'Tu as dominé ce défi Memoriz !' : 'Continue à t\'entraîner, tu vas y arriver !'}</p><button class="play-again" onclick="closeGame()">🏠 Retour aux catégories</button><button class="play-again" onclick="restartGame()">🔄 Rejouer</button><div style="margin-top:20px;"><button class="share-btn" onclick="shareOnWhatsApp()">💬 Partager sur WhatsApp</button><button class="share-btn share-twitter" onclick="shareOnTwitter()">🐦 Partager sur X (Twitter)</button></div></div>`; }
         function closeGame() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } const gamePanel = document.getElementById('game-panel'); if (gamePanel) gamePanel.remove(); currentGame = null; }
         function restartGame() { if (currentGame) { const categoryKey = currentGame.categoryKey; closeGame(); setTimeout(() => showGamePanel(categoryKey), 50); } }
         const legalContent = { privacy: { title: "🔒 Confidentialité", content: "<h2>Politique de Confidentialité</h2><p>Chez Memoriz, la protection de vos données est notre priorité. Nous ne collectons aucune information personnelle vous concernant. Aucun cookie de traçage n'est utilisé sur notre site. Votre activité de quiz reste strictement anonyme. Nous n'utilisons pas de services tiers susceptibles de vous identifier. Pour toute question, contactez-nous à : <strong>jitihh700@gmail.com</strong></p>" }, terms: { title: "📜 Conditions Générales", content: "<h2>Conditions Générales d'Utilisation</h2><p><strong>1. Acceptation des conditions</strong><br>En utilisant Memoriz, vous acceptez pleinement nos conditions.</p><p><strong>2. Service gratuit</strong><br>Memoriz est entièrement gratuit. Aucun abonnement ni paiement n'est requis.</p><p><strong>3. Propriété intellectuelle</strong><br>Le contenu des quiz (noms de personnages, œuvres) appartient à leurs propriétaires respectifs. Memoriz est un site éducatif et ludique.</p><p><strong>4. Limitation de responsabilité</strong><br>Memoriz s'efforce de maintenir l'exactitude des informations mais ne peut garantir l'absence d'erreur.</p><p><strong>5. Contact</strong><br>Pour toute réclamation : <strong>jitihh700@gmail.com</strong></p>" }, mentions: { title: "⚖️ Mentions légales", content: "<h2>Mentions légales</h2><p><strong>Éditeur du site :</strong><br>Memoriz<br>Email : jitihh700@gmail.com</p><p><strong>Hébergement :</strong><br>Render Inc.<br>525 Brannan St, San Francisco, CA 94107, États-Unis</p><p><strong>Directeur de publication :</strong><br>L'équipe Memoriz</p><p><strong>Propriété intellectuelle :</strong><br>L'ensemble des contenus textuels et graphiques de Memoriz sont protégés par le droit d'auteur. Les noms de personnages et œuvres cités appartiennent à leurs ayants droit respectifs.</p>" }, about: { title: "ℹ️ À propos de Memoriz", content: "<h2>Notre histoire</h2><p>Memoriz est né en 2022 d'une passion commune pour les quiz, la culture pop et les jeux de mémoire. Notre mission : rendre l'apprentissage ludique et accessible à tous.</p><p><strong>🎯 Notre objectif :</strong> Créer la plus grande base de quiz francophone sur les célébrités, animés, sports et musiques.</p><p><strong>📈 Chiffres clés :</strong><br>- 20 catégories de quiz<br>- Plus de 300 questions uniques<br>- Des milliers de joueurs chaque mois</p><p><strong>💡 Pour nous contacter :</strong> jitihh700@gmail.com</p><p><strong>📱 Retrouvez-nous sur les réseaux :</strong><br>YouTube, TikTok, Twitch, WhatsApp - Tous les liens sont en bas de page !</p>" }, contact: { title: "📧 Contact", content: "<h2>Contactez-nous</h2><p>Une question ? Une suggestion de quiz ? Un problème technique ? Nous sommes là pour vous !</p><p><strong>📨 Email :</strong> <a href='mailto:jitihh700@gmail.com'>jitihh700@gmail.com</a></p><p><strong>⏰ Délai de réponse :</strong> Sous 48h ouvrées.</p><p><strong>📱 Réseaux sociaux :</strong></p><ul><li>🎥 YouTube : <a href='https://youtube.com/@noironik' target='_blank'>@noironik</a></li><li>🎵 TikTok : <a href='https://tiktok.com/@noironik' target='_blank'>@noironik</a></li><li>📺 Twitch : <a href='https://twitch.tv/noironik1' target='_blank'>noironik1</a></li><li>💬 WhatsApp : <a href='https://wa.me/2250708608958?text=Salut%20Memoriz%20!' target='_blank'>noironik</a></li></ul><p>N'hésitez pas à nous suivre pour ne rien rater des nouveautés Memoriz !</p>" } };
