@@ -930,6 +930,160 @@
         function initTheme() { const savedTheme = localStorage.getItem('memoriz_theme'); if (savedTheme === 'light') document.body.classList.add('light-mode'); document.getElementById('themeToggle').addEventListener('click', () => { document.body.classList.toggle('light-mode'); localStorage.setItem('memoriz_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); }); }
         document.addEventListener('DOMContentLoaded', () => { document.querySelectorAll('.category-card').forEach(card => { card.addEventListener('click', () => { const category = card.getAttribute('data-category'); if (category) showGamePanel(category); }); }); initLegalPages(); initBlogArticles(); initTheme(); });
         window.closeGame = closeGame; window.restartGame = restartGame; window.shareOnWhatsApp = shareOnWhatsApp; window.shareOnTwitter = shareOnTwitter;
+            <!-- ========== SUPABASE SDK ========== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+    // ========== CONFIGURATION SUPABASE ==========
+    const SUPABASE_URL = 'https://lfjseraflaigzujxoboq.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmanNlcmFmbGFpZ3p1anhvYm9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2MzAwNjMsImV4cCI6MjEwMDIwNjA2M30.sEINRv6Bb3NDtc2O4RLYVTpcOFb-MVuhIrhfYY2r--w';
+
+    // Initialisation du client Supabase
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ========== FONCTIONS COMMENTAIRES ==========
+    async function loadSupabaseComments() {
+        const container = document.getElementById('supabase-comments');
+        if (!container) return;
+        
+        try {
+            const { data, error } = await supabase
+                .from('comments')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(100);
+            
+            if (error) throw error;
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p style="opacity:0.6; text-align:center; padding:20px;">💭 Sois le premier à commenter !</p>';
+                return;
+            }
+            
+            container.innerHTML = data.map(c => {
+                const date = new Date(c.created_at);
+                return `
+                    <div style="background:rgba(255,255,255,0.06); padding:14px 20px; border-radius:16px; margin-bottom:10px; border-left:3px solid #ff4757;">
+                        <strong style="color:#ff6b6b; font-size:1.05rem;">${escapeHtml(c.pseudo || 'Anonyme')}</strong>
+                        <span style="opacity:0.5; font-size:0.75rem; margin-left:12px;">${date.toLocaleDateString('fr-FR')} à ${date.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'})}</span>
+                        <p style="margin-top:6px; font-size:1rem; line-height:1.5;">${escapeHtml(c.text)}</p>
+                    </div>
+                `;
+            }).join('');
+            
+        } catch (err) {
+            console.error('Erreur Supabase:', err);
+            container.innerHTML = `<p style="color:#ff6b6b; text-align:center; padding:20px;">❌ Erreur de chargement : ${err.message}</p>`;
+        }
+    }
+
+    async function addSupabaseComment() {
+        const pseudoInput = document.getElementById('sb-pseudo');
+        const textInput = document.getElementById('sb-input');
+        const pseudo = pseudoInput.value.trim() || 'Anonyme';
+        const text = textInput.value.trim();
+        
+        if (!text) {
+            showCommentMessage('📝 Écris un commentaire !', 'error');
+            return;
+        }
+        
+        const submitBtn = document.getElementById('sb-submit');
+        submitBtn.textContent = '⏳ Envoi...';
+        submitBtn.disabled = true;
+        
+        try {
+            const { data, error } = await supabase
+                .from('comments')
+                .insert([{ pseudo, text }])
+                .select();
+            
+            if (error) throw error;
+            
+            textInput.value = '';
+            showCommentMessage('✅ Commentaire envoyé !', 'success');
+            loadSupabaseComments();
+            
+        } catch (err) {
+            console.error('Erreur insertion:', err);
+            showCommentMessage('❌ Erreur : ' + err.message, 'error');
+        } finally {
+            submitBtn.textContent = '✉️ Envoyer';
+            submitBtn.disabled = false;
+        }
+    }
+
+    function showCommentMessage(msg, type) {
+        const existing = document.getElementById('sb-message');
+        if (existing) existing.remove();
+        
+        const div = document.createElement('div');
+        div.id = 'sb-message';
+        div.style.cssText = `
+            padding: 12px 20px;
+            border-radius: 60px;
+            margin-top: 12px;
+            font-weight: 500;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+            ${type === 'success' ? 'background:#d4edda; color:#155724; border-left:5px solid #28a745;' : 'background:#f8d7da; color:#721c24; border-left:5px solid #dc3545;'}
+        `;
+        div.textContent = msg;
+        
+        const section = document.getElementById('comments-section');
+        if (section) section.appendChild(div);
+        
+        setTimeout(() => { if (div.parentNode) div.remove(); }, 4000);
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // ========== INITIALISATION ==========
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Supabase chargé !');
+        loadSupabaseComments();
+        
+        const submitBtn = document.getElementById('sb-submit');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', addSupabaseComment);
+        } else {
+            console.error('Bouton submit non trouvé !');
+        }
+        
+        const textInput = document.getElementById('sb-input');
+        if (textInput) {
+            textInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addSupabaseComment();
+            });
+        }
+        
+        // Mode clair / sombre pour les inputs
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', function() {
+                setTimeout(() => {
+                    const isLight = document.body.classList.contains('light-mode');
+                    const inputs = document.querySelectorAll('#sb-pseudo, #sb-input');
+                    inputs.forEach(inp => {
+                        if (isLight) {
+                            inp.style.background = 'rgba(0,0,0,0.05)';
+                            inp.style.color = '#0a0a1a';
+                            inp.style.borderColor = 'rgba(0,0,0,0.15)';
+                        } else {
+                            inp.style.background = 'rgba(255,255,255,0.08)';
+                            inp.style.color = 'white';
+                            inp.style.borderColor = 'rgba(255,255,255,0.2)';
+                        }
+                    });
+                }, 50);
+            });
+        }
+    });
+    </script>
     </script>
 </body>
 </html>
