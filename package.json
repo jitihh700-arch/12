@@ -1,0 +1,7 @@
+{
+  "name": "memoriz-phase-2a",
+  "private": true,
+  "devDependencies": {
+    "supabase": "2.110.0"
+  }
+}
