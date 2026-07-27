@@ -4,7 +4,7 @@
 
 Le client n'envoie jamais de `userId`. Toutes les operations utilisent la session Supabase courante et `auth.uid()` cote PostgreSQL.
 
-Les exemples ci-dessous decrivent le contrat fonctionnel futur pour l'integration frontend. Ils ne creent pas encore de fichier JavaScript.
+Les exemples ci-dessous decrivent le contrat fonctionnel utilise par l'integration frontend de la Phase 2B.
 
 Les seules fonctions SQL prevues pour l'appel client sont `register_profile`, `get_my_profile` et `change_my_pseudo`. Les fonctions de nettoyage, normalisation et validation restent internes a la base.
 
@@ -125,3 +125,15 @@ Le joueur ne peut pas modifier directement:
 - `updated_at`.
 
 Les evolutions futures de score devront passer par une fonction dediee, hors Phase 2A.
+
+## Integration JavaScript Phase 2B
+
+Le fichier `assets/js/api.js` cree ou reutilise un seul client Supabase, encapsule les appels Supabase et expose uniquement:
+
+- `registerProfile(pseudo)` -> RPC `register_profile`;
+- `getMyProfile()` -> RPC `get_my_profile`;
+- `changeMyPseudo(pseudo)` -> RPC `change_my_pseudo`.
+
+Le wrapper ne contient aucun appel direct a `public.profiles`, aucune cle `service_role`, aucune chaine de connexion et aucun parametre `userId`.
+
+`assets/js/auth.js` orchestre la session anonyme et l'interface. Il ne cree pas de second client Supabase.

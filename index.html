@@ -67,6 +67,17 @@
                 </svg>
                 ❤️ SOUTENIR MEMORIZ ❤️
             </a>
+
+            <section class="profile-card" id="profile-card" data-state="idle" aria-live="polite">
+                <div class="profile-status-line"><span class="profile-dot" aria-hidden="true"></span><span id="profile-status-label">Profil local</span></div>
+                <strong id="profile-pseudo">Quiz solo disponible</strong>
+                <span class="profile-stats" id="profile-stats"></span>
+                <p id="profile-help">Chargement du profil...</p>
+                <div class="profile-actions">
+                    <button type="button" id="profile-primary-action">Créer mon pseudo</button>
+                    <button type="button" id="profile-retry-action" hidden>Réessayer</button>
+                </div>
+            </section>
         </header>
 
         <div class="categories">
@@ -166,10 +177,31 @@
     </div>
 
     <div id="legal-modal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><div id="modal-body"></div></div></div>
+    <div id="profile-modal" class="profile-modal" hidden aria-hidden="true">
+        <div class="profile-modal-content" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title" aria-describedby="profile-modal-intro profile-form-error">
+            <button type="button" class="profile-modal-close" id="profile-modal-close" aria-label="Fermer">&times;</button>
+            <h2 id="profile-modal-title">Créer mon pseudo</h2>
+            <p id="profile-modal-intro">Ton profil anonyme sera lié à cette session Supabase.</p>
+            <form id="profile-form" novalidate>
+                <label for="profile-pseudo-input">Pseudo</label>
+                <input type="text" id="profile-pseudo-input" name="pseudo" autocomplete="nickname" aria-describedby="profile-form-hint profile-form-error" required>
+                <p class="profile-form-hint" id="profile-form-hint">3 à 20 caractères : lettres, chiffres, espaces et underscores.</p>
+                <p class="profile-form-error" id="profile-form-error" role="alert" aria-live="assertive"></p>
+                <div class="profile-modal-actions">
+                    <button type="button" id="profile-modal-cancel">Annuler</button>
+                    <button type="submit" id="profile-modal-submit">Créer le profil</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.9/dist/umd/supabase.min.js"></script>
+    <script defer src="assets/js/supabase-runtime-config.js"></script>
     <script defer src="assets/js/quiz-data.js"></script>
     <script defer src="assets/js/ui.js"></script>
     <script defer src="assets/js/quiz-solo.js"></script>
+    <script defer src="assets/js/api.js"></script>
+    <script defer src="assets/js/auth.js"></script>
     <script defer src="assets/js/app.js"></script>
 </body>
 </html>

@@ -10,8 +10,9 @@ Cette documentation accompagne la migration progressive de Memoriz. La Phase 0 d
 | `docs/architecture/` | Architecture cible progressive et strategie temps reel | `01-target-architecture.md`, `02-data-flow.md`, `03-realtime-strategy.md` |
 | `docs/roadmap/` | Plan de migration par phases | `01-implementation-roadmap.md` |
 | `docs/refactoring/` | Rapports de migration technique progressive | `01-phase-1-static-extraction.md` |
-| `docs/auth/` | Decisions d'authentification et profils Supabase | `01-anonymous-auth-and-profiles.md` |
+| `docs/auth/` | Decisions d'authentification et profils Supabase | `01-anonymous-auth-and-profiles.md`, `02-phase-2b-frontend-auth.md` |
 | `docs/api/` | Contrats fonctionnels futurs pour les RPC | `01-profile-contract.md` |
+| `docs/testing/` | Rapports de validation runtime et frontend | `01-phase-2a-database-validation.md`, `02-phase-2b-frontend-auth-validation.md` |
 
 ## Agents et skill utilises
 
@@ -47,3 +48,17 @@ La Phase 2A ajoute les fondations Supabase PostgreSQL pour les profils anonymes:
 - contrat fonctionnel RPC dans `docs/api/01-profile-contract.md`.
 
 Le frontend existant reste volontairement non modifie dans cette phase.
+
+## Phase 2B
+
+La Phase 2B branche l'authentification anonyme Supabase sur le frontend statique:
+
+- configuration runtime locale ignoree par Git via `assets/js/supabase-runtime-config.js`;
+- exemple sans secret dans `assets/js/supabase-config.example.js`;
+- client RPC limite a `register_profile`, `get_my_profile` et `change_my_pseudo`;
+- interface de creation et de changement de pseudo dans le header;
+- mode degrade: le quiz solo reste utilisable si Supabase, le CDN ou la configuration manquent.
+
+Cette phase ne cree ni commentaires, ni leaderboard fonctionnel, ni backend Express, ni Socket.io. Le score du quiz solo n'est pas modifie.
+
+La validation reproductible Phase 2B est documentee dans `docs/testing/02-phase-2b-frontend-auth-validation.md`.

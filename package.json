@@ -1,7 +1,13 @@
 {
   "name": "memoriz-phase-2a",
   "private": true,
+  "scripts": {
+    "config:supabase": "node scripts/generate-supabase-config.mjs",
+    "test:auth": "playwright test tests/frontend/phase-2b-auth.spec.js",
+    "test:frontend": "playwright test tests/frontend"
+  },
   "devDependencies": {
+    "@playwright/test": "1.62.0",
     "supabase": "2.110.0"
   }
 }

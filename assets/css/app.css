@@ -69,6 +69,16 @@
             background: rgba(0,0,0,0.05);
         }
 
+        body.light-mode .profile-card {
+            background: rgba(255,255,255,0.85);
+            color: #0a0a1a;
+            border-color: rgba(0,0,0,0.12);
+        }
+
+        body.light-mode .profile-card p {
+            color: #3d3d4d;
+        }
+
         /* SHARINGAN ANIMATION - CENTRE */
         .sharingan-bg {
             position: fixed;
@@ -231,6 +241,54 @@
             box-shadow: 0 6px 25px rgba(0,168,89,0.6);
         }
 
+        .profile-card {
+            width: min(100%, 480px);
+            margin: 22px auto 0 auto;
+            padding: 16px 18px;
+            background: rgba(10,10,26,0.72);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 20px;
+            text-align: left;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 12px 26px rgba(0,0,0,0.22);
+        }
+        .profile-status-line { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #ffa502; }
+        .profile-dot { width: 10px; height: 10px; border-radius: 50%; background: #ffa502; box-shadow: 0 0 12px rgba(255,165,2,0.75); flex: 0 0 auto; }
+        .profile-card[data-state="ready"] .profile-dot { background: #2ed573; box-shadow: 0 0 12px rgba(46,213,115,0.75); }
+        .profile-card[data-state="needsPseudo"] .profile-dot { background: #70a1ff; box-shadow: 0 0 12px rgba(112,161,255,0.75); }
+        .profile-card[data-state="offline"] .profile-dot,
+        .profile-card[data-state="error"] .profile-dot { background: #ced6e0; box-shadow: none; }
+        .profile-card strong { display: block; margin-top: 8px; font-size: 1.25rem; line-height: 1.2; overflow-wrap: anywhere; }
+        .profile-stats { display: block; min-height: 20px; margin-top: 4px; font-size: 0.85rem; font-weight: 800; color: #ffa502; }
+        .profile-card p { margin-top: 5px; font-size: 0.9rem; color: rgba(255,255,255,0.78); line-height: 1.35; }
+        .profile-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 13px; }
+        .profile-actions button,
+        .profile-modal-actions button {
+            border: 0;
+            border-radius: 999px;
+            padding: 10px 18px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+        }
+        .profile-actions button:first-child,
+        .profile-modal-actions button[type="submit"] {
+            background: linear-gradient(135deg, #ff4757, #ffa502);
+            color: white;
+            box-shadow: 0 8px 18px rgba(255,71,87,0.3);
+        }
+        .profile-actions button:last-child,
+        .profile-modal-actions button[type="button"] {
+            background: rgba(255,255,255,0.14);
+            color: inherit;
+            border: 1px solid rgba(255,255,255,0.18);
+        }
+        .profile-actions button:hover,
+        .profile-modal-actions button:hover { transform: translateY(-2px); }
+        .profile-actions button:disabled,
+        .profile-modal-actions button:disabled { cursor: not-allowed; opacity: 0.55; transform: none; box-shadow: none; }
+
         .theme-btn {
             position: absolute;
             top: 20px;
@@ -363,6 +421,20 @@
 
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); }
         .modal-content { background: white; margin: 5% auto; padding: 35px; width: 90%; max-width: 800px; max-height: 80%; overflow-y: auto; border-radius: 32px; color: #1e1e2f; position: relative; animation: slideIn 0.3s ease; }
+        .profile-modal { position: fixed; z-index: 2100; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(8px); padding: 20px; }
+        .profile-modal[hidden] { display: none; }
+        .profile-modal-content { width: min(100%, 460px); margin: 8vh auto; background: #ffffff; color: #1e1e2f; border-radius: 24px; padding: 28px; position: relative; box-shadow: 0 25px 55px rgba(0,0,0,0.38); animation: slideIn 0.3s ease; }
+        .profile-modal-close { position: absolute; right: 18px; top: 14px; border: 0; background: transparent; color: #7a7a8c; cursor: pointer; font-size: 2rem; line-height: 1; }
+        .profile-modal-close:hover { color: #ff4757; }
+        .profile-modal-content h2 { margin-bottom: 8px; color: #1e1e2f; font-size: 1.8rem; }
+        .profile-modal-content > p { color: #55566a; margin-bottom: 22px; line-height: 1.45; }
+        .profile-modal-content label { display: block; font-weight: 800; margin-bottom: 8px; }
+        #profile-pseudo-input { width: 100%; padding: 14px 16px; border: 2px solid #e1e3ec; border-radius: 16px; font-size: 1rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+        #profile-pseudo-input:focus { border-color: #ff4757; box-shadow: 0 0 0 4px rgba(255,71,87,0.16); }
+        .profile-form-hint { margin-top: 8px; color: #66687a; font-size: 0.86rem; }
+        .profile-form-error { min-height: 22px; margin-top: 10px; color: #c0392b; font-size: 0.9rem; font-weight: 700; }
+        .profile-modal-actions { display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+        .profile-modal-actions button[type="button"] { background: #f1f2f6; color: #1e1e2f; border-color: #dde0ea; }
         @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .close-modal { position: absolute; right: 25px; top: 20px; font-size: 32px; font-weight: bold; cursor: pointer; color: #999; transition: color 0.3s; }
         .close-modal:hover { color: #ff4757; }
@@ -370,4 +442,4 @@
         .legal-content h3 { margin-top: 25px; margin-bottom: 10px; color: #ff4757; }
         .info-note { background: #e3f2fd; padding: 10px 15px; border-radius: 20px; margin-bottom: 20px; font-size: 0.9rem; color: #0c5460; border-left: 4px solid #17a2b8; }
 
-        @media (max-width: 768px) { .game-header { flex-direction: column; text-align: center; } .modal-content { width: 95%; margin: 10% auto; padding: 20px; } header h1 { font-size: 2.5rem; } .category-card h3 { font-size: 1.5rem; } .sharingan-bg { width: 300px; height: 300px; } .tomoe-1, .tomoe-2, .tomoe-3 { transform: translate(-50%, -50%) translate(80px); } }
+        @media (max-width: 768px) { .game-header { flex-direction: column; text-align: center; } .modal-content { width: 95%; margin: 10% auto; padding: 20px; } header h1 { font-size: 2.5rem; } .category-card h3 { font-size: 1.5rem; } .sharingan-bg { width: 300px; height: 300px; } .tomoe-1, .tomoe-2, .tomoe-3 { transform: translate(-50%, -50%) translate(80px); } .profile-card { text-align: center; } .profile-status-line, .profile-actions { justify-content: center; } .profile-modal-content { margin: 5vh auto; padding: 24px 20px; } .profile-modal-actions { justify-content: stretch; } .profile-modal-actions button { flex: 1 1 150px; } }
