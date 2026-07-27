@@ -9,6 +9,7 @@ Cette documentation correspond a la Phase 0: audit et securisation du depot. Ell
 | `docs/audit/` | Etat actuel du depot, cartographie et risques immediats | `01-current-architecture.md`, `02-code-mapping.md`, `03-security-risks.md`, `04-refactoring-risks.md` |
 | `docs/architecture/` | Architecture cible progressive et strategie temps reel | `01-target-architecture.md`, `02-data-flow.md`, `03-realtime-strategy.md` |
 | `docs/roadmap/` | Plan de migration par phases | `01-implementation-roadmap.md` |
+| `docs/refactoring/` | Rapports de migration technique progressive | `01-phase-1-static-extraction.md` |
 
 ## Agents et skill utilises
 

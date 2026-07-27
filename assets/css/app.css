@@ -1,0 +1,373 @@
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a1a;
+            min-height: 100vh;
+            color: white;
+            padding-bottom: 70px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* === NOUVEAU FOND ANIMÉ === */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Mode clair */
+        body.light-mode {
+            background: #f0f2f5;
+            color: #0a0a1a;
+        }
+
+        body.light-mode .category-card,
+        body.light-mode .blog-article,
+        body.light-mode .game-container {
+            background: rgba(255,255,255,0.95);
+            color: #0a0a1a;
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        body.light-mode header,
+        body.light-mode .main-footer {
+            background: rgba(0,0,0,0.05);
+            border-color: rgba(0,0,0,0.1);
+        }
+
+        body.light-mode .timer {
+            background: #0a0a1a;
+            color: #ff6b6b;
+        }
+
+        body.light-mode .score {
+            background: #ff4757;
+            color: white;
+        }
+
+        body.light-mode .game-panel {
+            background: rgba(255,255,255,0.98);
+        }
+
+        body.light-mode td {
+            background: #f9f9f9;
+            color: #333;
+        }
+
+        body.light-mode .footer-links a {
+            color: #0a0a1a;
+        }
+
+        body.light-mode .social-link {
+            color: #0a0a1a;
+            background: rgba(0,0,0,0.05);
+        }
+
+        /* SHARINGAN ANIMATION - CENTRE */
+        .sharingan-bg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            height: 500px;
+            z-index: 1;
+            opacity: 0.15;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        body.light-mode .sharingan-bg {
+            opacity: 0.08;
+        }
+
+        .sharingan-eye {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            animation: rotateSharingan 12s infinite linear;
+        }
+
+        .sharingan-base {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ff1a1a 0%, #cc0000 40%, #8b0000 80%);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.6), inset 0 0 20px rgba(255, 255, 0, 0.3);
+        }
+
+        .sharingan-pupil {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 25%;
+            height: 25%;
+            background: #0a0a0a;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(0,0,0,0.8);
+            z-index: 3;
+        }
+
+        .sharingan-tomoe {
+            position: absolute;
+            width: 22%;
+            height: 22%;
+            background: #0a0a0a;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform-origin: center;
+            z-index: 2;
+        }
+
+        .sharingan-tomoe::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            border-radius: 50%;
+            top: 0;
+            left: 0;
+        }
+
+        .sharingan-tomoe::after {
+            content: '';
+            position: absolute;
+            width: 45%;
+            height: 45%;
+            background: #cc0000;
+            border-radius: 50%;
+            top: 27%;
+            left: 27%;
+        }
+
+        /* Positions des 3 tomoe */
+        .tomoe-1 { transform: translate(-50%, -50%) rotate(0deg) translate(130px) rotate(0deg); }
+        .tomoe-2 { transform: translate(-50%, -50%) rotate(120deg) translate(130px) rotate(-120deg); }
+        .tomoe-3 { transform: translate(-50%, -50%) rotate(240deg) translate(130px) rotate(-240deg); }
+
+        @keyframes rotateSharingan {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Pulse effect on sharingan */
+        .sharingan-bg {
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+
+        @keyframes pulseGlow {
+            0% { opacity: 0.12; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.22; transform: translate(-50%, -50%) scale(1.05); }
+            100% { opacity: 0.12; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        body.light-mode .sharingan-bg {
+            animation: pulseGlowLight 3s infinite ease-in-out;
+        }
+
+        @keyframes pulseGlowLight {
+            0% { opacity: 0.05; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.12; transform: translate(-50%, -50%) scale(1.05); }
+            100% { opacity: 0.05; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; position: relative; z-index: 2; }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 40px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.15);
+            position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+        header h1 {
+            font-size: 3.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ff4757, #ff6b81, #ffa502, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(255,71,87,0.3);
+        }
+        header p { font-size: 1.2rem; opacity: 0.95; }
+
+        .support-banner {
+            background: linear-gradient(135deg, #00A859, #008040);
+            border-radius: 60px;
+            padding: 12px 30px;
+            margin: 20px auto 0 auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(0,168,89,0.4);
+        }
+        .support-banner:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #00c06a, #009950);
+            box-shadow: 0 6px 25px rgba(0,168,89,0.6);
+        }
+
+        .theme-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 40px;
+            padding: 10px 20px;
+            cursor: pointer;
+            color: white;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+            font-weight: 500;
+        }
+        body.light-mode .theme-btn {
+            background: rgba(0,0,0,0.1);
+            color: #0a0a1a;
+            border-color: rgba(0,0,0,0.2);
+        }
+        .theme-btn:hover { transform: scale(1.05); background: #ff4757; color: white; border-color: #ff4757; }
+
+        .badge { display: inline-block; background: rgba(255,255,255,0.15); padding: 6px 18px; border-radius: 40px; font-size: 0.85rem; margin-top: 12px; backdrop-filter: blur(4px); }
+        .categories h2 { text-align: center; margin-bottom: 35px; font-size: 2.2rem; background: linear-gradient(135deg, #ffa502, #ff4757); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; margin-bottom: 60px; }
+        .category-card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 28px 20px;
+            border-radius: 28px;
+            cursor: pointer;
+            transition: all 0.35s ease;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .category-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255,255,255,0.18);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border-color: rgba(255,107,107,0.5);
+        }
+        .category-card h3 { font-size: 1.9rem; margin-bottom: 12px; }
+        .category-card p { opacity: 0.85; margin-bottom: 12px; }
+        .questions-count { display: inline-block; background: linear-gradient(135deg, #ff4757, #ff6b6b); color: white; padding: 5px 18px; border-radius: 40px; font-size: 0.85rem; font-weight: bold; }
+
+        .blog-section { max-width: 800px; margin: 40px auto; padding: 20px; }
+        .blog-section h2 { text-align: center; margin-bottom: 30px; font-size: 2rem; background: linear-gradient(135deg, #ffa502, #ff6b6b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .blog-article { background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); padding: 30px; border-radius: 24px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s ease, background 0.3s ease; cursor: pointer; }
+        .blog-article:hover { transform: translateY(-5px); background: rgba(255,255,255,0.12); }
+        .blog-article h3 { color: #ff6b6b; margin-bottom: 15px; font-size: 1.5rem; }
+        .blog-article .blog-date { color: #ffa502; font-size: 0.85rem; margin-bottom: 15px; opacity: 0.9; }
+        .blog-article .blog-content { display: none; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); }
+        .blog-article .blog-content.show { display: block; animation: fadeSlide 0.4s ease; }
+        @keyframes fadeSlide { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .read-more { display: inline-block; background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; padding: 10px 25px; border-radius: 40px; text-decoration: none; font-weight: bold; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; border: none; font-size: 0.9rem; }
+        .read-more:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(255,107,107,0.5); }
+
+        .main-footer { text-align: center; padding: 35px 20px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 40px; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); border-radius: 30px; }
+        .footer-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 25px; margin-bottom: 25px; }
+        .footer-links a { color: white; text-decoration: none; opacity: 0.8; transition: all 0.3s; font-weight: 500; }
+        .footer-links a:hover { opacity: 1; color: #ff6b6b; transform: translateY(-2px); }
+        .social-links { display: flex; justify-content: center; gap: 20px; margin-bottom: 25px; flex-wrap: wrap; }
+        .social-link { display: inline-flex; align-items: center; gap: 8px; color: white; text-decoration: none; background: rgba(255,255,255,0.1); padding: 8px 20px; border-radius: 40px; transition: all 0.3s ease; font-weight: 500; backdrop-filter: blur(4px); }
+        .social-link:hover { transform: translateY(-4px); background: rgba(255,255,255,0.25); }
+        .social-link.youtube:hover { background: #ff0000; color: white; }
+        .social-link.tiktok:hover { background: #000000; color: white; }
+        .social-link.twitch:hover { background: #9146ff; color: white; }
+        .social-link.whatsapp:hover { background: #25d366; color: white; }
+        .social-link.sapeo:hover { background: #00A859; color: white; }
+        .copyright { font-size: 0.85rem; opacity: 0.6; margin-top: 15px; }
+
+        /* Jeu - design amélioré */
+        .game-panel { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 1001; overflow-y: auto; padding: 20px; backdrop-filter: blur(8px); }
+        body.light-mode .game-panel { background: rgba(255,255,255,0.97); }
+        .game-container { max-width: 1200px; margin: 0 auto; background: linear-gradient(135deg, #fff, #f8f9fa); border-radius: 32px; padding: 35px; color: #1e1e2f; position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
+        body.light-mode .game-container { background: white; }
+        .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #eee; flex-wrap: wrap; gap: 15px; }
+
+        .restart-category-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ff4757);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .restart-category-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255,71,87,0.4);
+        }
+
+        .timer { font-size: 2rem; font-weight: bold; font-family: monospace; background: #1e1e2f; color: #ffa502; padding: 12px 24px; border-radius: 60px; letter-spacing: 2px; }
+        .timer.warning { background: #ff4757; color: white; animation: pulse 1s infinite; }
+        .score { font-size: 1.4rem; background: linear-gradient(135deg, #ff4757, #ff6b6b); color: white; padding: 10px 24px; border-radius: 60px; font-weight: bold; }
+        .close-game { background: #2c3e50; color: white; border: none; padding: 10px 28px; border-radius: 60px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: all 0.3s; }
+        .close-game:hover { background: #e74c3c; transform: scale(1.03); }
+
+        .quiz-table { overflow-x: auto; max-height: 450px; overflow-y: auto; margin-bottom: 20px; border-radius: 20px; border: 1px solid #e0e0e0; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 14px 12px; text-align: left; }
+        th { background: linear-gradient(135deg, #1e1e2f, #2c3e50); color: white; font-weight: bold; position: sticky; top: 0; }
+        td { background: #ffffff; }
+
+        .input-area { margin-top: 25px; padding-top: 20px; border-top: 2px solid #e0e0e0; }
+        .input-group { display: flex; gap: 12px; margin-bottom: 20px; }
+        #quick-input { flex: 1; padding: 15px 20px; font-size: 1.1rem; border: 2px solid #ddd; border-radius: 60px; outline: none; transition: all 0.3s; background: #fefefe; }
+        #quick-input:focus { border-color: #ff4757; box-shadow: 0 0 0 3px rgba(255,71,87,0.2); }
+        #quick-submit { padding: 15px 35px; background: linear-gradient(135deg, #ff4757, #ff6b6b); color: white; border: none; border-radius: 60px; cursor: pointer; font-size: 1.1rem; font-weight: bold; transition: all 0.3s; }
+        #quick-submit:hover { transform: scale(1.02); box-shadow: 0 5px 15px rgba(255,71,87,0.4); }
+
+        .message { padding: 12px 20px; border-radius: 60px; margin-top: 10px; animation: fadeIn 0.3s ease; font-weight: 500; }
+        .message.success { background: #d4edda; color: #155724; border-left: 5px solid #28a745; }
+        .message.error { background: #f8d7da; color: #721c24; border-left: 5px solid #dc3545; }
+
+        .game-complete { text-align: center; padding: 50px; background: linear-gradient(135deg, #1e1e2f, #2c3e50); color: white; border-radius: 30px; }
+        .game-complete h2 { font-size: 2.5rem; margin-bottom: 20px; }
+        .play-again { background: white; color: #1e1e2f; border: none; padding: 12px 32px; font-size: 1rem; border-radius: 60px; cursor: pointer; margin-top: 20px; margin-right: 10px; font-weight: bold; transition: all 0.3s; }
+        .play-again:hover { transform: scale(1.05); background: #ff4757; color: white; }
+        .share-btn { background: #25D366; color: white; border: none; padding: 12px 28px; margin: 5px; border-radius: 60px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+        .share-btn:hover { transform: scale(1.05); }
+        .share-twitter { background: #1DA1F2; }
+        .progress { margin-bottom: 20px; font-size: 1.1rem; font-weight: 600; background: #f0f0f0; padding: 12px 18px; border-radius: 60px; display: inline-block; }
+        #found-list { margin-top: 15px; padding: 15px; background: #f5f5f5; border-radius: 20px; font-size: 0.9rem; max-height: 130px; overflow-y: auto; border-left: 4px solid #ff4757; }
+
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); }
+        .modal-content { background: white; margin: 5% auto; padding: 35px; width: 90%; max-width: 800px; max-height: 80%; overflow-y: auto; border-radius: 32px; color: #1e1e2f; position: relative; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .close-modal { position: absolute; right: 25px; top: 20px; font-size: 32px; font-weight: bold; cursor: pointer; color: #999; transition: color 0.3s; }
+        .close-modal:hover { color: #ff4757; }
+        .legal-content h2 { color: #1e1e2f; margin-bottom: 20px; }
+        .legal-content h3 { margin-top: 25px; margin-bottom: 10px; color: #ff4757; }
+        .info-note { background: #e3f2fd; padding: 10px 15px; border-radius: 20px; margin-bottom: 20px; font-size: 0.9rem; color: #0c5460; border-left: 4px solid #17a2b8; }
+
+        @media (max-width: 768px) { .game-header { flex-direction: column; text-align: center; } .modal-content { width: 95%; margin: 10% auto; padding: 20px; } header h1 { font-size: 2.5rem; } .category-card h3 { font-size: 1.5rem; } .sharingan-bg { width: 300px; height: 300px; } .tomoe-1, .tomoe-2, .tomoe-3 { transform: translate(-50%, -50%) translate(80px); } }

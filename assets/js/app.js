@@ -1,0 +1,2 @@
+        document.addEventListener('DOMContentLoaded', () => { document.querySelectorAll('.category-card').forEach(card => { card.addEventListener('click', () => { const category = card.getAttribute('data-category'); if (category) showGamePanel(category); }); }); initLegalPages(); initBlogArticles(); initTheme(); });
+        window.closeGame = closeGame; window.restartGame = restartGame; window.shareOnWhatsApp = shareOnWhatsApp; window.shareOnTwitter = shareOnTwitter;
