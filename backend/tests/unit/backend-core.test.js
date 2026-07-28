@@ -5,6 +5,7 @@ import { EventRateLimiter } from '../../src/middlewares/rate-limit.js';
 import { logger } from '../../src/utils/logger.js';
 import { buildGameSnapshot } from '../../src/services/game-engine-service.js';
 import { createGameSchema, parsePayload } from '../../src/validators/multiplayer-validator.js';
+import { configureHttpServer, createShutdown } from '../../src/lifecycle.js';
 
 describe('env validation', () => {
     it('refuse les variables essentielles absentes', () => {
@@ -19,7 +20,26 @@ describe('env validation', () => {
             SUPABASE_SECRET_KEY: 'secret-placeholder'
         });
         expect(env.PORT).toBe(3001);
+        expect(env.FRONTEND_ORIGINS).toEqual(['http://127.0.0.1:4173']);
         expect(env.MULTIPLAYER_REACTION_MAX_COUNT).toBe(5);
+    });
+
+    it('accepte une liste fermee d origines et refuse localhost en production', () => {
+        const env = loadEnv({
+            NODE_ENV: 'development',
+            FRONTEND_ORIGIN: 'http://127.0.0.1:4173,https://memoriz.example',
+            SUPABASE_URL: 'http://127.0.0.1:54321',
+            SUPABASE_PUBLISHABLE_KEY: 'publishable-placeholder',
+            SUPABASE_SECRET_KEY: 'secret-placeholder'
+        });
+        expect(env.FRONTEND_ORIGINS).toEqual(['http://127.0.0.1:4173', 'https://memoriz.example']);
+        expect(() => loadEnv({
+            NODE_ENV: 'production',
+            FRONTEND_ORIGIN: 'http://127.0.0.1:4173',
+            SUPABASE_URL: 'http://127.0.0.1:54321',
+            SUPABASE_PUBLISHABLE_KEY: 'publishable-placeholder',
+            SUPABASE_SECRET_KEY: 'secret-placeholder'
+        })).toThrow(/missing_or_invalid_env/);
     });
 });
 
@@ -151,8 +171,34 @@ describe('snapshot', () => {
 
 describe('logger', () => {
     it('masque les tokens et cles dans les logs', () => {
-        const text = logger.sanitize('Bearer abc.def.ghi sb_secret_abc123 eyJaaa.bbb.ccc');
+        const text = logger.sanitize('Bearer abc.def.ghi sb_secret_abc123 eyJaaa.bbb.ccc postgres://user:pass@host/db Authorization: raw-token access_token: raw');
         expect(text).not.toContain('sb_secret_abc123');
         expect(text).not.toContain('Bearer abc');
+        expect(text).not.toContain('postgres://');
+        expect(text).not.toContain('raw-token');
+        expect(text).not.toContain('access_token: raw');
+    });
+});
+
+describe('lifecycle', () => {
+    it('configure des timeouts HTTP bornes', () => {
+        const server = {};
+        configureHttpServer(server, { requestTimeout: 1, headersTimeout: 2, keepAliveTimeout: 3 });
+        expect(server.requestTimeout).toBe(1);
+        expect(server.headersTimeout).toBe(2);
+        expect(server.keepAliveTimeout).toBe(3);
+    });
+
+    it('ferme Socket.io puis HTTP une seule fois', async () => {
+        const calls = [];
+        const server = { close: callback => { calls.push('server'); callback(); } };
+        const io = { close: callback => { calls.push('io'); callback(); } };
+        const exits = [];
+        const shutdown = createShutdown({ server, io, timeoutMs: 100, exit: code => exits.push(code) });
+        shutdown('SIGTERM');
+        shutdown('SIGINT');
+        await new Promise(resolve => setTimeout(resolve, 0));
+        expect(calls).toEqual(['io', 'server']);
+        expect(exits).toEqual([0]);
     });
 });

@@ -5,7 +5,9 @@ import { createApp } from '../../src/app.js';
 import { createSocketServer } from '../../src/socket/index.js';
 
 const env = {
+    NODE_ENV: 'development',
     FRONTEND_ORIGIN: 'http://127.0.0.1:4173',
+    FRONTEND_ORIGINS: ['http://127.0.0.1:4173'],
     SUPABASE_URL: 'http://127.0.0.1:54321',
     SUPABASE_PUBLISHABLE_KEY: 'publishable-placeholder',
     SUPABASE_SECRET_KEY: 'secret-placeholder'
@@ -125,11 +127,29 @@ describe('Socket.io multiplayer', () => {
         return socket;
     }
 
+    function connectFromOrigin(token, origin) {
+        const socket = Client(`http://127.0.0.1:${port}`, {
+            auth: { accessToken: token },
+            transports: ['websocket'],
+            forceNew: true,
+            extraHeaders: { Origin: origin }
+        });
+        sockets.push(socket);
+        return socket;
+    }
+
     it('refuse un token invalide sans l exposer', async () => {
         const socket = connect('bad-token');
         const error = await waitEvent(socket, 'connect_error');
         expect(error.message).toBe('invalid_token');
         expect(error.message).not.toContain('bad-token');
+    });
+
+    it('refuse une origine Socket.io non autorisee', async () => {
+        const socket = connectFromOrigin('a', 'https://evil.example');
+        const error = await waitEvent(socket, 'connect_error');
+        expect(error.message).not.toContain('a');
+        expect(socket.connected).toBe(false);
     });
 
     it('synchronise creation, join, start, score et reactions avec ack', async () => {

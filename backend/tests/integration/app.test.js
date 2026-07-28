@@ -3,7 +3,9 @@ import { describe, expect, it } from 'vitest';
 import { createApp } from '../../src/app.js';
 
 const env = {
+    NODE_ENV: 'development',
     FRONTEND_ORIGIN: 'http://127.0.0.1:4173',
+    FRONTEND_ORIGINS: ['http://127.0.0.1:4173'],
     SUPABASE_URL: 'http://127.0.0.1:54321',
     SUPABASE_PUBLISHABLE_KEY: 'publishable-placeholder',
     SUPABASE_SECRET_KEY: 'secret-placeholder'
@@ -27,6 +29,22 @@ describe('Express app', () => {
         });
         const response = await request(app).get('/api/multiplayer/status/ABC234').expect(401);
         expect(response.body.error).toBe('authentication_required');
+    });
+
+    it('applique une liste CORS fermee', async () => {
+        const app = createApp({ env, multiplayerService: {}, authVerifier: async () => ({ userId: 'u1' }) });
+        await request(app)
+            .options('/api/multiplayer/status/ABC234')
+            .set('Origin', 'http://127.0.0.1:4173')
+            .set('Access-Control-Request-Method', 'GET')
+            .expect(204)
+            .expect('Access-Control-Allow-Origin', 'http://127.0.0.1:4173');
+
+        const denied = await request(app)
+            .get('/health')
+            .set('Origin', 'https://evil.example')
+            .expect(403);
+        expect(denied.body.error).toBe('cors_origin_denied');
     });
 
     it('retourne un etat controle au participant authentifie', async () => {

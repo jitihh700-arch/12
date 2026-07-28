@@ -20,7 +20,8 @@ const STABLE_ERRORS = new Set([
     'reaction_rate_limited',
     'invalid_reaction_type',
     'rate_limited',
-    'invalid_payload'
+    'invalid_payload',
+    'cors_origin_denied'
 ]);
 
 export function stableError(error) {
