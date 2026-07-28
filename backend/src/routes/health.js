@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-export function createHealthRouter(version = 'phase-5') {
+export function createHealthRouter(version = 'phase-6') {
     const router = Router();
     router.get('/', (req, res) => {
         res.json({

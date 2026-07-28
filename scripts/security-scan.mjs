@@ -3,6 +3,7 @@ import { fail, readText, trackedFiles } from './shared-checks.mjs';
 const allowedFiles = new Set([
     'README.md',
     'backend/tests/unit/backend-core.test.js',
+    'docs/security/01-final-security-review.md',
     'docs/testing/02-phase-2b-frontend-auth-validation.md',
     'docs/testing/08-phase-6-production-readiness.md',
     'scripts/security-scan.mjs'

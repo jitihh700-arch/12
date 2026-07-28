@@ -161,17 +161,20 @@ test('leaderboard: Top 20, rang personnel, refresh, accessibilité et responsive
     await page.keyboard.press('Tab');
     await expect(page.locator('#leaderboard-refresh')).toBeFocused();
     await page.keyboard.press('Escape');
+    await expect(page.locator('#leaderboard-modal')).toBeHidden();
     await expect(page.locator('#leaderboard-open')).toBeFocused();
 
     await page.setViewportSize({ width: 390, height: 844 });
     await page.locator('#leaderboard-open').click();
     await expectNoHorizontalOverflow(page);
-    await page.keyboard.press('Escape');
+    await page.locator('#leaderboard-close').click();
+    await expect(page.locator('#leaderboard-modal')).toBeHidden();
     await page.setViewportSize({ width: 780, height: 844 });
     await page.locator('#leaderboard-open').click();
     await page.evaluate(() => { document.documentElement.style.zoom = '2'; });
     await expectNoHorizontalOverflow(page);
-    await page.keyboard.press('Escape');
+    await page.locator('#leaderboard-close').click();
+    await expect(page.locator('#leaderboard-modal')).toBeHidden();
 });
 
 test('deux utilisateurs: session A interdite à B', async ({ browser }) => {

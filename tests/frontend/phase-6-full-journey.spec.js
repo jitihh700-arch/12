@@ -93,6 +93,8 @@ async function enableFakeSocket(page) {
 test('parcours complet: profil, commentaire, quiz classe, leaderboard, multijoueur, reaction et pseudo', async ({ page }) => {
     await installFakeMultiplayer(page);
     await gotoHome(page);
+    await page.evaluate(() => localStorage.clear());
+    await page.reload({ waitUntil: 'networkidle' });
     await createProfile(page, `Phase6_${runId}`);
     await enableFakeSocket(page);
 
@@ -111,7 +113,8 @@ test('parcours complet: profil, commentaire, quiz classe, leaderboard, multijoue
 
     await page.locator('#leaderboard-open').click();
     await expect(page.locator('#leaderboard-my-rank')).toContainText(`Phase6_${runId}`);
-    await page.keyboard.press('Escape');
+    await page.locator('#leaderboard-close').click();
+    await expect(page.locator('#leaderboard-modal')).toBeHidden();
     await expect(page.locator('#leaderboard-open')).toBeFocused();
 
     await page.locator('#multiplayer-open').click();
