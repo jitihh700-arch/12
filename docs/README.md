@@ -12,8 +12,8 @@ Cette documentation accompagne la migration progressive de Memoriz. La Phase 0 d
 | `docs/refactoring/` | Rapports de migration technique progressive | `01-phase-1-static-extraction.md` |
 | `docs/auth/` | Decisions d'authentification et profils Supabase | `01-anonymous-auth-and-profiles.md`, `02-phase-2b-frontend-auth.md` |
 | `docs/api/` | Contrats fonctionnels futurs pour les RPC | `01-profile-contract.md`, `02-comments-contract.md` |
-| `docs/comments/` | Decisions database et securite des commentaires | `01-comments-database-and-security.md` |
-| `docs/testing/` | Rapports de validation runtime et frontend | `01-phase-2a-database-validation.md`, `02-phase-2b-frontend-auth-validation.md`, `03-phase-3a-comments-database-validation.md` |
+| `docs/comments/` | Decisions database, securite et frontend des commentaires | `01-comments-database-and-security.md`, `02-comments-frontend-and-realtime.md` |
+| `docs/testing/` | Rapports de validation runtime et frontend | `01-phase-2a-database-validation.md`, `02-phase-2b-frontend-auth-validation.md`, `03-phase-3a-comments-database-validation.md`, `04-phase-3b-comments-frontend-validation.md` |
 
 ## Agents et skill utilises
 
@@ -75,3 +75,16 @@ La Phase 3A ajoute uniquement la fondation database des commentaires:
 - tests pgTAP, concurrence et Realtime.
 
 Aucune interface commentaires n'est creee dans cette phase.
+
+## Phase 3B
+
+La Phase 3B ajoute l'interface frontend des commentaires:
+
+- section commentaires avant le footer;
+- appels exclusifs aux RPC `list_comments`, `create_comment`, `update_my_comment` et `delete_my_comment`;
+- rendu DOM securise avec `textContent` pour les contenus et pseudos;
+- pagination, edition, suppression logique et toasts;
+- Broadcast prive Supabase sur `comments:public`;
+- mode degrade non bloquant pour le quiz solo.
+
+La validation reproductible Phase 3B est documentee dans `docs/testing/04-phase-3b-comments-frontend-validation.md`.

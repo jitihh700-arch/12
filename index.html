@@ -37,6 +37,7 @@
     <meta name="twitter:image" content="https://memoriz.onrender.com/favicon-96x96.png">
 
     <link rel="stylesheet" href="assets/css/app.css">
+    <link rel="stylesheet" href="assets/css/comments.css">
 </head>
 <body>
     <!-- CANVAS POUR LE FOND ANIMÉ -->
@@ -157,6 +158,30 @@
             </article>
         </section>
         
+        <section class="comments-section" id="comments-section" aria-labelledby="comments-title">
+            <div class="comments-header">
+                <div>
+                    <h2 id="comments-title">Commentaires</h2>
+                    <p>Partage un souvenir, une suggestion de quiz ou ton meilleur score du moment.</p>
+                </div>
+                <p class="comments-status" id="comments-status" aria-live="polite">Connexion au profil...</p>
+            </div>
+
+            <form class="comments-form" id="comments-form" novalidate>
+                <label for="comment-input">Ton commentaire</label>
+                <textarea id="comment-input" name="comment" maxlength="500" rows="4" aria-describedby="comment-counter comments-error" disabled></textarea>
+                <div class="comments-form-meta">
+                    <p id="comments-error" class="comments-error" role="alert" aria-live="assertive"></p>
+                    <span id="comment-counter" class="comment-counter" aria-live="polite">0 / 500</span>
+                </div>
+                <button type="submit" id="comment-submit" disabled>Publier</button>
+            </form>
+
+            <div class="comments-feed-status" id="comments-feed-status" aria-live="polite">Les commentaires seront disponibles après la connexion du profil.</div>
+            <div class="comments-list" id="comments-list" aria-live="polite"></div>
+            <button type="button" class="comments-load-more" id="comments-load-more" hidden>Charger plus</button>
+        </section>
+
         <footer class="main-footer">
             <div class="footer-links">
                 <a href="#" id="privacy-link">🔒 Confidentialité</a>
@@ -202,6 +227,7 @@
     <script defer src="assets/js/quiz-solo.js"></script>
     <script defer src="assets/js/api.js"></script>
     <script defer src="assets/js/auth.js"></script>
+    <script defer src="assets/js/comments.js"></script>
     <script defer src="assets/js/app.js"></script>
 </body>
 </html>

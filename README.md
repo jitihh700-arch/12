@@ -1,6 +1,6 @@
 # Memoriz
 
-Memoriz est un quiz web statique en francais autour de la culture pop, du sport, de la musique, des animes et du cinema. Le mode solo reste jouable sans compte, et la Phase 2B ajoute un profil anonyme Supabase avec pseudo unique.
+Memoriz est un quiz web statique en francais autour de la culture pop, du sport, de la musique, des animes et du cinema. Le mode solo reste jouable sans compte, le profil anonyme Supabase porte le pseudo unique, et l'interface commentaires utilise les RPC validees en base.
 
 ## Prerequis
 
@@ -54,6 +54,7 @@ Puis ouvrir `http://127.0.0.1:4173/index.html`.
 ```powershell
 npm run test:auth
 npm run test:frontend
+npm run test:comments
 npm run test:comments:realtime
 npx supabase db reset
 npx supabase test db
@@ -75,6 +76,7 @@ npx playwright install chromium
 - Le client n'ecrit pas directement dans `public.profiles`.
 - Les operations profil passent uniquement par les RPC `register_profile`, `get_my_profile` et `change_my_pseudo`.
 - Les operations commentaires passent uniquement par les RPC `create_comment`, `list_comments`, `update_my_comment` et `delete_my_comment`.
+- Les commentaires temps reel utilisent le Broadcast prive `comments:public`, jamais Postgres Changes sur `public.comments`.
 
 ## Structure principale
 
@@ -83,7 +85,9 @@ npx playwright install chromium
 - `assets/js/quiz-solo.js`: moteur du quiz solo.
 - `assets/js/api.js`: client Supabase et wrapper RPC profil.
 - `assets/js/auth.js`: session anonyme et interface profil.
+- `assets/js/comments.js`: interface commentaires, pagination, CRUD RPC et Broadcast prive.
 - `assets/css/app.css`: styles.
+- `assets/css/comments.css`: styles de la section commentaires.
 - `supabase/`: migrations, configuration et tests SQL.
 - `tests/integration/`: tests runtime Supabase Realtime.
 - `tests/frontend/`: tests Playwright Phase 2B.

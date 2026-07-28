@@ -4,6 +4,7 @@
   "scripts": {
     "config:supabase": "node scripts/generate-supabase-config.mjs",
     "test:auth": "playwright test tests/frontend/phase-2b-auth.spec.js",
+    "test:comments": "playwright test tests/frontend/phase-3b-comments.spec.js",
     "test:comments:realtime": "node tests/integration/comments-realtime.test.mjs",
     "test:frontend": "playwright test tests/frontend"
   },

@@ -2,7 +2,11 @@
     const RPC_NAMES = {
         registerProfile: 'register_profile',
         getMyProfile: 'get_my_profile',
-        changeMyPseudo: 'change_my_pseudo'
+        changeMyPseudo: 'change_my_pseudo',
+        listComments: 'list_comments',
+        createComment: 'create_comment',
+        updateMyComment: 'update_my_comment',
+        deleteMyComment: 'delete_my_comment'
     };
 
     let client = null;
@@ -39,6 +43,26 @@
 
             async changeMyPseudo(pseudo) {
                 const { data, error } = await supabaseClient.rpc(RPC_NAMES.changeMyPseudo, { p_pseudo: pseudo });
+                return { data: firstRow(data), error };
+            },
+
+            async listComments({ limit = 20, offset = 0 } = {}) {
+                const { data, error } = await supabaseClient.rpc(RPC_NAMES.listComments, { p_limit: limit, p_offset: offset });
+                return { data: Array.isArray(data) ? data : [], error };
+            },
+
+            async createComment(content) {
+                const { data, error } = await supabaseClient.rpc(RPC_NAMES.createComment, { p_content: content });
+                return { data: firstRow(data), error };
+            },
+
+            async updateMyComment(commentId, content) {
+                const { data, error } = await supabaseClient.rpc(RPC_NAMES.updateMyComment, { p_comment_id: commentId, p_content: content });
+                return { data: firstRow(data), error };
+            },
+
+            async deleteMyComment(commentId) {
+                const { data, error } = await supabaseClient.rpc(RPC_NAMES.deleteMyComment, { p_comment_id: commentId });
                 return { data: firstRow(data), error };
             }
         };

@@ -141,3 +141,18 @@ Evenements:
 - `comment_deleted`: payload minimal `{ "id": "uuid", "deleted_at": "server-timestamp" }`.
 
 `comment_deleted` ne contient jamais le contenu supprime, le pseudo, `OLD`, `NEW` ou une ligne brute. Les lectures persistantes doivent toujours repasser par `list_comments`.
+
+## Integration Frontend Phase 3B
+
+`assets/js/comments.js` applique ce contrat sans acces direct a `public.comments`.
+
+Regles frontend:
+
+- charger par pages de 20 via `list_comments`;
+- creer via `create_comment`;
+- modifier via `update_my_comment`;
+- supprimer logiquement via `delete_my_comment`;
+- ne jamais envoyer `user_id` ou `pseudo`;
+- rendre `pseudo`, `content`, dates et erreurs avec `textContent`;
+- utiliser le Broadcast prive `comments:public` et dedupliquer par identifiant de commentaire;
+- recharger la liste apres changement de pseudo pour afficher le pseudo courant.

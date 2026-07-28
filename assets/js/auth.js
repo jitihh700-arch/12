@@ -164,6 +164,7 @@
         setActionState(state.canChangePseudo ? 'change' : 'locked');
         cacheProfile(profile);
         window.memorizProfile = Object.freeze({ ...profile });
+        document.dispatchEvent(new CustomEvent('memoriz:profile-ready', { detail: { profile: { ...profile } } }));
     }
 
     function focusableModalElements(modal) {
@@ -256,12 +257,14 @@
         if (!hasConfig) {
             setCard('offline', 'Quiz solo disponible', 'Supabase n’est pas configuré sur cet environnement.');
             setActionState('offline');
+            document.dispatchEvent(new CustomEvent('memoriz:profile-unavailable', { detail: { reason: 'missing_config' } }));
             return;
         }
 
         if (!window.supabase || typeof window.supabase.createClient !== 'function') {
             setCard('offline', 'Quiz solo disponible', 'Le client Supabase n’a pas pu être chargé.');
             setActionState('offline');
+            document.dispatchEvent(new CustomEvent('memoriz:profile-unavailable', { detail: { reason: 'missing_sdk' } }));
             return;
         }
 
@@ -280,6 +283,7 @@
             } catch (error) {
                 setCard('error', 'Quiz solo disponible', describeError(error));
                 setActionState('error');
+                document.dispatchEvent(new CustomEvent('memoriz:profile-unavailable', { detail: { reason: 'profile_error' } }));
             } finally {
                 state.initPromise = null;
             }
