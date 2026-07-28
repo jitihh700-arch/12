@@ -52,6 +52,10 @@ Puis ouvrir `http://127.0.0.1:4173/index.html`.
 ## Tests
 
 ```powershell
+npm run lint
+npm run format:check
+npm run security:scan
+npm run test:all
 npm run test:auth
 npm run test:frontend
 npm run test:comments
@@ -84,6 +88,7 @@ npx playwright install chromium
 
 - Le frontend charge uniquement une publishable key.
 - Aucune cle `service_role`, secret key, JWT secret ou chaine `postgres://` ne doit etre stockee dans Git.
+- `npm run security:scan` controle les fichiers suivis et les fichiers runtime interdits.
 - Le client n'ecrit pas directement dans `public.profiles`.
 - Les operations profil passent uniquement par les RPC `register_profile`, `get_my_profile` et `change_my_pseudo`.
 - Les operations commentaires passent uniquement par les RPC `create_comment`, `list_comments`, `update_my_comment` et `delete_my_comment`.
@@ -94,6 +99,19 @@ npx playwright install chromium
 - Le leaderboard frontend utilise uniquement `get_leaderboard` et `get_my_leaderboard_rank`.
 - Les operations multijoueur passent par le backend Socket.io et les RPC `multiplayer_*`; le client ne fournit jamais score, rang, hote, dates serveur ni identifiants de reponses.
 - Le cache local multijoueur est limite au code de partie.
+
+## Production readiness
+
+La Phase 6 ajoute CORS ferme, validation stricte des variables backend, logs redacted, arret gracieux, Docker backend, workflows GitHub Actions et guides operations/deploiement. Le deploiement reel exige HTTPS, un runtime config frontend non suivi, une cle backend stockee hors Git et une validation sur staging.
+
+Guides principaux:
+
+- `docs/security/01-final-security-review.md`
+- `docs/deployment/01-production-architecture.md`
+- `docs/deployment/02-supabase-production-setup.md`
+- `docs/deployment/03-backend-deployment.md`
+- `docs/deployment/04-frontend-deployment.md`
+- `docs/operations/01-runbook.md`
 
 ## Structure principale
 
@@ -114,6 +132,8 @@ npx playwright install chromium
 - `assets/css/reactions.css`: styles des reactions.
 - `backend/`: serveur Express/Socket.io multijoueur.
 - `supabase/`: migrations, configuration et tests SQL.
+- `.github/workflows/`: controles CI qualite, database, frontend et securite.
+- `scripts/`: generation config, seed quiz, lint, format check et scan secrets.
 - `scripts/generate-quiz-seed.mjs`: generation reproductible du seed quiz PostgreSQL.
 - `tests/integration/`: tests runtime Supabase Realtime.
 - `tests/frontend/`: tests Playwright Phase 2B.

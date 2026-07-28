@@ -77,14 +77,20 @@ projet/
 | --- | --- |
 | `server.js` | Lancement HTTP et Socket.io |
 | `app.js` | Configuration Express, middlewares, routes |
-| `config/` | Variables d'environnement, Supabase, CORS |
+| `config/` | Variables d'environnement, Supabase, CORS ferme |
 | `routes/` | Routes REST versionnees |
 | `controllers/` | Adaptation HTTP vers services |
 | `services/` | Regles metier: profils, scores, commentaires, sessions |
 | `validators/` | Schemas de payloads |
-| `middlewares/` | Auth, rate limit, erreurs, logs |
+| `middlewares/` | Auth, rate limit, erreurs stables |
+| `utils/logger.js` | Logs JSON avec redaction des secrets |
+| `lifecycle.js` | Timeouts HTTP et arret gracieux SIGTERM/SIGINT |
 | `socket/` | Evenements Socket.io, rooms, snapshots, reconnexion |
 | `tests/` | Tests unitaires, integration et Socket.io |
+
+## Production readiness Phase 6
+
+La cible finale reste deployable sans nouvelle fonctionnalite metier. La Phase 6 ajoute la CI, Docker backend, les headers recommandes et les procedures d'exploitation. Le frontend statique garde un mode degrade: si Supabase ou le backend est indisponible, le quiz entrainement reste jouable sans points persistants.
 
 ## Responsabilites Supabase
 

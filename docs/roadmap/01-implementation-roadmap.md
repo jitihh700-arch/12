@@ -72,29 +72,29 @@
 | Criteres d'acceptation | Une partie multi fonctionne sans casser le mode solo |
 | Dependances | Phases 1, 2, 4; contrat d'evenements valide |
 
-## Phase 6: reactions et animations
+## Phase 6: securite, qualite et production readiness
 
 | Rubrique | Detail |
 | --- | --- |
-| Objectifs | Ajouter reactions emoji et animations associees |
-| Fichiers concernes | `assets/js/reactions.js` si ajoute, `assets/js/ui.js`, `assets/css/comments.css` ou `multiplayer.css` |
-| Nouveaux fichiers | Migration `reactions`, tests reactions |
-| Risques | Spam, surcharge UI, animations genantes, XSS si emoji libre |
-| Tests necessaires | Reaction unique, rate limit, affichage temps reel, reduced motion |
-| Criteres d'acceptation | Reactions visibles, controlees, non bloquantes |
-| Dependances | Phase 2; Phase 3 ou 5 selon cible reactions |
+| Objectifs | Durcir securite, qualite, CI, Docker, documentation et validation finale |
+| Fichiers concernes | backend, scripts, workflows, docs, tests frontend/backend |
+| Nouveaux fichiers | CI, Dockerfile backend, guides operations/deploiement, tests Phase 6 |
+| Risques | Secrets, CORS trop ouvert, CI lente, faux positifs, logs sensibles |
+| Tests necessaires | lint, format, security scan, pgTAP, frontend, backend, Docker, concurrence |
+| Criteres d'acceptation | CI locale reproductible, aucun secret, Docker OK, docs operationnelles |
+| Dependances | Phases 1 a 5 validees |
 
-## Phase 7: securite, tests, documentation et deploiement
+## Phase 7: deploiement reel controle
 
 | Rubrique | Detail |
 | --- | --- |
-| Objectifs | Durcir l'application, automatiser tests, documenter et deployer |
+| Objectifs | Executer le deploiement reel apres validation humaine |
 | Fichiers concernes | Toute l'application, CI, backend, Supabase |
 | Nouveaux fichiers | `.github/workflows/ci.yml`, configs lint/test, docs operations |
 | Risques | CI lente, faux positifs, secrets mal geres, headers incomplets |
 | Tests necessaires | Unitaires, integration, E2E, Socket.io, migrations, audit securite, secrets |
 | Criteres d'acceptation | CI verte, migrations validees, secrets absents, documentation a jour |
-| Dependances | Phases precedentes |
+| Dependances | Phase 6 validee |
 
 ## Outils qualite recommandes
 

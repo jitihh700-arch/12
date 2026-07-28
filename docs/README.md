@@ -16,7 +16,10 @@ Cette documentation accompagne la migration progressive de Memoriz. La Phase 0 d
 | `docs/quiz/` | Sessions de quiz securisees, seed canonique et validation serveur | `01-secure-quiz-sessions.md`, `02-server-quiz-frontend-integration.md` |
 | `docs/leaderboard/` | Classement database, source de verite et departage | `01-database-and-ranking.md`, `02-frontend-top-20.md` |
 | `docs/multiplayer/` | Decisions database, backend temps reel, interface et reactions multijoueur | `01-database-and-rules.md`, `02-realtime-backend.md`, `03-frontend-game-flow.md`, `04-reactions.md` |
-| `docs/testing/` | Rapports de validation runtime et frontend | `01-phase-2a-database-validation.md`, `02-phase-2b-frontend-auth-validation.md`, `03-phase-3a-comments-database-validation.md`, `04-phase-3b-comments-frontend-validation.md`, `05-phase-4a-quiz-leaderboard-database-validation.md`, `06-phase-4b-quiz-leaderboard-frontend-validation.md`, `07-phase-5-multiplayer-validation.md` |
+| `docs/security/` | Revue finale securite et headers recommandes | `01-final-security-review.md` |
+| `docs/deployment/` | Architecture et procedures de deploiement | `01-production-architecture.md`, `02-supabase-production-setup.md`, `03-backend-deployment.md`, `04-frontend-deployment.md` |
+| `docs/operations/` | Runbooks, sauvegarde, restauration et incidents | `01-runbook.md`, `02-backup-and-recovery.md`, `03-incident-response.md` |
+| `docs/testing/` | Rapports de validation runtime et frontend | `01-phase-2a-database-validation.md`, `02-phase-2b-frontend-auth-validation.md`, `03-phase-3a-comments-database-validation.md`, `04-phase-3b-comments-frontend-validation.md`, `05-phase-4a-quiz-leaderboard-database-validation.md`, `06-phase-4b-quiz-leaderboard-frontend-validation.md`, `07-phase-5-multiplayer-validation.md`, `08-phase-6-production-readiness.md` |
 
 ## Agents et skill utilises
 
@@ -129,3 +132,14 @@ La Phase 5 ajoute le multijoueur et les reactions:
 - tests pgTAP, backend, frontend et concurrence dedies.
 
 La validation reproductible Phase 5 est documentee dans `docs/testing/07-phase-5-multiplayer-validation.md`.
+
+## Phase 6
+
+La Phase 6 finalise la preparation production sans ajouter de fonctionnalite metier:
+
+- durcissement CORS, logs, env backend et arret gracieux;
+- Docker backend avec healthcheck;
+- commandes `lint`, `format:check`, `security:scan`, `test:all`;
+- workflows GitHub Actions separes;
+- guides de securite, deploiement, operations, sauvegarde et incident;
+- parcours Playwright complet et mode degrade final.

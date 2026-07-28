@@ -1,5 +1,15 @@
 # Flux de donnees
 
+## Phase 6
+
+Les flux valides gardent trois autorites:
+
+- Supabase Auth fournit l'identite anonyme;
+- PostgreSQL calcule les scores, points et droits via RPC/RLS;
+- le backend Socket.io arbitre les parties multijoueurs et refuse les payloads non valides.
+
+Le navigateur ne fournit jamais `user_id`, score, rang, statut final, hote ou reponse canonique. Les tokens sont transmis dans `socket.auth` ou `Authorization` REST, jamais dans l'URL.
+
 ## Flux actuel: mode solo statique
 
 ```text

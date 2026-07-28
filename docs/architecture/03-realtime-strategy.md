@@ -107,6 +107,9 @@ La strategie retenue est:
 - Valider les payloads avec schemas.
 - Refuser les evenements inattendus selon l'etat de session.
 - Appliquer rate limit par joueur et par IP.
+- Controler explicitement l'origine Socket.io avec la meme liste fermee que CORS.
+- Limiter la taille des payloads Socket.io.
+- Ne jamais journaliser le token Supabase.
 - Journaliser les erreurs de protocole.
 - Ne jamais diffuser de contenu utilisateur sans echappement cote rendu.
 

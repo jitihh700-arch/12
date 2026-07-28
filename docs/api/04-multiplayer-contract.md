@@ -4,6 +4,8 @@
 
 Toutes les operations multijoueur exigent une session Supabase authentifiee. Le backend accepte le token dans `socket.auth.accessToken` ou dans l'en-tete `Authorization` pour les routes REST de lecture. Les tokens ne sont jamais places dans l'URL.
 
+Le backend verifie aussi l'origine HTTP/Socket.io avec `FRONTEND_ORIGIN`. En production, cette liste doit etre fermee et ne doit pas utiliser de wildcard.
+
 ## Contrat client
 
 Payloads autorises:
@@ -33,3 +35,5 @@ Il ne contient pas de secret, `answer_id`, valeur normalisee canonique ni donnee
 ## Codes d'erreur stables
 
 Les erreurs exposees restent fonctionnelles et non sensibles: `invalid_payload`, `invalid_token`, `profile_required`, `game_not_found`, `game_full`, `host_required`, `players_not_ready`, `not_enough_players`, `not_a_player`, `reaction_rate_limited`, `game_finished`.
+
+La Phase 6 ajoute la validation de `cors_origin_denied`, la redaction des logs et l'arret gracieux du backend.
