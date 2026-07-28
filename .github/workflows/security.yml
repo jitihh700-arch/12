@@ -1,0 +1,33 @@
+name: security
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.11.1
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            backend/package-lock.json
+      - run: npm ci
+      - run: npm ci
+        working-directory: backend
+      - run: npm run security:scan
+      - run: npm audit --audit-level=high
+      - run: npm audit --audit-level=high
+        working-directory: backend
+      - run: git ls-files ".env" "backend/.env" "node_modules" "backend/node_modules" "assets/js/supabase-runtime-config.js" "supabase/.temp" "supabase/.branches" "test-results" "playwright-report" "*.log" | tee forbidden-files.txt
+      - run: test ! -s forbidden-files.txt

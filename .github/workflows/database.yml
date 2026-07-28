@@ -1,0 +1,37 @@
+name: database
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.11.1
+          cache: npm
+      - run: npm ci
+      - run: npx supabase start
+      - run: npx supabase db reset
+      - run: npx supabase test db
+      - run: npx supabase db lint --local
+      - run: npm run test:quiz-seed
+      - run: pwsh -ExecutionPolicy Bypass -File supabase/tests/integration/profile_concurrency.ps1
+      - run: pwsh -ExecutionPolicy Bypass -File supabase/tests/integration/comments_limit_concurrency.ps1
+      - run: pwsh -ExecutionPolicy Bypass -File supabase/tests/integration/comments_direct_access_security.ps1
+      - run: pwsh -ExecutionPolicy Bypass -File supabase/tests/integration/quiz_answer_concurrency.ps1
+      - run: pwsh -ExecutionPolicy Bypass -File supabase/tests/integration/quiz_completion_concurrency.ps1
+      - run: pwsh -ExecutionPolicy Bypass -File supabase/tests/integration/multiplayer_join_concurrency.ps1
+      - run: pwsh -ExecutionPolicy Bypass -File supabase/tests/integration/multiplayer_answer_concurrency.ps1
+      - run: pwsh -ExecutionPolicy Bypass -File supabase/tests/integration/multiplayer_finish_concurrency.ps1
+      - run: pwsh -ExecutionPolicy Bypass -File supabase/tests/integration/multiplayer_host_transfer_concurrency.ps1
+      - if: always()
+        run: npx supabase stop --no-backup

@@ -234,4 +234,32 @@ describe('Socket.io multiplayer', () => {
         expect(limited.ok).toBe(false);
         expect(limited.error).toBe('reaction_rate_limited');
     });
+
+    it('supporte une charge locale legere sans crash ni fuite de score par reaction', async () => {
+        const clients = Array.from({ length: 12 }, () => connect('a'));
+        await Promise.all(clients.map(socket => waitEvent(socket, 'connect')));
+        await emitAck(clients[0], 'createGame', {
+            requestId: '70000000-0000-4000-8000-000000000101',
+            categoryId: 'series',
+            maxPlayers: 4
+        });
+
+        const results = await Promise.all(clients.map((socket, index) => emitAck(socket, 'requestGameState', {
+            requestId: `70000000-0000-4000-8000-0000000002${String(index).padStart(2, '0')}`,
+            gameCode: 'ABC234'
+        })));
+        expect(results.every(result => result.ok)).toBe(true);
+
+        const reactions = await Promise.all(clients.slice(0, 5).map((socket, index) => emitAck(socket, 'sendReaction', {
+            requestId: `70000000-0000-4000-8000-0000000003${String(index).padStart(2, '0')}`,
+            gameCode: 'ABC234',
+            reactionType: 'party'
+        })));
+        expect(reactions.every(result => result.ok)).toBe(true);
+        const state = await emitAck(clients[0], 'requestGameState', {
+            requestId: '70000000-0000-4000-8000-000000000401',
+            gameCode: 'ABC234'
+        });
+        expect(state.data.players[0].score).toBe(0);
+    });
 });
