@@ -56,11 +56,15 @@ npm run test:auth
 npm run test:frontend
 npm run test:comments
 npm run test:comments:realtime
+npm run generate:quiz-seed
+npm run test:quiz-seed
 npx supabase db reset
 npx supabase test db
 npx supabase db lint --local
 powershell -ExecutionPolicy Bypass -File supabase/tests/integration/comments_limit_concurrency.ps1
 powershell -ExecutionPolicy Bypass -File supabase/tests/integration/comments_direct_access_security.ps1
+powershell -ExecutionPolicy Bypass -File supabase/tests/integration/quiz_answer_concurrency.ps1
+powershell -ExecutionPolicy Bypass -File supabase/tests/integration/quiz_completion_concurrency.ps1
 ```
 
 Pour installer les navigateurs Playwright sur une machine neuve:
@@ -77,6 +81,8 @@ npx playwright install chromium
 - Les operations profil passent uniquement par les RPC `register_profile`, `get_my_profile` et `change_my_pseudo`.
 - Les operations commentaires passent uniquement par les RPC `create_comment`, `list_comments`, `update_my_comment` et `delete_my_comment`.
 - Les commentaires temps reel utilisent le Broadcast prive `comments:public`, jamais Postgres Changes sur `public.comments`.
+- Les operations de score serveur passent uniquement par les RPC quiz et leaderboard. Le client ne fournit jamais de points ni de nombre de bonnes reponses.
+- Les reponses canoniques du quiz sont stockees dans le schema prive `private`, sans lecture directe par les roles clients.
 
 ## Structure principale
 
@@ -89,6 +95,7 @@ npx playwright install chromium
 - `assets/css/app.css`: styles.
 - `assets/css/comments.css`: styles de la section commentaires.
 - `supabase/`: migrations, configuration et tests SQL.
+- `scripts/generate-quiz-seed.mjs`: generation reproductible du seed quiz PostgreSQL.
 - `tests/integration/`: tests runtime Supabase Realtime.
 - `tests/frontend/`: tests Playwright Phase 2B.
 - `docs/`: documentation technique par phase.

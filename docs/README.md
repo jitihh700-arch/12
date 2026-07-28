@@ -11,9 +11,11 @@ Cette documentation accompagne la migration progressive de Memoriz. La Phase 0 d
 | `docs/roadmap/` | Plan de migration par phases | `01-implementation-roadmap.md` |
 | `docs/refactoring/` | Rapports de migration technique progressive | `01-phase-1-static-extraction.md` |
 | `docs/auth/` | Decisions d'authentification et profils Supabase | `01-anonymous-auth-and-profiles.md`, `02-phase-2b-frontend-auth.md` |
-| `docs/api/` | Contrats fonctionnels futurs pour les RPC | `01-profile-contract.md`, `02-comments-contract.md` |
+| `docs/api/` | Contrats fonctionnels futurs pour les RPC | `01-profile-contract.md`, `02-comments-contract.md`, `03-quiz-and-leaderboard-contract.md` |
 | `docs/comments/` | Decisions database, securite et frontend des commentaires | `01-comments-database-and-security.md`, `02-comments-frontend-and-realtime.md` |
-| `docs/testing/` | Rapports de validation runtime et frontend | `01-phase-2a-database-validation.md`, `02-phase-2b-frontend-auth-validation.md`, `03-phase-3a-comments-database-validation.md`, `04-phase-3b-comments-frontend-validation.md` |
+| `docs/quiz/` | Sessions de quiz securisees, seed canonique et validation serveur | `01-secure-quiz-sessions.md` |
+| `docs/leaderboard/` | Classement database, source de verite et departage | `01-database-and-ranking.md` |
+| `docs/testing/` | Rapports de validation runtime et frontend | `01-phase-2a-database-validation.md`, `02-phase-2b-frontend-auth-validation.md`, `03-phase-3a-comments-database-validation.md`, `04-phase-3b-comments-frontend-validation.md`, `05-phase-4a-quiz-leaderboard-database-validation.md` |
 
 ## Agents et skill utilises
 
@@ -88,3 +90,16 @@ La Phase 3B ajoute l'interface frontend des commentaires:
 - mode degrade non bloquant pour le quiz solo.
 
 La validation reproductible Phase 3B est documentee dans `docs/testing/04-phase-3b-comments-frontend-validation.md`.
+
+## Phase 4A
+
+La Phase 4A ajoute la fondation database des sessions de quiz et du leaderboard:
+
+- schema prive `private` pour les categories et reponses canoniques;
+- seed reproductible genere depuis `assets/js/quiz-data.js`;
+- tables `public.quiz_sessions`, `public.quiz_session_answers` et `public.user_category_stats`;
+- RPC `start_quiz_session`, `submit_quiz_answer`, `complete_quiz_session`, `abandon_quiz_session`, `get_my_quiz_session`, `get_leaderboard` et `get_my_leaderboard_rank`;
+- RLS, permissions minimales, validation serveur des reponses et credit idempotent des points;
+- tests pgTAP, coherence seed et concurrence.
+
+Aucune interface leaderboard et aucun changement frontend ne sont inclus.

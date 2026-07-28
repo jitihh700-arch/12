@@ -160,6 +160,13 @@ test('validation pseudo: longueurs, caracteres, accents, espaces, html, ponctuat
     const context = await browser.newContext();
     const page = await context.newPage();
     await gotoHome(page);
+    await expect(page.locator('#profile-modal')).toBeVisible();
+    await page.waitForFunction(async () => {
+        const api = window.MemorizProfileApi?.init(window.MEMORIZ_SUPABASE_CONFIG);
+        if (!api?.client?.auth) return false;
+        const { data } = await api.client.auth.getSession();
+        return Boolean(data?.session);
+    });
     const newline = await page.evaluate(async () => window.MemorizProfileApi.init(window.MEMORIZ_SUPABASE_CONFIG).registerProfile('Ali\nDia'));
     expect(newline.error.message).toContain('pseudo_invalid_format');
     await page.locator('#profile-pseudo-input').fill(`  Space   ${runId}  `);
