@@ -11,8 +11,9 @@ Cette documentation accompagne la migration progressive de Memoriz. La Phase 0 d
 | `docs/roadmap/` | Plan de migration par phases | `01-implementation-roadmap.md` |
 | `docs/refactoring/` | Rapports de migration technique progressive | `01-phase-1-static-extraction.md` |
 | `docs/auth/` | Decisions d'authentification et profils Supabase | `01-anonymous-auth-and-profiles.md`, `02-phase-2b-frontend-auth.md` |
-| `docs/api/` | Contrats fonctionnels futurs pour les RPC | `01-profile-contract.md` |
-| `docs/testing/` | Rapports de validation runtime et frontend | `01-phase-2a-database-validation.md`, `02-phase-2b-frontend-auth-validation.md` |
+| `docs/api/` | Contrats fonctionnels futurs pour les RPC | `01-profile-contract.md`, `02-comments-contract.md` |
+| `docs/comments/` | Decisions database et securite des commentaires | `01-comments-database-and-security.md` |
+| `docs/testing/` | Rapports de validation runtime et frontend | `01-phase-2a-database-validation.md`, `02-phase-2b-frontend-auth-validation.md`, `03-phase-3a-comments-database-validation.md` |
 
 ## Agents et skill utilises
 
@@ -62,3 +63,15 @@ La Phase 2B branche l'authentification anonyme Supabase sur le frontend statique
 Cette phase ne cree ni commentaires, ni leaderboard fonctionnel, ni backend Express, ni Socket.io. Le score du quiz solo n'est pas modifie.
 
 La validation reproductible Phase 2B est documentee dans `docs/testing/02-phase-2b-frontend-auth-validation.md`.
+
+## Phase 3A
+
+La Phase 3A ajoute uniquement la fondation database des commentaires:
+
+- table `public.comments`;
+- RPC `create_comment`, `list_comments`, `update_my_comment`, `delete_my_comment`;
+- RLS, permissions minimales, soft delete et limite de 50 commentaires actifs;
+- publication Supabase Realtime;
+- tests pgTAP, concurrence et Realtime.
+
+Aucune interface commentaires n'est creee dans cette phase.

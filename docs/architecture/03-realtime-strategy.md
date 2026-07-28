@@ -83,10 +83,22 @@ Regle recommandee: le serveur renvoie toujours un `session:snapshot` complet apr
 
 Usage recommande:
 
-- Supabase Realtime: commentaires, reactions simples, leaderboard lu en temps reel si les volumes restent faibles.
+- Supabase Realtime Broadcast: commentaires, reactions simples, leaderboard lu en temps reel si les volumes restent faibles.
 - Socket.io: sessions multijoueur, timer, presence, reponses simultanees, arbitrage et reconnexion.
 
 Justification: les parties multijoueur demandent une autorite applicative, des rooms, de l'idempotence et une logique de sequence. Socket.io est plus adapte a cette couche que de simples changements de table.
+
+## Commentaires Phase 3A
+
+Les commentaires n'utilisent plus Postgres Changes sur `public.comments`, car une policy `SELECT` necessaire a ce mode ouvre aussi une lecture directe de table aux clients authentifies.
+
+La strategie retenue est:
+
+- lectures persistantes via RPC `list_comments`;
+- ecritures via RPC `create_comment`, `update_my_comment`, `delete_my_comment`;
+- notifications temps reel via Broadcast prive sur `comments:public`;
+- payloads explicites emis par trigger PostgreSQL;
+- soft delete diffuse avec seulement `id` et `deleted_at`.
 
 ## Securite temps reel
 

@@ -54,9 +54,12 @@ Puis ouvrir `http://127.0.0.1:4173/index.html`.
 ```powershell
 npm run test:auth
 npm run test:frontend
+npm run test:comments:realtime
 npx supabase db reset
 npx supabase test db
 npx supabase db lint --local
+powershell -ExecutionPolicy Bypass -File supabase/tests/integration/comments_limit_concurrency.ps1
+powershell -ExecutionPolicy Bypass -File supabase/tests/integration/comments_direct_access_security.ps1
 ```
 
 Pour installer les navigateurs Playwright sur une machine neuve:
@@ -71,6 +74,7 @@ npx playwright install chromium
 - Aucune cle `service_role`, secret key, JWT secret ou chaine `postgres://` ne doit etre stockee dans Git.
 - Le client n'ecrit pas directement dans `public.profiles`.
 - Les operations profil passent uniquement par les RPC `register_profile`, `get_my_profile` et `change_my_pseudo`.
+- Les operations commentaires passent uniquement par les RPC `create_comment`, `list_comments`, `update_my_comment` et `delete_my_comment`.
 
 ## Structure principale
 
@@ -81,5 +85,6 @@ npx playwright install chromium
 - `assets/js/auth.js`: session anonyme et interface profil.
 - `assets/css/app.css`: styles.
 - `supabase/`: migrations, configuration et tests SQL.
+- `tests/integration/`: tests runtime Supabase Realtime.
 - `tests/frontend/`: tests Playwright Phase 2B.
 - `docs/`: documentation technique par phase.

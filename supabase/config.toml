@@ -59,7 +59,7 @@ token_verifications = 30
 web3 = 30
 
 [realtime]
-enabled = false
+enabled = true
 
 [studio]
 enabled = false
