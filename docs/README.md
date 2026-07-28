@@ -11,11 +11,12 @@ Cette documentation accompagne la migration progressive de Memoriz. La Phase 0 d
 | `docs/roadmap/` | Plan de migration par phases | `01-implementation-roadmap.md` |
 | `docs/refactoring/` | Rapports de migration technique progressive | `01-phase-1-static-extraction.md` |
 | `docs/auth/` | Decisions d'authentification et profils Supabase | `01-anonymous-auth-and-profiles.md`, `02-phase-2b-frontend-auth.md` |
-| `docs/api/` | Contrats fonctionnels futurs pour les RPC | `01-profile-contract.md`, `02-comments-contract.md`, `03-quiz-and-leaderboard-contract.md` |
+| `docs/api/` | Contrats fonctionnels futurs pour les RPC | `01-profile-contract.md`, `02-comments-contract.md`, `03-quiz-and-leaderboard-contract.md`, `04-multiplayer-contract.md` |
 | `docs/comments/` | Decisions database, securite et frontend des commentaires | `01-comments-database-and-security.md`, `02-comments-frontend-and-realtime.md` |
 | `docs/quiz/` | Sessions de quiz securisees, seed canonique et validation serveur | `01-secure-quiz-sessions.md`, `02-server-quiz-frontend-integration.md` |
 | `docs/leaderboard/` | Classement database, source de verite et departage | `01-database-and-ranking.md`, `02-frontend-top-20.md` |
-| `docs/testing/` | Rapports de validation runtime et frontend | `01-phase-2a-database-validation.md`, `02-phase-2b-frontend-auth-validation.md`, `03-phase-3a-comments-database-validation.md`, `04-phase-3b-comments-frontend-validation.md`, `05-phase-4a-quiz-leaderboard-database-validation.md`, `06-phase-4b-quiz-leaderboard-frontend-validation.md` |
+| `docs/multiplayer/` | Decisions database, backend temps reel, interface et reactions multijoueur | `01-database-and-rules.md`, `02-realtime-backend.md`, `03-frontend-game-flow.md`, `04-reactions.md` |
+| `docs/testing/` | Rapports de validation runtime et frontend | `01-phase-2a-database-validation.md`, `02-phase-2b-frontend-auth-validation.md`, `03-phase-3a-comments-database-validation.md`, `04-phase-3b-comments-frontend-validation.md`, `05-phase-4a-quiz-leaderboard-database-validation.md`, `06-phase-4b-quiz-leaderboard-frontend-validation.md`, `07-phase-5-multiplayer-validation.md` |
 
 ## Agents et skill utilises
 
@@ -116,3 +117,15 @@ La Phase 4B branche le frontend du quiz sur les RPC serveur:
 - tests Playwright dedies avec `npm run test:quiz-ui`.
 
 Cette phase ne lance ni multijoueur, ni reactions, ni rooms, ni leaderboard temps reel.
+
+## Phase 5
+
+La Phase 5 ajoute le multijoueur et les reactions:
+
+- tables et RPC `multiplayer_*` protegees par RLS;
+- backend Express/Socket.io dans `backend/`;
+- interface modale multijoueur dans `index.html` et modules `assets/js/multiplayer*.js`;
+- reactions temps reel limitees;
+- tests pgTAP, backend, frontend et concurrence dedies.
+
+La validation reproductible Phase 5 est documentee dans `docs/testing/07-phase-5-multiplayer-validation.md`.

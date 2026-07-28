@@ -1,6 +1,6 @@
 # Memoriz
 
-Memoriz est un quiz web statique en francais autour de la culture pop, du sport, de la musique, des animes et du cinema. Le mode solo reste jouable sans compte, le profil anonyme Supabase porte le pseudo unique, et l'interface commentaires utilise les RPC validees en base.
+Memoriz est un quiz web statique en francais autour de la culture pop, du sport, de la musique, des animes et du cinema. Le mode solo reste jouable sans compte, le profil anonyme Supabase porte le pseudo unique, l'interface commentaires utilise les RPC validees en base, et le mode multijoueur passe par un backend Express/Socket.io relaye par Supabase.
 
 ## Prerequis
 
@@ -57,6 +57,8 @@ npm run test:frontend
 npm run test:comments
 npm run test:comments:realtime
 npm run test:quiz-ui
+npm run test:multiplayer
+npm run test:backend
 npm run generate:quiz-seed
 npm run test:quiz-seed
 npx supabase db reset
@@ -66,6 +68,10 @@ powershell -ExecutionPolicy Bypass -File supabase/tests/integration/comments_lim
 powershell -ExecutionPolicy Bypass -File supabase/tests/integration/comments_direct_access_security.ps1
 powershell -ExecutionPolicy Bypass -File supabase/tests/integration/quiz_answer_concurrency.ps1
 powershell -ExecutionPolicy Bypass -File supabase/tests/integration/quiz_completion_concurrency.ps1
+powershell -ExecutionPolicy Bypass -File supabase/tests/integration/multiplayer_join_concurrency.ps1
+powershell -ExecutionPolicy Bypass -File supabase/tests/integration/multiplayer_answer_concurrency.ps1
+powershell -ExecutionPolicy Bypass -File supabase/tests/integration/multiplayer_finish_concurrency.ps1
+powershell -ExecutionPolicy Bypass -File supabase/tests/integration/multiplayer_host_transfer_concurrency.ps1
 ```
 
 Pour installer les navigateurs Playwright sur une machine neuve:
@@ -86,6 +92,8 @@ npx playwright install chromium
 - Les reponses canoniques du quiz sont stockees dans le schema prive `private`, sans lecture directe par les roles clients.
 - Le mode classe du quiz utilise `start_quiz_session`, `submit_quiz_answer`, `complete_quiz_session`, `abandon_quiz_session` et `get_my_quiz_session_state`.
 - Le leaderboard frontend utilise uniquement `get_leaderboard` et `get_my_leaderboard_rank`.
+- Les operations multijoueur passent par le backend Socket.io et les RPC `multiplayer_*`; le client ne fournit jamais score, rang, hote, dates serveur ni identifiants de reponses.
+- Le cache local multijoueur est limite au code de partie.
 
 ## Structure principale
 
@@ -94,11 +102,17 @@ npx playwright install chromium
 - `assets/js/quiz-solo.js`: moteur du quiz solo.
 - `assets/js/quiz-session.js`: orchestration du mode classe et du fallback entrainement.
 - `assets/js/leaderboard.js`: modale Top 20 et rang personnel.
+- `assets/js/multiplayer.js`: interface de salon, partie, classement final et fallback indisponible.
+- `assets/js/multiplayer-socket.js`: client Socket.io authentifie par token Supabase.
+- `assets/js/reactions.js`: rendu local des reactions multijoueur.
 - `assets/js/api.js`: client Supabase et wrapper RPC profil.
 - `assets/js/auth.js`: session anonyme et interface profil.
 - `assets/js/comments.js`: interface commentaires, pagination, CRUD RPC et Broadcast prive.
 - `assets/css/app.css`: styles.
 - `assets/css/comments.css`: styles de la section commentaires.
+- `assets/css/multiplayer.css`: styles de la modale multijoueur.
+- `assets/css/reactions.css`: styles des reactions.
+- `backend/`: serveur Express/Socket.io multijoueur.
 - `supabase/`: migrations, configuration et tests SQL.
 - `scripts/generate-quiz-seed.mjs`: generation reproductible du seed quiz PostgreSQL.
 - `tests/integration/`: tests runtime Supabase Realtime.

@@ -46,6 +46,11 @@ describe('validators', () => {
             score: 999
         })).toThrow(/invalid_payload/);
     });
+
+    it('refuse les payloads non objets', () => {
+        expect(() => parsePayload(createGameSchema, null)).toThrow(/invalid_payload/);
+        expect(() => parsePayload(createGameSchema, 'series')).toThrow(/invalid_payload/);
+    });
 });
 
 describe('rate limiter', () => {
@@ -110,6 +115,37 @@ describe('snapshot', () => {
         expect(snapshot.players).toHaveLength(2);
         expect(snapshot.myFoundAnswers).toEqual([expect.objectContaining({ display: 'Walter White' })]);
         expect(snapshot.players[1].pseudo).toBe('<script>');
+    });
+
+    it('ne renvoie jamais les identifiants de reponses canoniques', () => {
+        const snapshot = buildGameSnapshot([
+            {
+                game_code: 'ABC234',
+                category_id: 'series',
+                status: 'playing',
+                max_players: 2,
+                current_players: 1,
+                host_id: 'u1',
+                player_id: 'p1',
+                user_id: 'u1',
+                pseudo: 'Alpha',
+                score: 10,
+                correct_answers: 1,
+                is_ready: true,
+                is_connected: true,
+                is_host: true,
+                rank: 1,
+                answer_id: '90000000-0000-4000-8000-000000000001',
+                answer_normalized: 'walter white',
+                my_found_answer_display: 'Walter White',
+                my_found_display_order: 1
+            }
+        ], 'u1');
+
+        const serialized = JSON.stringify(snapshot);
+        expect(serialized).not.toContain('answer_id');
+        expect(serialized).not.toContain('answer_normalized');
+        expect(serialized).not.toContain('90000000-0000-4000-8000-000000000001');
     });
 });
 
