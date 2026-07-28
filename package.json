@@ -9,7 +9,10 @@
     "test:quiz-ui": "playwright test tests/frontend/phase-4b-quiz-leaderboard.spec.js",
     "test:frontend": "playwright test tests/frontend",
     "generate:quiz-seed": "node scripts/generate-quiz-seed.mjs",
-    "test:quiz-seed": "node tests/integration/quiz-seed-consistency.test.mjs"
+    "test:quiz-seed": "node tests/integration/quiz-seed-consistency.test.mjs",
+    "test:backend": "npm --prefix backend test",
+    "test:backend:unit": "npm --prefix backend run test:unit",
+    "test:backend:socket": "npm --prefix backend run test:socket"
   },
   "devDependencies": {
     "@playwright/test": "1.62.0",

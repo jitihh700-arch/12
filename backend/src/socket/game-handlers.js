@@ -1,0 +1,92 @@
+import {
+    createGameSchema,
+    gameCodeSchema,
+    joinGameSchema,
+    parsePayload,
+    readySchema,
+    submitAnswerSchema
+} from '../validators/multiplayer-validator.js';
+import { buildGameSnapshot } from '../services/game-engine-service.js';
+import { ackError, ackOk } from '../utils/socket-errors.js';
+
+function roomName(gameCode) {
+    return `game:${gameCode}`;
+}
+
+async function emitState(io, service, socket, gameCode, eventName = 'gameState') {
+    const rows = await service.getState(socket.user, { gameCode });
+    const snapshot = buildGameSnapshot(rows, socket.user.userId);
+    io.to(roomName(gameCode)).emit(eventName, snapshot);
+    return snapshot;
+}
+
+function withAck(socket, limiter, key, limits, handler) {
+    return async function wrapped(payload, ack = () => {}) {
+        const requestId = payload?.requestId;
+        try {
+            if (!limiter.check(`${socket.user.userId}:${key}:${payload?.gameCode || ''}`, limits)) {
+                ack(ackError(new Error('rate_limited'), requestId));
+                return;
+            }
+            const data = await handler(payload);
+            ack(ackOk(data, requestId));
+        } catch (error) {
+            ack(ackError(error, requestId));
+        }
+    };
+}
+
+export function registerGameHandlers(io, socket, { multiplayerService, limiter }) {
+    socket.on('createGame', withAck(socket, limiter, 'createGame', { max: 5, windowMs: 60_000 }, async payload => {
+        const input = parsePayload(createGameSchema, payload);
+        const created = await multiplayerService.createGame(socket.user, input);
+        socket.join(roomName(created.game_code));
+        const snapshot = await emitState(io, multiplayerService, socket, created.game_code, 'gameCreated');
+        return { created, snapshot };
+    }));
+
+    socket.on('joinGame', withAck(socket, limiter, 'joinGame', { max: 20, windowMs: 60_000 }, async payload => {
+        const input = parsePayload(joinGameSchema, payload);
+        const joined = await multiplayerService.joinGame(socket.user, input);
+        socket.join(roomName(input.gameCode));
+        const snapshot = await emitState(io, multiplayerService, socket, input.gameCode, 'playerJoined');
+        return { joined, snapshot };
+    }));
+
+    socket.on('setReady', withAck(socket, limiter, 'setReady', { max: 20, windowMs: 60_000 }, async payload => {
+        const input = parsePayload(readySchema, payload);
+        const updated = await multiplayerService.setReady(socket.user, input);
+        const snapshot = await emitState(io, multiplayerService, socket, input.gameCode, 'playerUpdated');
+        return { updated, snapshot };
+    }));
+
+    socket.on('startGame', withAck(socket, limiter, 'startGame', { max: 10, windowMs: 60_000 }, async payload => {
+        const input = parsePayload(gameCodeSchema, payload);
+        const started = await multiplayerService.startGame(socket.user, input);
+        const snapshot = await emitState(io, multiplayerService, socket, input.gameCode, 'gameStarted');
+        return { started, snapshot };
+    }));
+
+    socket.on('submitAnswer', withAck(socket, limiter, 'submitAnswer', { max: 30, windowMs: 10_000 }, async payload => {
+        const input = parsePayload(submitAnswerSchema, payload);
+        const result = await multiplayerService.submitAnswer(socket.user, input);
+        const snapshot = await emitState(io, multiplayerService, socket, input.gameCode, 'scoreUpdate');
+        socket.emit('answerResult', result);
+        return { result, snapshot };
+    }));
+
+    socket.on('leaveGame', withAck(socket, limiter, 'leaveGame', { max: 10, windowMs: 60_000 }, async payload => {
+        const input = parsePayload(gameCodeSchema, payload);
+        const result = await multiplayerService.leaveGame(socket.user, input);
+        socket.leave(roomName(input.gameCode));
+        io.to(roomName(input.gameCode)).emit('playerLeft', result);
+        return result;
+    }));
+
+    socket.on('requestGameState', withAck(socket, limiter, 'requestGameState', { max: 30, windowMs: 60_000 }, async payload => {
+        const input = parsePayload(gameCodeSchema, payload);
+        await multiplayerService.reconnectGame(socket.user, input);
+        socket.join(roomName(input.gameCode));
+        return emitState(io, multiplayerService, socket, input.gameCode);
+    }));
+}
