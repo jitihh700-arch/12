@@ -38,6 +38,7 @@
 
     <link rel="stylesheet" href="assets/css/app.css">
     <link rel="stylesheet" href="assets/css/comments.css">
+    <link rel="stylesheet" href="assets/css/leaderboard.css">
 </head>
 <body>
     <!-- CANVAS POUR LE FOND ANIMÉ -->
@@ -77,6 +78,7 @@
                 <div class="profile-actions">
                     <button type="button" id="profile-primary-action">Créer mon pseudo</button>
                     <button type="button" id="profile-retry-action" hidden>Réessayer</button>
+                    <button type="button" id="leaderboard-open" disabled>Classement</button>
                 </div>
             </section>
         </header>
@@ -219,14 +221,28 @@
             </form>
         </div>
     </div>
+    <div id="leaderboard-modal" class="leaderboard-modal" hidden aria-hidden="true">
+        <div class="leaderboard-modal-content" role="dialog" aria-modal="true" aria-labelledby="leaderboard-title" aria-describedby="leaderboard-status">
+            <button type="button" class="leaderboard-close" id="leaderboard-close" aria-label="Fermer le classement">&times;</button>
+            <div class="leaderboard-heading">
+                <h2 id="leaderboard-title">Classement Memoriz</h2>
+                <button type="button" id="leaderboard-refresh">Rafraîchir</button>
+            </div>
+            <p id="leaderboard-status" class="leaderboard-status" aria-live="polite">Classement indisponible sans profil actif.</p>
+            <section id="leaderboard-my-rank" class="leaderboard-my-rank" aria-labelledby="leaderboard-title"></section>
+            <ol id="leaderboard-list" class="leaderboard-list" aria-label="Top 20 Memoriz"></ol>
+        </div>
+    </div>
 
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.9/dist/umd/supabase.min.js"></script>
     <script defer src="assets/js/supabase-runtime-config.js"></script>
     <script defer src="assets/js/quiz-data.js"></script>
     <script defer src="assets/js/ui.js"></script>
-    <script defer src="assets/js/quiz-solo.js"></script>
     <script defer src="assets/js/api.js"></script>
     <script defer src="assets/js/auth.js"></script>
+    <script defer src="assets/js/quiz-session.js"></script>
+    <script defer src="assets/js/quiz-solo.js"></script>
+    <script defer src="assets/js/leaderboard.js"></script>
     <script defer src="assets/js/comments.js"></script>
     <script defer src="assets/js/app.js"></script>
 </body>

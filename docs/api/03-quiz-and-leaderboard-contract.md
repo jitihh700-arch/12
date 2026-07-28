@@ -25,9 +25,9 @@ select * from public.submit_quiz_answer(
 );
 ```
 
-Retour: `result`, `correct_answers`, `points_current`, `remaining_answers_count`, `expires_at`, `status`.
+Retour: `result`, `correct_answers`, `points_current`, `remaining_answers_count`, `expires_at`, `status`, `matched_answer_display`, `matched_display_order`, `matched_answer_year`, `matched_hint`.
 
-`result` vaut `correct`, `duplicate`, `incorrect`, `expired` ou `completed`. La fonction ne retourne jamais `answer_text`, `answer_normalized`, `answer_id` ou les reponses restantes.
+`result` vaut `correct`, `duplicate`, `incorrect`, `expired` ou `completed`. Pour une reponse correcte, le retour expose uniquement la reponse trouvee et ses metadonnees publiques deja utiles a l'interface. Pour une reponse incorrecte, aucune bonne reponse n'est retournee. La fonction ne retourne jamais `answer_normalized`, `answer_id` ou les reponses restantes.
 
 ## complete_quiz_session
 
@@ -37,7 +37,7 @@ select * from public.complete_quiz_session(p_session_id => '<uuid>');
 
 Retour: `result`, `correct_answers`, `points_awarded`, `status`, `completed_at`, `expires_at`.
 
-La fonction est idempotente. Le credit est applique une seule fois, dans la transaction qui passe la session a `completed`. Une session expiree ou abandonnee ne credite aucun point.
+La fonction est idempotente. Le credit est applique une seule fois, dans la transaction qui passe la session a `completed`. Depuis la Phase 4B, une finalisation appelee dans les 5 secondes apres `expires_at` peut crediter les bonnes reponses deja trouvees, pour absorber le delai reseau du timer frontend. Une soumission apres expiration reste refusee et une session volontairement abandonnee ne credite aucun point.
 
 ## abandon_quiz_session
 
@@ -56,6 +56,14 @@ select * from public.get_my_quiz_session(p_session_id => '<uuid>');
 ```
 
 Retour: progression, statut et dates de la session appartenant au joueur courant. Un autre joueur recoit `session_forbidden`.
+
+## get_my_quiz_session_state
+
+```sql
+select * from public.get_my_quiz_session_state(p_session_id => '<uuid>');
+```
+
+Retour: etat de session restaurable et reponses deja trouvees: `found_answer_display`, `found_display_order`, `found_answer_year`, `found_hint`, `answered_at`. La fonction utilise `auth.uid()` et refuse la session d'un autre joueur. Elle ne retourne jamais les reponses restantes, `answer_id` ou `answer_normalized`.
 
 ## get_leaderboard
 

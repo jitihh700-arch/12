@@ -56,6 +56,7 @@ npm run test:auth
 npm run test:frontend
 npm run test:comments
 npm run test:comments:realtime
+npm run test:quiz-ui
 npm run generate:quiz-seed
 npm run test:quiz-seed
 npx supabase db reset
@@ -83,12 +84,16 @@ npx playwright install chromium
 - Les commentaires temps reel utilisent le Broadcast prive `comments:public`, jamais Postgres Changes sur `public.comments`.
 - Les operations de score serveur passent uniquement par les RPC quiz et leaderboard. Le client ne fournit jamais de points ni de nombre de bonnes reponses.
 - Les reponses canoniques du quiz sont stockees dans le schema prive `private`, sans lecture directe par les roles clients.
+- Le mode classe du quiz utilise `start_quiz_session`, `submit_quiz_answer`, `complete_quiz_session`, `abandon_quiz_session` et `get_my_quiz_session_state`.
+- Le leaderboard frontend utilise uniquement `get_leaderboard` et `get_my_leaderboard_rank`.
 
 ## Structure principale
 
 - `index.html`: page statique Memoriz.
 - `assets/js/quiz-data.js`: donnees du quiz.
 - `assets/js/quiz-solo.js`: moteur du quiz solo.
+- `assets/js/quiz-session.js`: orchestration du mode classe et du fallback entrainement.
+- `assets/js/leaderboard.js`: modale Top 20 et rang personnel.
 - `assets/js/api.js`: client Supabase et wrapper RPC profil.
 - `assets/js/auth.js`: session anonyme et interface profil.
 - `assets/js/comments.js`: interface commentaires, pagination, CRUD RPC et Broadcast prive.

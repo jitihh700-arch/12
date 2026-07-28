@@ -1,0 +1,215 @@
+.leaderboard-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2200;
+    background: rgba(0,0,0,0.78);
+    backdrop-filter: blur(8px);
+    padding: 20px;
+}
+
+.leaderboard-modal[hidden] { display: none; }
+
+.leaderboard-modal-content {
+    width: min(100%, 680px);
+    max-height: min(86dvh, 760px);
+    margin: 5vh auto;
+    overflow-y: auto;
+    background: #ffffff;
+    color: #1e1e2f;
+    border-radius: 24px;
+    padding: 28px;
+    position: relative;
+    box-shadow: 0 25px 55px rgba(0,0,0,0.38);
+}
+
+.leaderboard-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-right: 40px;
+}
+
+.leaderboard-heading h2 {
+    font-size: 1.8rem;
+    line-height: 1.15;
+}
+
+.leaderboard-close {
+    position: absolute;
+    right: 18px;
+    top: 14px;
+    border: 0;
+    background: transparent;
+    color: #6b6d7d;
+    cursor: pointer;
+    font-size: 2rem;
+    line-height: 1;
+    min-width: 44px;
+    min-height: 44px;
+}
+
+#leaderboard-refresh {
+    min-height: 44px;
+    border: 0;
+    border-radius: 999px;
+    padding: 10px 18px;
+    background: linear-gradient(135deg, #ff4757, #ffa502);
+    color: white;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+#leaderboard-refresh:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.leaderboard-close:focus-visible,
+#leaderboard-refresh:focus-visible,
+#leaderboard-open:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(255,71,87,0.22);
+}
+
+.leaderboard-status {
+    margin: 12px 0 18px;
+    color: #595b6e;
+    line-height: 1.45;
+}
+
+.leaderboard-my-rank {
+    margin-bottom: 20px;
+    padding: 16px;
+    border: 1px solid #e5e7ef;
+    border-radius: 18px;
+    background: #f8f9fc;
+}
+
+.leaderboard-my-rank h3 {
+    margin-bottom: 10px;
+    color: #1e1e2f;
+}
+
+.leaderboard-my-card {
+    display: grid;
+    gap: 10px;
+}
+
+.leaderboard-my-card > strong {
+    font-size: 1.15rem;
+    overflow-wrap: anywhere;
+}
+
+.leaderboard-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.leaderboard-stat-grid span {
+    display: grid;
+    gap: 2px;
+    padding: 10px;
+    border-radius: 14px;
+    background: white;
+}
+
+.leaderboard-stat-grid strong {
+    font-size: 1.1rem;
+    color: #ff4757;
+}
+
+.leaderboard-activity {
+    color: #66687a;
+    font-size: 0.9rem;
+}
+
+.leaderboard-list {
+    display: grid;
+    gap: 8px;
+    list-style: none;
+    max-height: 420px;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.leaderboard-row {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr) 96px 78px;
+    gap: 10px;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid #e8e9f2;
+    border-radius: 14px;
+    background: #ffffff;
+}
+
+.leaderboard-row.is-current {
+    border-color: #ff4757;
+    background: #fff5f5;
+}
+
+.leaderboard-rank {
+    font-weight: 900;
+    color: #ff4757;
+}
+
+.leaderboard-player {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 800;
+}
+
+.leaderboard-points,
+.leaderboard-quizzes {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.leaderboard-empty {
+    padding: 16px;
+    border-radius: 14px;
+    background: #f8f9fc;
+    color: #595b6e;
+}
+
+body.light-mode .leaderboard-modal-content {
+    background: #ffffff;
+    color: #1e1e2f;
+}
+
+@media (max-width: 768px) {
+    .leaderboard-modal { padding: 12px; }
+    .leaderboard-modal-content {
+        margin: 3vh auto;
+        padding: 22px 16px;
+        border-radius: 20px;
+    }
+    .leaderboard-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        padding-right: 42px;
+    }
+    .leaderboard-stat-grid {
+        grid-template-columns: 1fr;
+    }
+    .leaderboard-row {
+        grid-template-columns: 48px minmax(0, 1fr);
+    }
+    .leaderboard-points,
+    .leaderboard-quizzes {
+        text-align: left;
+        font-size: 0.92rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .leaderboard-modal-content,
+    #leaderboard-refresh {
+        transition: none;
+        animation: none;
+    }
+}

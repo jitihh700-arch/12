@@ -6,6 +6,7 @@
     "test:auth": "playwright test tests/frontend/phase-2b-auth.spec.js",
     "test:comments": "playwright test tests/frontend/phase-3b-comments.spec.js",
     "test:comments:realtime": "node tests/integration/comments-realtime.test.mjs",
+    "test:quiz-ui": "playwright test tests/frontend/phase-4b-quiz-leaderboard.spec.js",
     "test:frontend": "playwright test tests/frontend",
     "generate:quiz-seed": "node scripts/generate-quiz-seed.mjs",
     "test:quiz-seed": "node tests/integration/quiz-seed-consistency.test.mjs"

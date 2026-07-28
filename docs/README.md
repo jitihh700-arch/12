@@ -13,9 +13,9 @@ Cette documentation accompagne la migration progressive de Memoriz. La Phase 0 d
 | `docs/auth/` | Decisions d'authentification et profils Supabase | `01-anonymous-auth-and-profiles.md`, `02-phase-2b-frontend-auth.md` |
 | `docs/api/` | Contrats fonctionnels futurs pour les RPC | `01-profile-contract.md`, `02-comments-contract.md`, `03-quiz-and-leaderboard-contract.md` |
 | `docs/comments/` | Decisions database, securite et frontend des commentaires | `01-comments-database-and-security.md`, `02-comments-frontend-and-realtime.md` |
-| `docs/quiz/` | Sessions de quiz securisees, seed canonique et validation serveur | `01-secure-quiz-sessions.md` |
-| `docs/leaderboard/` | Classement database, source de verite et departage | `01-database-and-ranking.md` |
-| `docs/testing/` | Rapports de validation runtime et frontend | `01-phase-2a-database-validation.md`, `02-phase-2b-frontend-auth-validation.md`, `03-phase-3a-comments-database-validation.md`, `04-phase-3b-comments-frontend-validation.md`, `05-phase-4a-quiz-leaderboard-database-validation.md` |
+| `docs/quiz/` | Sessions de quiz securisees, seed canonique et validation serveur | `01-secure-quiz-sessions.md`, `02-server-quiz-frontend-integration.md` |
+| `docs/leaderboard/` | Classement database, source de verite et departage | `01-database-and-ranking.md`, `02-frontend-top-20.md` |
+| `docs/testing/` | Rapports de validation runtime et frontend | `01-phase-2a-database-validation.md`, `02-phase-2b-frontend-auth-validation.md`, `03-phase-3a-comments-database-validation.md`, `04-phase-3b-comments-frontend-validation.md`, `05-phase-4a-quiz-leaderboard-database-validation.md`, `06-phase-4b-quiz-leaderboard-frontend-validation.md` |
 
 ## Agents et skill utilises
 
@@ -103,3 +103,16 @@ La Phase 4A ajoute la fondation database des sessions de quiz et du leaderboard:
 - tests pgTAP, coherence seed et concurrence.
 
 Aucune interface leaderboard et aucun changement frontend ne sont inclus.
+
+## Phase 4B
+
+La Phase 4B branche le frontend du quiz sur les RPC serveur:
+
+- mode classe via `start_quiz_session`, `submit_quiz_answer`, `complete_quiz_session`, `abandon_quiz_session` et `get_my_quiz_session_state`;
+- fallback explicite `Mode entrainement` lorsque Supabase ou le profil est indisponible;
+- chronometre base sur `expires_at`;
+- restauration d'une session active sans exposer les reponses restantes;
+- modale `Classement` Top 20 et rang personnel via les RPC leaderboard;
+- tests Playwright dedies avec `npm run test:quiz-ui`.
+
+Cette phase ne lance ni multijoueur, ni reactions, ni rooms, ni leaderboard temps reel.

@@ -208,7 +208,9 @@
         els.modal.setAttribute('aria-hidden', 'true');
         state.modalMode = null;
         if (state.lastFocusedElement && typeof state.lastFocusedElement.focus === 'function') {
-            state.lastFocusedElement.focus();
+            const target = state.lastFocusedElement;
+            target.focus();
+            window.setTimeout(() => target.focus(), 0);
         }
     }
 
@@ -368,6 +370,7 @@
     window.memorizAuth = {
         initProfile,
         openModal,
+        refreshProfile: loadProfile,
         getState: () => ({ initialized: state.initialized, hasProfile: Boolean(state.profile), profile: state.profile })
     };
 })();
