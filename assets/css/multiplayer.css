@@ -1,0 +1,254 @@
+.multiplayer-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgba(10, 10, 24, 0.72);
+}
+
+.multiplayer-modal[hidden],
+.multiplayer-panel[hidden],
+.multiplayer-lobby[hidden],
+.multiplayer-game[hidden],
+.multiplayer-final[hidden] {
+    display: none;
+}
+
+.multiplayer-modal-content {
+    width: min(980px, 100%);
+    max-height: min(860px, calc(100dvh - 32px));
+    overflow: auto;
+    position: relative;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(19, 21, 42, 0.96);
+    color: #fff;
+    padding: 24px;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.42);
+}
+
+.multiplayer-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    min-width: 44px;
+    min-height: 44px;
+    border: 0;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.multiplayer-heading {
+    padding-right: 48px;
+}
+
+.multiplayer-heading h2,
+.multiplayer-game-topline h3,
+.multiplayer-final h3 {
+    margin: 0 0 8px;
+    letter-spacing: 0;
+}
+
+.multiplayer-status,
+.multiplayer-score-live {
+    margin: 0 0 16px;
+    color: #d7e2ff;
+}
+
+.multiplayer-tabs,
+.multiplayer-actions,
+.multiplayer-game-topline,
+.multiplayer-meta,
+.multiplayer-answer-form div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.multiplayer-tabs {
+    margin: 18px 0;
+}
+
+.multiplayer-tabs button,
+.multiplayer-panel button,
+.multiplayer-actions button,
+.multiplayer-code-card button,
+.multiplayer-answer-form button,
+.multiplayer-final button {
+    min-height: 44px;
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 16px;
+    background: #f6c85f;
+    color: #19130a;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.multiplayer-tabs button:not(.is-active),
+.multiplayer-actions button:not(#multiplayer-start),
+.multiplayer-code-card button,
+.multiplayer-final button {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+}
+
+.multiplayer-panel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+    gap: 12px;
+    align-items: end;
+    margin-bottom: 18px;
+}
+
+.multiplayer-panel label {
+    display: block;
+    font-weight: 700;
+}
+
+.multiplayer-panel select,
+.multiplayer-panel input,
+.multiplayer-answer-form input {
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-size: 1rem;
+}
+
+.multiplayer-code-card {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.multiplayer-code-card strong {
+    font-family: Consolas, Monaco, monospace;
+    font-size: 1.8rem;
+    letter-spacing: 0;
+}
+
+.multiplayer-meta {
+    margin: 14px 0;
+}
+
+.multiplayer-meta span {
+    padding: 7px 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.multiplayer-players,
+.multiplayer-scoreboard,
+.multiplayer-found-list {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0;
+    display: grid;
+    gap: 8px;
+}
+
+.multiplayer-player,
+.multiplayer-score-row,
+.multiplayer-found-item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    gap: 10px;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.multiplayer-score-row.is-current,
+.multiplayer-player.is-current {
+    border-color: #f6c85f;
+    background: rgba(246, 200, 95, 0.14);
+}
+
+.multiplayer-player span,
+.multiplayer-score-row span,
+.multiplayer-found-item span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.multiplayer-timer {
+    margin-left: auto;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #1f7a8c;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+}
+
+.multiplayer-answer-form {
+    margin: 18px 0;
+}
+
+.multiplayer-answer-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.multiplayer-answer-form div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.multiplayer-answer-form button:disabled,
+.multiplayer-actions button:disabled,
+.multiplayer-panel button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+    .multiplayer-modal {
+        padding: 10px;
+    }
+
+    .multiplayer-modal-content {
+        padding: 18px;
+    }
+
+    .multiplayer-panel,
+    .multiplayer-answer-form div,
+    .multiplayer-code-card,
+    .multiplayer-player,
+    .multiplayer-score-row,
+    .multiplayer-found-item {
+        grid-template-columns: 1fr;
+    }
+
+    .multiplayer-timer {
+        margin-left: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .multiplayer-modal *,
+    .multiplayer-modal *::before,
+    .multiplayer-modal *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}

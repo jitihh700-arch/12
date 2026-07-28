@@ -39,6 +39,8 @@
     <link rel="stylesheet" href="assets/css/app.css">
     <link rel="stylesheet" href="assets/css/comments.css">
     <link rel="stylesheet" href="assets/css/leaderboard.css">
+    <link rel="stylesheet" href="assets/css/multiplayer.css">
+    <link rel="stylesheet" href="assets/css/reactions.css">
 </head>
 <body>
     <!-- CANVAS POUR LE FOND ANIMÉ -->
@@ -78,6 +80,7 @@
                 <div class="profile-actions">
                     <button type="button" id="profile-primary-action">Créer mon pseudo</button>
                     <button type="button" id="profile-retry-action" hidden>Réessayer</button>
+                    <button type="button" id="multiplayer-open" disabled>Multijoueur</button>
                     <button type="button" id="leaderboard-open" disabled>Classement</button>
                 </div>
             </section>
@@ -233,8 +236,84 @@
             <ol id="leaderboard-list" class="leaderboard-list" aria-label="Top 20 Memoriz"></ol>
         </div>
     </div>
+    <div id="multiplayer-modal" class="multiplayer-modal" hidden aria-hidden="true">
+        <div class="multiplayer-modal-content" role="dialog" aria-modal="true" aria-labelledby="multiplayer-title" aria-describedby="multiplayer-status">
+            <button type="button" class="multiplayer-close" id="multiplayer-close" aria-label="Fermer le multijoueur">&times;</button>
+            <div class="multiplayer-heading">
+                <h2 id="multiplayer-title">Partie multijoueur</h2>
+                <p id="multiplayer-status" class="multiplayer-status" aria-live="polite">Connecte ton profil pour jouer à plusieurs.</p>
+            </div>
+
+            <div class="multiplayer-tabs" role="tablist" aria-label="Mode multijoueur">
+                <button type="button" id="multiplayer-tab-create" class="is-active" aria-selected="true">Créer</button>
+                <button type="button" id="multiplayer-tab-join" aria-selected="false">Rejoindre</button>
+            </div>
+
+            <section id="multiplayer-create-panel" class="multiplayer-panel">
+                <label for="multiplayer-category">Catégorie</label>
+                <select id="multiplayer-category"></select>
+                <label for="multiplayer-max-players">Joueurs maximum</label>
+                <select id="multiplayer-max-players">
+                    <option value="2">2 joueurs</option>
+                    <option value="3">3 joueurs</option>
+                    <option value="4" selected>4 joueurs</option>
+                </select>
+                <button type="button" id="multiplayer-create">Créer une partie multijoueur</button>
+            </section>
+
+            <section id="multiplayer-join-panel" class="multiplayer-panel" hidden>
+                <label for="multiplayer-code-input">Code de partie</label>
+                <input id="multiplayer-code-input" type="text" inputmode="latin-prose" autocomplete="off" maxlength="6" aria-describedby="multiplayer-status">
+                <button type="button" id="multiplayer-join">Rejoindre une partie</button>
+            </section>
+
+            <section id="multiplayer-lobby" class="multiplayer-lobby" hidden aria-labelledby="multiplayer-lobby-title">
+                <div class="multiplayer-code-card">
+                    <span id="multiplayer-lobby-title">Code</span>
+                    <strong id="multiplayer-code-display"></strong>
+                    <button type="button" id="multiplayer-copy-code">Copier</button>
+                </div>
+                <div class="multiplayer-meta">
+                    <span id="multiplayer-category-label"></span>
+                    <span id="multiplayer-count-label"></span>
+                    <span id="multiplayer-host-label"></span>
+                </div>
+                <ul id="multiplayer-players" class="multiplayer-players" aria-live="polite"></ul>
+                <div class="multiplayer-actions">
+                    <button type="button" id="multiplayer-ready">Prêt</button>
+                    <button type="button" id="multiplayer-start" hidden>Démarrer</button>
+                    <button type="button" id="multiplayer-leave">Quitter</button>
+                </div>
+            </section>
+
+            <section id="multiplayer-game" class="multiplayer-game" hidden aria-labelledby="multiplayer-game-title">
+                <div class="multiplayer-game-topline">
+                    <h3 id="multiplayer-game-title">Quiz multijoueur</h3>
+                    <span id="multiplayer-timer" class="multiplayer-timer" role="timer" aria-live="polite">--:--</span>
+                </div>
+                <div id="multiplayer-score-live" class="multiplayer-score-live" aria-live="polite"></div>
+                <ol id="multiplayer-scoreboard" class="multiplayer-scoreboard" aria-label="Classement courant"></ol>
+                <form id="multiplayer-answer-form" class="multiplayer-answer-form" novalidate>
+                    <label for="multiplayer-answer-input">Réponse</label>
+                    <div>
+                        <input id="multiplayer-answer-input" type="text" autocomplete="off">
+                        <button type="submit">Valider</button>
+                    </div>
+                </form>
+                <ul id="multiplayer-found-list" class="multiplayer-found-list" aria-label="Tes réponses trouvées"></ul>
+                <div id="multiplayer-reactions" class="reactions-bar" aria-label="Réactions rapides"></div>
+            </section>
+
+            <section id="multiplayer-final" class="multiplayer-final" hidden aria-labelledby="multiplayer-final-title">
+                <h3 id="multiplayer-final-title">Classement final</h3>
+                <ol id="multiplayer-final-ranking" class="multiplayer-scoreboard"></ol>
+                <button type="button" id="multiplayer-final-close">Fermer</button>
+            </section>
+        </div>
+    </div>
 
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.9/dist/umd/supabase.min.js"></script>
+    <script defer src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
     <script defer src="assets/js/supabase-runtime-config.js"></script>
     <script defer src="assets/js/quiz-data.js"></script>
     <script defer src="assets/js/ui.js"></script>
@@ -243,6 +322,9 @@
     <script defer src="assets/js/quiz-session.js"></script>
     <script defer src="assets/js/quiz-solo.js"></script>
     <script defer src="assets/js/leaderboard.js"></script>
+    <script defer src="assets/js/multiplayer-socket.js"></script>
+    <script defer src="assets/js/reactions.js"></script>
+    <script defer src="assets/js/multiplayer.js"></script>
     <script defer src="assets/js/comments.js"></script>
     <script defer src="assets/js/app.js"></script>
 </body>

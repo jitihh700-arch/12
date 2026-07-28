@@ -10,6 +10,7 @@
     "test:frontend": "playwright test tests/frontend",
     "generate:quiz-seed": "node scripts/generate-quiz-seed.mjs",
     "test:quiz-seed": "node tests/integration/quiz-seed-consistency.test.mjs",
+    "test:multiplayer": "playwright test tests/frontend/phase-5-multiplayer.spec.js",
     "test:backend": "npm --prefix backend test",
     "test:backend:unit": "npm --prefix backend run test:unit",
     "test:backend:socket": "npm --prefix backend run test:socket"
