@@ -15,4 +15,5 @@ supabase/.branches/
 test-results/
 playwright-report/
 playwright/.cache/
+dist/
 *.log

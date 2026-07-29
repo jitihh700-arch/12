@@ -3,6 +3,8 @@
   "private": true,
   "scripts": {
     "config:supabase": "node scripts/generate-supabase-config.mjs",
+    "build:render": "node scripts/build-render-frontend.mjs",
+    "test:render-build": "node scripts/test-render-build.mjs",
     "lint": "npm run lint:frontend && npm run lint:backend",
     "lint:frontend": "node scripts/lint-frontend.mjs",
     "lint:backend": "node scripts/lint-backend.mjs",
