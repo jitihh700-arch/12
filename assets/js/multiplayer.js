@@ -6,7 +6,18 @@
         current: null,
         timerId: null,
         lastFocus: null,
-        submitting: false
+        submitting: false,
+        retryAfterProfileRequired: false,
+        reconnectingAfterProfile: false
+    };
+
+    const CONNECTION_MESSAGES = {
+        multiplayer_config_missing: 'La configuration du serveur multijoueur est absente.',
+        authentication_required: 'La session doit être disponible avant d’utiliser le multijoueur.',
+        profile_required: 'Ton profil doit être chargé avant d’utiliser le multijoueur.',
+        socket_timeout: 'Le serveur multijoueur ne répond pas pour le moment.',
+        websocket_error: 'La connexion multijoueur est refusée pour le moment.',
+        socket_error: 'Le multijoueur est temporairement indisponible.'
     };
 
     function els() {
@@ -53,6 +64,17 @@
         if (nodes.status) nodes.status.textContent = text;
     }
 
+    function connectionErrorKey(error) {
+        const key = error?.message || error?.detail?.error || window.MemorizMultiplayerSocket?.getState?.().lastError || '';
+        if (key === 'websocket error') return 'websocket_error';
+        return key || 'socket_error';
+    }
+
+    function describeConnectionError(error) {
+        const key = connectionErrorKey(error);
+        return CONNECTION_MESSAGES[key] || 'Erreur multijoueur inattendue.';
+    }
+
     function cacheGame(gameCode) {
         if (!gameCode) return;
         localStorage.setItem(CACHE_KEY, JSON.stringify({ gameCode }));
@@ -93,8 +115,31 @@
     }
 
     async function ensureSocket() {
+        await waitForProfile();
         await window.MemorizMultiplayerSocket.connect();
         bindSocketEvents();
+    }
+
+    async function waitForProfile() {
+        if (state.profile) return state.profile;
+
+        const auth = window.memorizAuth;
+        let authState = auth?.getState?.();
+        if (authState?.hasProfile && authState.profile) {
+            state.profile = authState.profile;
+            return state.profile;
+        }
+
+        if (typeof auth?.initProfile === 'function') {
+            await auth.initProfile();
+            authState = auth.getState?.();
+            if (authState?.hasProfile && authState.profile) {
+                state.profile = authState.profile;
+                return state.profile;
+            }
+        }
+
+        throw new Error('profile_required');
     }
 
     let socketEventsBound = false;
@@ -251,7 +296,8 @@
                 renderState(snapshot);
             }
         } catch (error) {
-            setStatus('Multijoueur indisponible pour le moment.');
+            if (connectionErrorKey(error) === 'profile_required') state.retryAfterProfileRequired = true;
+            setStatus(describeConnectionError(error));
         }
     }
 
@@ -414,6 +460,20 @@
         state.profile = event.detail.profile;
         const nodes = els();
         if (nodes.open) nodes.open.disabled = false;
+        if (!state.retryAfterProfileRequired || state.reconnectingAfterProfile || nodes.modal?.hidden) return;
+
+        state.retryAfterProfileRequired = false;
+        state.reconnectingAfterProfile = true;
+        setStatus('Connexion multijoueur...');
+        ensureSocket()
+            .then(() => setStatus('Choisis une catégorie ou rejoins un code.'))
+            .catch(error => {
+                if (connectionErrorKey(error) === 'profile_required') state.retryAfterProfileRequired = true;
+                setStatus(describeConnectionError(error));
+            })
+            .finally(() => {
+                state.reconnectingAfterProfile = false;
+            });
     });
     document.addEventListener('memoriz:profile-unavailable', () => {
         state.profile = null;

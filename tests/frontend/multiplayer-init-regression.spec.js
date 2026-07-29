@@ -1,0 +1,195 @@
+const { test, expect } = require('@playwright/test');
+const { gotoHome } = require('./helpers/phase2b-helpers');
+
+async function routeBrowserDependencies(page) {
+    await page.route('**/assets/js/supabase-runtime-config.js', route => route.fulfill({
+        contentType: 'application/javascript',
+        body: `
+            window.MEMORIZ_SUPABASE_CONFIG = {
+                url: 'https://example-project.supabase.co',
+                publishableKey: 'sb_publishable_example'
+            };
+            window.MEMORIZ_MULTIPLAYER_CONFIG = { url: 'https://backend.test' };
+        `
+    }));
+    await page.route('https://cdn.jsdelivr.net/**', route => route.fulfill({
+        contentType: 'application/javascript',
+        body: 'window.supabase = window.supabase || window.__fakeSupabase;'
+    }));
+    await page.route('https://cdn.socket.io/**', route => route.fulfill({
+        contentType: 'application/javascript',
+        body: 'window.io = window.io || window.__fakeIo;'
+    }));
+}
+
+async function installControlledRuntime(page, options = {}) {
+    await page.addInitScript(({ profileMode, socketMode }) => {
+        const profile = { id: 'profile-test', pseudo: 'Host', total_points: 0, quizzes_completed: 0 };
+        const session = { access_token: 'test-access-token', user: { id: profile.id } };
+
+        window.__connectCalls = 0;
+        window.__profileCalls = 0;
+        window.__resolveProfile = null;
+        window.__socketMode = socketMode || 'success';
+        window.__profilePromise = new Promise(resolve => {
+            window.__resolveProfile = resolve;
+        });
+
+        function profileResponse() {
+            window.__profileCalls += 1;
+            if (profileMode === 'missing') {
+                return { data: null, error: new Error('profile_not_found') };
+            }
+            if (profileMode === 'delayed') {
+                return window.__profilePromise;
+            }
+            return { data: [profile], error: null };
+        }
+
+        window.__fakeSupabase = {
+            createClient() {
+                return {
+                    auth: {
+                        async getSession() {
+                            return { data: { session }, error: null };
+                        },
+                        async signInAnonymously() {
+                            return { data: { session }, error: null };
+                        }
+                    },
+                    async rpc(name) {
+                        if (name === 'get_my_profile') return profileResponse();
+                        if (name === 'register_profile') return { data: [profile], error: null };
+                        return { data: null, error: null };
+                    }
+                };
+            }
+        };
+
+        window.__fakeIo = () => {
+            window.__connectCalls += 1;
+            const failFirst = window.__socketMode === 'profile-required-once' && window.__connectCalls === 1;
+            const handlers = {};
+
+            function addHandler(event, handler) {
+                handlers[event] = handlers[event] || [];
+                handlers[event].push(handler);
+            }
+
+            function emitLocal(event, payload) {
+                (handlers[event] || []).forEach(handler => handler(payload));
+            }
+
+            return {
+                connected: false,
+                on(event, handler) {
+                    addHandler(event, handler);
+                    return this;
+                },
+                once(event, handler) {
+                    addHandler(event, handler);
+                    if (event === 'connect') {
+                        window.setTimeout(() => {
+                            if (!failFirst) {
+                                this.connected = true;
+                                emitLocal('connect');
+                            }
+                        }, 0);
+                    }
+                    if (event === 'connect_error') {
+                        window.setTimeout(() => {
+                            if (failFirst) emitLocal('connect_error', new Error('profile_required'));
+                        }, 0);
+                    }
+                    return this;
+                },
+                timeout() {
+                    return this;
+                },
+                emit(event, payload, ack) {
+                    ack(null, { ok: true, data: { gameCode: 'AB234C', players: [] } });
+                },
+                disconnect() {
+                    this.connected = false;
+                }
+            };
+        };
+
+        window.supabase = window.__fakeSupabase;
+        window.io = window.__fakeIo;
+    }, options);
+}
+
+test('profil disponible: le socket demarre avec session et profil valides', async ({ page }) => {
+    await routeBrowserDependencies(page);
+    await installControlledRuntime(page, { profileMode: 'ready', socketMode: 'success' });
+    await gotoHome(page);
+    await expect(page.locator('#multiplayer-open')).toBeEnabled();
+
+    await page.locator('#multiplayer-open').click();
+
+    await expect.poll(() => page.evaluate(() => window.__connectCalls)).toBe(1);
+    await expect(page.locator('#multiplayer-status')).toHaveText('Choisis une catégorie ou rejoins un code.');
+    await expect.poll(() => page.evaluate(() => window.MemorizMultiplayerSocket.getState().lastError)).toBe(null);
+});
+
+test('profil retarde: openModal attend profile-ready avant de connecter le socket', async ({ page }) => {
+    await routeBrowserDependencies(page);
+    await installControlledRuntime(page, { profileMode: 'delayed', socketMode: 'success' });
+    await gotoHome(page);
+
+    await page.evaluate(() => {
+        window.__openDone = false;
+        window.MemorizMultiplayer.open().then(() => {
+            window.__openDone = true;
+        });
+    });
+
+    await page.waitForTimeout(100);
+    expect(await page.evaluate(() => window.__connectCalls)).toBe(0);
+
+    await page.evaluate(() => {
+        window.__resolveProfile({
+            data: [{ id: 'profile-test', pseudo: 'Host', total_points: 0, quizzes_completed: 0 }],
+            error: null
+        });
+    });
+
+    await expect.poll(() => page.evaluate(() => window.__connectCalls)).toBe(1);
+    await expect.poll(() => page.evaluate(() => window.__openDone)).toBe(true);
+    await expect(page.locator('#multiplayer-status')).toHaveText('Choisis une catégorie ou rejoins un code.');
+});
+
+test('profil absent: le socket ne demarre pas et le message reste explicite', async ({ page }) => {
+    await routeBrowserDependencies(page);
+    await installControlledRuntime(page, { profileMode: 'missing', socketMode: 'success' });
+    await gotoHome(page);
+
+    await page.evaluate(() => window.MemorizMultiplayer.open());
+
+    expect(await page.evaluate(() => window.__connectCalls)).toBe(0);
+    await expect(page.locator('#multiplayer-status')).toHaveText('Ton profil doit être chargé avant d’utiliser le multijoueur.');
+});
+
+test('profile_required puis profil disponible: une reconnexion nettoie lastError', async ({ page }) => {
+    await routeBrowserDependencies(page);
+    await installControlledRuntime(page, { profileMode: 'ready', socketMode: 'profile-required-once' });
+    await gotoHome(page);
+    await expect(page.locator('#multiplayer-open')).toBeEnabled();
+
+    await page.locator('#multiplayer-open').click();
+
+    await expect.poll(() => page.evaluate(() => window.__connectCalls)).toBe(1);
+    await expect.poll(() => page.evaluate(() => window.MemorizMultiplayerSocket.getState().lastError)).toBe('profile_required');
+    await expect(page.locator('#multiplayer-status')).toHaveText('Ton profil doit être chargé avant d’utiliser le multijoueur.');
+
+    await page.evaluate(() => {
+        document.dispatchEvent(new CustomEvent('memoriz:profile-ready', {
+            detail: { profile: { id: 'profile-test', pseudo: 'Host', total_points: 0, quizzes_completed: 0 } }
+        }));
+    });
+
+    await expect.poll(() => page.evaluate(() => window.__connectCalls)).toBe(2);
+    await expect.poll(() => page.evaluate(() => window.MemorizMultiplayerSocket.getState().lastError)).toBe(null);
+    await expect(page.locator('#multiplayer-status')).toHaveText('Choisis une catégorie ou rejoins un code.');
+});

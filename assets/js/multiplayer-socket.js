@@ -5,6 +5,7 @@
         socket: null,
         connected: false,
         connecting: false,
+        connectPromise: null,
         lastError: null
     };
 
@@ -56,15 +57,23 @@
 
     async function connect() {
         if (state.socket?.connected) return state.socket;
-        if (state.connecting) return state.socket;
+        if (state.connecting && state.connectPromise) return state.connectPromise;
 
         const url = getBackendUrl();
-        if (!url || !window.io) throw new Error('multiplayer_config_missing');
+        if (!url || !window.io) {
+            state.lastError = 'multiplayer_config_missing';
+            throw new Error('multiplayer_config_missing');
+        }
 
         const accessToken = await getAccessToken();
-        if (!accessToken) throw new Error('authentication_required');
+        if (!accessToken) {
+            state.lastError = 'authentication_required';
+            throw new Error('authentication_required');
+        }
 
+        state.socket?.disconnect();
         state.connecting = true;
+        state.lastError = null;
         state.socket = window.io(url, {
             auth: { accessToken },
             transports: ['websocket'],
@@ -88,7 +97,7 @@
             document.dispatchEvent(new CustomEvent('memoriz:multiplayer-error', { detail: { error: state.lastError } }));
         });
 
-        await new Promise((resolve, reject) => {
+        state.connectPromise = new Promise((resolve, reject) => {
             const timer = window.setTimeout(() => reject(new Error('socket_timeout')), DEFAULT_TIMEOUT);
             state.socket.once('connect', () => {
                 window.clearTimeout(timer);
@@ -100,7 +109,13 @@
             });
         });
 
-        return state.socket;
+        try {
+            await state.connectPromise;
+            state.lastError = null;
+            return state.socket;
+        } finally {
+            state.connectPromise = null;
+        }
     }
 
     function on(eventName, handler) {
@@ -112,6 +127,7 @@
         state.socket = null;
         state.connected = false;
         state.connecting = false;
+        state.connectPromise = null;
     }
 
     function getState() {

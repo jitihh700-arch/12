@@ -5,6 +5,7 @@ const { expect } = require('@playwright/test');
 
 const rootDir = path.resolve(__dirname, '..', '..', '..');
 const runtimeConfigPath = path.join(rootDir, 'assets', 'js', 'supabase-runtime-config.js');
+const supabaseBrowserBundlePath = path.join(rootDir, 'node_modules', '@supabase', 'supabase-js', 'dist', 'umd', 'supabase.js');
 
 function dockerEnv() {
     return {
@@ -50,7 +51,18 @@ function psql(sql) {
 }
 
 async function gotoHome(page) {
+    await routeSupabaseCdn(page);
     await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+}
+
+async function routeSupabaseCdn(page) {
+    if (page.__memorizSupabaseCdnRouteInstalled) return;
+    page.__memorizSupabaseCdnRouteInstalled = true;
+    const bundle = fs.readFileSync(supabaseBrowserBundlePath, 'utf8');
+    await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.9/dist/umd/supabase.min.js', route => route.fulfill({
+        contentType: 'application/javascript',
+        body: `if (window.__fakeSupabase) { window.supabase = window.__fakeSupabase; } else {\n${bundle}\n}`
+    }));
 }
 
 async function createProfile(page, pseudo) {
