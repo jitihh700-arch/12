@@ -184,3 +184,5 @@
             devinePersonnage: { data: quizData.devinePersonnage, title: "🎭 Devine le Personnage (Indices)", showYears: false, yearsList: null, hintList: devinePersonnageIndices },
             animeParOrganisation: { data: quizData.animeParOrganisation, title: "🏛️ Anime par Organisation", showYears: false, yearsList: null, hintList: animeParOrganisationIndices }
         };
+
+        if (typeof window !== 'undefined') window.categoryMapping = categoryMapping;
