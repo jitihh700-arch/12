@@ -41,11 +41,12 @@ export function createApp({ env, multiplayerService = new MultiplayerService(env
         crossOriginEmbedderPolicy: false,
         referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
     }));
+    app.use('/health', createHealthRouter());
+
     app.use(cors(createCorsOptions(env)));
     app.use(express.json({ limit: '16kb' }));
     app.use(createRestLimiter());
 
-    app.use('/health', createHealthRouter());
     app.use('/api/multiplayer', createMultiplayerRouter({ env, multiplayerService, authVerifier }));
     app.use(errorHandler);
 
