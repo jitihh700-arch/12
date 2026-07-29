@@ -26,4 +26,3 @@ Le frontend ne contient que la cle publishable Supabase et l'URL publique du bac
 - Backend deploye sur un service qui supporte processus Node long, WebSocket, healthcheck et SIGTERM.
 - Reverse proxy configure pour transmettre `Upgrade` et `Connection`.
 - Headers de securite appliques au niveau CDN/Nginx ou plateforme.
-

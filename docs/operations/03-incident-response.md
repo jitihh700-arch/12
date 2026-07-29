@@ -20,4 +20,3 @@ Si une cle est exposee:
 ## Donnees
 
 Ne pas modifier manuellement les scores sans script audite. Preferer une migration ou une procedure SQL reproductible, executee d'abord en staging.
-

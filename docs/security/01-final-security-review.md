@@ -46,4 +46,3 @@ Faux positifs documentes:
 - template HTML interne historique dans `assets/js/quiz-solo.js`.
 
 Aucune valeur reelle ne doit etre ajoutee a cette liste.
-

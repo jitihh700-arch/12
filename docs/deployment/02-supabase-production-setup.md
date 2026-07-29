@@ -33,4 +33,3 @@ npx supabase db lint --local
 ```
 
 Puis verifier manuellement RLS, policies, fonctions `SECURITY DEFINER`, grants et publication Realtime.
-

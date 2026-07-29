@@ -41,4 +41,3 @@ Tests specifiques:
 ## Limites
 
 Le test du parcours complet simule Socket.io cote navigateur pour eviter une dependance distante. La couche Socket.io reelle reste couverte par les tests backend et les scripts de concurrence Supabase locaux.
-

@@ -28,4 +28,3 @@ Le fichier `.env.production.local` ne doit jamais etre commite. L'image utilise 
 ## Arret
 
 Le processus gere `SIGTERM` et `SIGINT`, ferme Socket.io puis le serveur HTTP et sort avec un code coherent.
-

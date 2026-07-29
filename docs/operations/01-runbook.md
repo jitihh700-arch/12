@@ -32,4 +32,3 @@ npx supabase test db
 | Socket.io refuse | origine non autorisee | corriger `FRONTEND_ORIGIN` sans wildcard |
 | Reactions limitees | quota atteint | attendre la fenetre de 10 secondes |
 | Backend ne demarre pas | env invalide | corriger `.env`, ne pas ajouter de secret au depot |
-

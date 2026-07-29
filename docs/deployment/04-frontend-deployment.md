@@ -19,4 +19,3 @@ Appliquer les headers de `docs/security/01-final-security-review.md`. HSTS est r
 ## Cache
 
 Les assets statiques versionnes peuvent etre caches longtemps. `index.html` et le runtime config doivent rester invalidables rapidement pour eviter un frontend pointe vers une ancienne configuration.
-

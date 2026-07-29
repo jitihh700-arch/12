@@ -24,4 +24,3 @@ Planifier:
 - nettoyage des parties expirees;
 - mise a jour des dependances apres audit;
 - test regulier de restauration.
-
