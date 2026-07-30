@@ -7,6 +7,7 @@
         timerId: null,
         lastFocus: null,
         submitting: false,
+        startGamePending: false,
         retryAfterProfileRequired: false,
         reconnectingAfterProfile: false
     };
@@ -241,6 +242,19 @@
             && connectedPlayers.every(player => player.isReady);
     }
 
+    function resetStartGamePending() {
+        state.startGamePending = false;
+    }
+
+    function updateStartButton(snapshot, current) {
+        const nodes = els();
+        if (!nodes.start) return;
+        const isHost = currentUserIsHost(snapshot, current);
+        const canStart = canStartGame(snapshot, current);
+        nodes.start.hidden = !isHost || snapshot.status !== 'waiting';
+        nodes.start.disabled = state.startGamePending || !canStart;
+    }
+
     function renderTimer(snapshot) {
         const nodes = els();
         window.clearInterval(state.timerId);
@@ -257,13 +271,15 @@
 
     function renderState(snapshot) {
         if (!snapshot?.gameCode) return;
+        const previousGameCode = state.current?.gameCode;
+        if ((previousGameCode && previousGameCode !== snapshot.gameCode) || snapshot.status !== 'waiting') {
+            resetStartGamePending();
+        }
         state.current = snapshot;
         cacheGame(snapshot.gameCode);
         const nodes = els();
         const current = currentPlayer(snapshot);
         const host = snapshot.players?.find(player => player.isHost) || null;
-        const isHost = currentUserIsHost(snapshot, current);
-        const canStart = canStartGame(snapshot, current);
 
         nodes.codeDisplay.textContent = snapshot.gameCode;
         nodes.categoryLabel.textContent = categoryLabel(snapshot.categoryId);
@@ -274,10 +290,7 @@
         nodes.finalRanking.replaceChildren(...(snapshot.players || []).map(scoreItem));
         nodes.found.replaceChildren(...(snapshot.myFoundAnswers || []).map(foundItem));
 
-        if (nodes.start) {
-            nodes.start.hidden = !isHost || snapshot.status !== 'waiting';
-            nodes.start.disabled = !canStart;
-        }
+        updateStartButton(snapshot, current);
         if (nodes.ready) nodes.ready.textContent = current?.isReady ? 'Annuler prêt' : 'Prêt';
         if (nodes.scoreLive) nodes.scoreLive.textContent = current ? `Ton score: ${current.score} pts` : '';
         window.MemorizReactions?.setDisabled(nodes.reactions, snapshot.status !== 'waiting' && snapshot.status !== 'playing');
@@ -325,6 +338,7 @@
     }
 
     function closeModal() {
+        resetStartGamePending();
         const nodes = els();
         nodes.modal.hidden = true;
         nodes.modal.setAttribute('aria-hidden', 'true');
@@ -333,6 +347,7 @@
 
     async function createGame() {
         const nodes = els();
+        resetStartGamePending();
         nodes.create.disabled = true;
         try {
             const data = await emit('createGame', {
@@ -349,6 +364,7 @@
 
     async function joinGame() {
         const nodes = els();
+        resetStartGamePending();
         nodes.join.disabled = true;
         try {
             const data = await emit('joinGame', { gameCode: nodes.codeInput.value });
@@ -374,14 +390,20 @@
     }
 
     async function startGame() {
+        if (state.startGamePending) return;
         const current = currentPlayer(state.current || {});
         if (!canStartGame(state.current || {}, current)) return;
 
+        state.startGamePending = true;
+        updateStartButton(state.current, current);
+        setStatus('Lancement...');
         try {
             const data = await emit('startGame', { gameCode: state.current.gameCode });
             renderState(data.snapshot);
         } catch (error) {
             setStatus('Démarrage refusé par le serveur.');
+            resetStartGamePending();
+            updateStartButton(state.current || {}, currentPlayer(state.current || {}));
         }
     }
 
@@ -417,6 +439,7 @@
 
     async function leaveGame() {
         if (!state.current?.gameCode) return;
+        resetStartGamePending();
         try {
             await emit('leaveGame', { gameCode: state.current.gameCode });
         } catch (error) {
@@ -502,10 +525,14 @@
             });
     });
     document.addEventListener('memoriz:profile-unavailable', () => {
+        resetStartGamePending();
         state.profile = null;
         const nodes = els();
         if (nodes.open) nodes.open.disabled = true;
     });
+    document.addEventListener('memoriz:multiplayer-network', event => {
+        if (!event.detail?.connected) resetStartGamePending();
+    });
 
-    window.MemorizMultiplayer = { open: openModal, renderState, clearCache, getState: () => ({ ...state }) };
+    window.MemorizMultiplayer = { open: openModal, renderState, clearCache, startGame, getState: () => ({ ...state }) };
 })();

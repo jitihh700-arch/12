@@ -8,6 +8,14 @@ async function installFakeMultiplayer(page) {
         window.MEMORIZ_MULTIPLAYER_CONFIG = { url: 'http://backend.test' };
         window.__multiplayerPayloads = [];
         window.__xssRan = false;
+        window.memorizAuth = {
+            getState() {
+                return { hasProfile: true, profile: { id: 'u1', pseudo: 'Host', total_points: 0 } };
+            },
+            async initProfile() {
+                return this.getState().profile;
+            }
+        };
         window.__fakeSnapshot = {
             gameCode: 'AB234C',
             categoryId: 'series',
@@ -137,6 +145,14 @@ async function installFakeMultiplayer(page) {
                 }
                 if (event === 'leaveGame') return { result: 'left' };
                 return snapshot;
+            }
+        };
+        window.memorizAuth = {
+            getState() {
+                return { hasProfile: true, profile: { id: 'u1', pseudo: 'Host', total_points: 0 } };
+            },
+            async initProfile() {
+                return this.getState().profile;
             }
         };
         const modal = document.getElementById('profile-modal');
