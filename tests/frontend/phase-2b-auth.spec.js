@@ -148,7 +148,7 @@ test('validation pseudo: longueurs, caracteres, accents, espaces, html, ponctuat
         await context.close();
     }
 
-    const validCases = [`A${runId.slice(-2)}`, `Twenty_${runId}_XXXX`, `Jean ${runId}`, `Joueur_${runId}`, `Élodie_${runId}`];
+    const validCases = [`A${runId}`, `Twenty_${runId}_XXXX`, `Jean ${runId}`, `Joueur_${runId}`, `Élodie_${runId}`];
     for (const value of validCases) {
         const context = await browser.newContext();
         const page = await context.newPage();
