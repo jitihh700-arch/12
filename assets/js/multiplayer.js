@@ -223,6 +223,24 @@
         return item;
     }
 
+    function currentPlayer(snapshot) {
+        return snapshot.players?.find(player => player.isCurrent) || null;
+    }
+
+    function currentUserIsHost(snapshot, current) {
+        const profileId = state.profile?.id || window.memorizAuth?.getState?.().profile?.id || '';
+        return Boolean(current?.isHost || (snapshot.hostId && profileId && snapshot.hostId === profileId));
+    }
+
+    function canStartGame(snapshot, current) {
+        const players = snapshot.players || [];
+        const connectedPlayers = players.filter(player => player.isConnected);
+        return currentUserIsHost(snapshot, current)
+            && snapshot.status === 'waiting'
+            && connectedPlayers.length >= 2
+            && connectedPlayers.every(player => player.isReady);
+    }
+
     function renderTimer(snapshot) {
         const nodes = els();
         window.clearInterval(state.timerId);
@@ -242,8 +260,10 @@
         state.current = snapshot;
         cacheGame(snapshot.gameCode);
         const nodes = els();
-        const current = snapshot.players?.find(player => player.isCurrent) || null;
+        const current = currentPlayer(snapshot);
         const host = snapshot.players?.find(player => player.isHost) || null;
+        const isHost = currentUserIsHost(snapshot, current);
+        const canStart = canStartGame(snapshot, current);
 
         nodes.codeDisplay.textContent = snapshot.gameCode;
         nodes.categoryLabel.textContent = categoryLabel(snapshot.categoryId);
@@ -254,7 +274,10 @@
         nodes.finalRanking.replaceChildren(...(snapshot.players || []).map(scoreItem));
         nodes.found.replaceChildren(...(snapshot.myFoundAnswers || []).map(foundItem));
 
-        if (nodes.start) nodes.start.hidden = !current?.isHost;
+        if (nodes.start) {
+            nodes.start.hidden = !isHost || snapshot.status !== 'waiting';
+            nodes.start.disabled = !canStart;
+        }
         if (nodes.ready) nodes.ready.textContent = current?.isReady ? 'Annuler prêt' : 'Prêt';
         if (nodes.scoreLive) nodes.scoreLive.textContent = current ? `Ton score: ${current.score} pts` : '';
         window.MemorizReactions?.setDisabled(nodes.reactions, snapshot.status !== 'waiting' && snapshot.status !== 'playing');
@@ -351,6 +374,9 @@
     }
 
     async function startGame() {
+        const current = currentPlayer(state.current || {});
+        if (!canStartGame(state.current || {}, current)) return;
+
         try {
             const data = await emit('startGame', { gameCode: state.current.gameCode });
             renderState(data.snapshot);

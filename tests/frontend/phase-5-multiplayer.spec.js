@@ -170,6 +170,21 @@ test('partie: start serveur, timer expiresAt, score serveur et reactions texte',
     await installFakeMultiplayer(page);
     await page.locator('#multiplayer-open').click();
     await page.locator('#multiplayer-create').click();
+    await page.evaluate(() => {
+        window.__fakeSnapshot.currentPlayers = 2;
+        window.__fakeSnapshot.players.push({
+            playerId: 'p2',
+            pseudo: 'Beta',
+            score: 0,
+            correctAnswers: 0,
+            isReady: true,
+            isConnected: true,
+            isHost: false,
+            isCurrent: false,
+            rank: 2
+        });
+        window.MemorizMultiplayer.renderState(window.__fakeSnapshot);
+    });
     await page.locator('#multiplayer-start').click();
     await expect(page.locator('#multiplayer-game')).toBeVisible();
     await expect(page.locator('#multiplayer-timer')).toContainText(/10:00|09:59/);
