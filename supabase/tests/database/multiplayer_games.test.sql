@@ -4,7 +4,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(80);
+select plan(122);
 
 create temp table test_multiplayer_codes (
   name text primary key,
@@ -37,9 +37,12 @@ select ok(has_function_privilege('authenticated', 'public.create_multiplayer_gam
 select ok(has_function_privilege('authenticated', 'public.join_multiplayer_game(text)', 'execute'), 'execute join_multiplayer_game');
 select ok(has_function_privilege('authenticated', 'public.start_multiplayer_game(text)', 'execute'), 'execute start_multiplayer_game');
 select ok(has_function_privilege('authenticated', 'public.submit_multiplayer_answer(text,text,uuid)', 'execute'), 'execute submit_multiplayer_answer');
+select ok(has_function_privilege('service_role', 'public.cleanup_expired_multiplayer_games()', 'execute'), 'execute cleanup_expired_multiplayer_games service_role');
+select ok(not has_function_privilege('authenticated', 'public.cleanup_expired_multiplayer_games()', 'execute'), 'authenticated sans cleanup');
 select ok(not has_function_privilege('authenticated', 'private.generate_multiplayer_game_code()', 'execute'), 'generate code non expose');
 select ok(not has_function_privilege('authenticated', 'private.match_multiplayer_answer(text,uuid,uuid,text)', 'execute'), 'matching prive non expose');
 select ok(not has_function_privilege('anon', 'public.create_multiplayer_game(text,integer)', 'execute'), 'anon sans create');
+select ok(not has_function_privilege('anon', 'public.cleanup_expired_multiplayer_games()', 'execute'), 'anon sans cleanup');
 
 insert into auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
 values
@@ -170,6 +173,92 @@ reset role;
 select is((select status from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'started_leave')), 'finished', 'partie commencee vide devient terminee');
 select is((select current_players from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'started_leave')), 0, 'partie commencee vide sans presence active');
 select is((select total_points from public.profiles where id = '50000000-0000-4000-8000-000000000002'), 20, 'points partiels conserves et credites');
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000001', true);
+select lives_ok($$ insert into test_multiplayer_codes (name, code) select 'reconnect_before_timeout', game_code from public.create_multiplayer_game('films', 2) $$, 'cree partie reconnexion avant delai');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000002', true);
+select is((select result from public.join_multiplayer_game((select code from test_multiplayer_codes where name = 'reconnect_before_timeout'))), 'joined', 'B rejoint partie reconnexion');
+select is((select result from public.set_multiplayer_ready((select code from test_multiplayer_codes where name = 'reconnect_before_timeout'), true)), 'ready_updated', 'B pret reconnexion');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000001', true);
+select is((select result from public.start_multiplayer_game((select code from test_multiplayer_codes where name = 'reconnect_before_timeout'))), 'started', 'partie reconnexion demarree');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000002', true);
+select is((select result from public.submit_multiplayer_answer((select code from test_multiplayer_codes where name = 'reconnect_before_timeout'), 'Harry Potter', '60000000-0000-4000-8000-000000000201')), 'correct', 'B marque avant deconnexion temporaire');
+select is((select result from public.disconnect_multiplayer_game((select code from test_multiplayer_codes where name = 'reconnect_before_timeout'))), 'disconnected', 'B deconnecte temporairement');
+reset role;
+select ok((select not is_connected and left_at is null from public.multiplayer_players where user_id = '50000000-0000-4000-8000-000000000002' and game_id = (select id from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'reconnect_before_timeout'))), 'deconnexion temporaire sans depart');
+set local role service_role;
+select is(public.cleanup_expired_multiplayer_games(), 0, 'cleanup ignore deconnexion avant delai');
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000002', true);
+select is((select result from public.reconnect_multiplayer_game((select code from test_multiplayer_codes where name = 'reconnect_before_timeout'))), 'reconnected', 'B revient avant expiration');
+reset role;
+select ok((select is_connected and disconnected_at is null from public.multiplayer_players where user_id = '50000000-0000-4000-8000-000000000002' and game_id = (select id from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'reconnect_before_timeout'))), 'presence B restauree');
+select is((select status from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'reconnect_before_timeout')), 'playing', 'partie reste active apres reconnexion');
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000001', true);
+select is((select result from public.finish_multiplayer_game((select code from test_multiplayer_codes where name = 'reconnect_before_timeout'))), 'finished', 'partie reconnexion terminee');
+reset role;
+select is((select total_points from public.profiles where id = '50000000-0000-4000-8000-000000000002'), 30, 'credit apres reconnexion sans perte');
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000001', true);
+select lives_ok($$ insert into test_multiplayer_codes (name, code) select 'empty_after_timeout', game_code from public.create_multiplayer_game('films', 2) $$, 'cree partie vide apres delai');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000002', true);
+select is((select result from public.join_multiplayer_game((select code from test_multiplayer_codes where name = 'empty_after_timeout'))), 'joined', 'B rejoint partie vide');
+select is((select result from public.set_multiplayer_ready((select code from test_multiplayer_codes where name = 'empty_after_timeout'), true)), 'ready_updated', 'B pret partie vide');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000001', true);
+select is((select result from public.start_multiplayer_game((select code from test_multiplayer_codes where name = 'empty_after_timeout'))), 'started', 'partie vide demarree');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000002', true);
+select is((select result from public.submit_multiplayer_answer((select code from test_multiplayer_codes where name = 'empty_after_timeout'), 'Harry Potter', '60000000-0000-4000-8000-000000000301')), 'correct', 'B marque avant vide timeout');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000001', true);
+select is((select result from public.disconnect_multiplayer_game((select code from test_multiplayer_codes where name = 'empty_after_timeout'))), 'disconnected', 'A deconnecte partie vide');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000002', true);
+select is((select result from public.disconnect_multiplayer_game((select code from test_multiplayer_codes where name = 'empty_after_timeout'))), 'disconnected', 'B deconnecte partie vide');
+reset role;
+update public.multiplayer_players
+set disconnected_at = now() - interval '31 minutes'
+where game_id = (select id from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'empty_after_timeout'));
+set local role service_role;
+select is(public.cleanup_expired_multiplayer_games(), 1, 'cleanup expire partie playing vide apres delai');
+reset role;
+select is((select status from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'empty_after_timeout')), 'finished', 'partie vide apres delai finalisee');
+select is((select current_players from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'empty_after_timeout')), 0, 'compteur remis a zero apres expiration');
+select is((select total_points from public.profiles where id = '50000000-0000-4000-8000-000000000002'), 40, 'points de partie vide credites');
+set local role service_role;
+select is(public.cleanup_expired_multiplayer_games(), 0, 'second cleanup idempotent');
+reset role;
+select is((select total_points from public.profiles where id = '50000000-0000-4000-8000-000000000002'), 40, 'aucun double credit apres second cleanup');
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000002', true);
+select throws_ok($$ select public.reconnect_multiplayer_game((select code from test_multiplayer_codes where name = 'empty_after_timeout')) $$, 'P0001', 'game_expired', 'reconnexion refusee apres cleanup expire');
+
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000001', true);
+select lives_ok($$ insert into test_multiplayer_codes (name, code) select 'host_timeout_transfer', game_code from public.create_multiplayer_game('films', 3) $$, 'cree partie transfert apres timeout');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000002', true);
+select is((select result from public.join_multiplayer_game((select code from test_multiplayer_codes where name = 'host_timeout_transfer'))), 'joined', 'B rejoint transfert timeout');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000003', true);
+select is((select result from public.join_multiplayer_game((select code from test_multiplayer_codes where name = 'host_timeout_transfer'))), 'joined', 'C rejoint transfert timeout');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000002', true);
+select is((select result from public.set_multiplayer_ready((select code from test_multiplayer_codes where name = 'host_timeout_transfer'), true)), 'ready_updated', 'B pret transfert timeout');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000003', true);
+select is((select result from public.set_multiplayer_ready((select code from test_multiplayer_codes where name = 'host_timeout_transfer'), true)), 'ready_updated', 'C pret transfert timeout');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000001', true);
+select is((select result from public.start_multiplayer_game((select code from test_multiplayer_codes where name = 'host_timeout_transfer'))), 'started', 'partie transfert timeout demarree');
+select is((select result from public.disconnect_multiplayer_game((select code from test_multiplayer_codes where name = 'host_timeout_transfer'))), 'disconnected', 'hote deconnecte temporairement');
+reset role;
+update public.multiplayer_players
+set disconnected_at = now() - interval '31 minutes'
+where user_id = '50000000-0000-4000-8000-000000000001'
+  and game_id = (select id from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'host_timeout_transfer'));
+set local role service_role;
+select is(public.cleanup_expired_multiplayer_games(), 1, 'cleanup retire hote timeout');
+reset role;
+select is((select host_id from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'host_timeout_transfer')), '50000000-0000-4000-8000-000000000002'::uuid, 'hote transfere apres timeout');
+select is((select current_players from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'host_timeout_transfer')), 2, 'compteur apres hote timeout');
+select ok((select left_at is not null from public.multiplayer_players where user_id = '50000000-0000-4000-8000-000000000001' and game_id = (select id from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'host_timeout_transfer'))), 'hote timeout retire des joueurs actifs');
+select is((select status from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'host_timeout_transfer')), 'playing', 'partie reste playing si joueurs connectes');
 
 select ok(pg_get_functiondef('public.submit_multiplayer_answer(text,text,uuid)'::regprocedure) ~* 'for[[:space:]]+update', 'submit verrouille les lignes');
 select ok(pg_get_functiondef('public.start_multiplayer_game(text)'::regprocedure) ~* 'for[[:space:]]+update', 'start verrouille la partie');

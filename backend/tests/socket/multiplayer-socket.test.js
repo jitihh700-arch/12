@@ -31,40 +31,58 @@ function fakeAuth() {
 
 function fakeServices() {
     const players = new Map();
+    const calls = [];
     let status = 'waiting';
     return {
+        calls,
+        expireGame(nextStatus = 'expired') {
+            status = nextStatus;
+        },
         multiplayerService: {
             async createGame(context) {
+                calls.push({ method: 'createGame', userId: context.userId });
                 players.set(context.userId, { pseudo: context.pseudo, score: 0, ready: true, host: true, connected: true });
                 return { game_code: 'ABC234', category_id: 'series', status, max_players: 4 };
             },
             async joinGame(context) {
+                calls.push({ method: 'joinGame', userId: context.userId });
                 players.set(context.userId, { pseudo: context.pseudo, score: 0, ready: false, host: false, connected: true });
                 return { result: 'joined', game_code: 'ABC234' };
             },
             async setReady(context, input) {
+                calls.push({ method: 'setReady', userId: context.userId });
                 players.get(context.userId).ready = input.ready;
                 return { result: 'ready_updated' };
             },
             async startGame() {
+                calls.push({ method: 'startGame' });
                 status = 'playing';
                 return { result: 'started', game_code: 'ABC234', category_id: 'series' };
             },
             async submitAnswer(context) {
+                calls.push({ method: 'submitAnswer', userId: context.userId });
                 const player = players.get(context.userId);
                 player.score += 10;
                 return { result: 'correct', points_current: player.score, correct_answers: player.score / 10 };
             },
             async leaveGame(context) {
+                calls.push({ method: 'leaveGame', userId: context.userId });
                 players.delete(context.userId);
                 return { result: 'left', game_code: 'ABC234' };
             },
             async disconnectGame(context) {
+                calls.push({ method: 'disconnectGame', userId: context.userId });
                 const player = players.get(context.userId);
                 if (player) player.connected = false;
                 return { result: 'disconnected', game_code: 'ABC234', status };
             },
             async reconnectGame(context) {
+                calls.push({ method: 'reconnectGame', userId: context.userId });
+                if (['finished', 'expired', 'cancelled'].includes(status)) {
+                    const error = new Error('game_expired');
+                    error.code = 'game_expired';
+                    throw error;
+                }
                 const player = players.get(context.userId);
                 if (player) player.connected = true;
                 return { result: 'reconnected' };
@@ -106,12 +124,13 @@ describe('Socket.io multiplayer', () => {
     let server;
     let io;
     let port;
+    let services;
     let sockets = [];
 
     beforeEach(async () => {
         const app = createApp({ env, multiplayerService: {}, authVerifier: fakeAuth() });
         server = http.createServer(app);
-        const services = fakeServices();
+        services = fakeServices();
         io = createSocketServer(server, { env, authVerifier: fakeAuth(), ...services });
         await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
         port = server.address().port;
@@ -262,13 +281,17 @@ describe('Socket.io multiplayer', () => {
         const disconnected = await disconnectedEvent;
         expect(disconnected.players.find(player => player.pseudo === 'Beta').isConnected).toBe(false);
         expect(disconnected.players).toHaveLength(2);
+        expect(services.calls).toContainEqual({ method: 'disconnectGame', userId: 'u2' });
+        expect(services.calls).not.toContainEqual({ method: 'leaveGame', userId: 'u2' });
 
         const b2 = connect('b');
         await waitEvent(b2, 'connect');
-        await emitAck(b2, 'requestGameState', {
+        const reconnectAck = await emitAck(b2, 'requestGameState', {
             requestId: '70000000-0000-4000-8000-000000000503',
             gameCode: 'ABC234'
         });
+        expect(reconnectAck.ok).toBe(true);
+        expect(reconnectAck.data.players.find(player => player.pseudo === 'Beta').isConnected).toBe(true);
 
         const leftEvent = waitEvent(a, 'playerLeft');
         const leftAck = await emitAck(b2, 'leaveGame', {
@@ -277,6 +300,38 @@ describe('Socket.io multiplayer', () => {
         });
         expect(leftAck.ok).toBe(true);
         expect(await leftEvent).toEqual(expect.objectContaining({ result: 'left', game_code: 'ABC234' }));
+    });
+
+    it('refuse la reconnexion quand le cleanup a finalise la partie vide apres delai', async () => {
+        const a = connect('a');
+        const b = connect('b');
+        await Promise.all([waitEvent(a, 'connect'), waitEvent(b, 'connect')]);
+
+        await emitAck(a, 'createGame', {
+            requestId: '70000000-0000-4000-8000-000000000601',
+            categoryId: 'series',
+            maxPlayers: 4
+        });
+        await emitAck(b, 'joinGame', {
+            requestId: '70000000-0000-4000-8000-000000000602',
+            gameCode: 'ABC234'
+        });
+
+        const disconnectedEvent = waitEvent(a, 'playerDisconnected');
+        b.disconnect();
+        await disconnectedEvent;
+
+        services.expireGame('expired');
+        const b2 = connect('b');
+        await waitEvent(b2, 'connect');
+        const reconnectAfterTimeout = await emitAck(b2, 'requestGameState', {
+            requestId: '70000000-0000-4000-8000-000000000603',
+            gameCode: 'ABC234'
+        });
+
+        expect(reconnectAfterTimeout.ok).toBe(false);
+        expect(reconnectAfterTimeout.error).toBe('game_expired');
+        expect(services.calls).not.toContainEqual({ method: 'leaveGame', userId: 'u2' });
     });
 
     it('supporte une charge locale legere sans crash ni fuite de score par reaction', async () => {
