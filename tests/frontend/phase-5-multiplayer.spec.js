@@ -115,7 +115,13 @@ async function installFakeMultiplayer(page) {
             async emitWithAck(event, payload) {
                 window.__multiplayerPayloads.push({ event, payload });
                 const snapshot = window.__fakeSnapshot;
-                if (event === 'createGame') return { created: { game_code: 'AB234C' }, snapshot };
+                if (event === 'createGame') {
+                    window.__createAttempts = (window.__createAttempts || 0) + 1;
+                    if (window.__failCreateOnceWithActive && window.__createAttempts === 1) {
+                        throw new Error('active_game_exists');
+                    }
+                    return { created: { game_code: 'AB234C' }, snapshot };
+                }
                 if (event === 'joinGame') {
                     snapshot.currentPlayers = 2;
                     if (snapshot.players.length === 1) {
@@ -224,6 +230,25 @@ test('rejoindre, quitter et cache minimal', async ({ page }) => {
     expect(cache).toEqual({ gameCode: 'AB234C' });
     await page.locator('#multiplayer-leave').click();
     expect(await page.evaluate(() => localStorage.getItem('memoriz_multiplayer_game'))).toBe(null);
+});
+
+test('creation: ancienne salle en cache ignoree puis quittee si le serveur bloque', async ({ page }) => {
+    await installFakeMultiplayer(page);
+    await page.evaluate(() => {
+        localStorage.setItem('memoriz_multiplayer_game', JSON.stringify({ gameCode: 'OLD123' }));
+        window.__failCreateOnceWithActive = true;
+    });
+
+    await page.locator('#multiplayer-open').click();
+    await expect(page.locator('#multiplayer-lobby')).toBeHidden();
+    await expect(page.locator('#multiplayer-status')).toHaveText('Choisis une catégorie ou rejoins un code.');
+    expect(await page.evaluate(() => window.__multiplayerPayloads.some(entry => entry.event === 'requestGameState'))).toBe(false);
+
+    await page.locator('#multiplayer-create').click();
+    await expect(page.locator('#multiplayer-code-display')).toHaveText('AB234C');
+    const events = await page.evaluate(() => window.__multiplayerPayloads.map(entry => `${entry.event}:${entry.payload?.gameCode || ''}`));
+    expect(events).toContain('leaveGame:OLD123');
+    expect(await page.evaluate(() => window.__createAttempts)).toBe(2);
 });
 
 test('responsive, zoom et clavier', async ({ page }) => {

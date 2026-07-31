@@ -21,6 +21,19 @@
         socket_error: 'Le multijoueur est temporairement indisponible.'
     };
 
+    const ACTION_MESSAGES = {
+        active_game_exists: 'Une ancienne salle est encore active. Je la quitte puis je relance la création.',
+        game_expired: 'Cette salle est terminée. Tu peux créer une nouvelle partie.',
+        game_full: 'Cette salle est complète.',
+        invalid_game_code: 'Le code doit contenir 6 caractères.',
+        players_not_ready: 'Tous les joueurs connectés doivent être prêts.',
+        host_required: 'Seul l’hôte peut lancer cette partie.',
+        socket_timeout: 'Le serveur ne répond pas. Réessaie dans quelques secondes.',
+        socket_unavailable: 'Connexion multijoueur indisponible.',
+        profile_required: 'Ton profil doit être chargé avant d’utiliser le multijoueur.',
+        authentication_required: 'La session doit être disponible avant d’utiliser le multijoueur.'
+    };
+
     function els() {
         return {
             open: document.getElementById('multiplayer-open'),
@@ -77,6 +90,11 @@
     function describeConnectionError(error) {
         const key = connectionErrorKey(error);
         return CONNECTION_MESSAGES[key] || 'Erreur multijoueur inattendue.';
+    }
+
+    function describeActionError(error, fallback) {
+        const key = connectionErrorKey(error);
+        return ACTION_MESSAGES[key] || fallback;
     }
 
     function cacheGame(gameCode) {
@@ -198,6 +216,8 @@
         nodes.lobby.hidden = view !== 'lobby';
         nodes.game.hidden = view !== 'game';
         nodes.final.hidden = view !== 'final';
+        nodes.createPanel.hidden = view !== 'none' || !nodes.tabCreate.classList.contains('is-active');
+        nodes.joinPanel.hidden = view !== 'none' || !nodes.tabJoin.classList.contains('is-active');
     }
 
     function playerItem(player) {
@@ -379,15 +399,13 @@
         nodes.modal.hidden = false;
         nodes.modal.setAttribute('aria-hidden', 'false');
         window.setTimeout(() => nodes.close?.focus(), 0);
+        state.current = null;
+        resetStartGamePending();
         setStatus('Connexion multijoueur...');
         try {
             await ensureSocket();
             setStatus('Choisis une catégorie ou rejoins un code.');
-            const cached = readCachedGame();
-            if (cached) {
-                const snapshot = await emit('requestGameState', { gameCode: cached });
-                renderState(snapshot);
-            }
+            showView('none');
         } catch (error) {
             if (connectionErrorKey(error) === 'profile_required') state.retryAfterProfileRequired = true;
             setStatus(describeConnectionError(error));
@@ -402,7 +420,20 @@
         if (state.lastFocus?.focus) state.lastFocus.focus();
     }
 
-    async function createGame() {
+    async function abandonCachedGame(gameCode) {
+        if (!gameCode) return false;
+        try {
+            await emit('leaveGame', { gameCode });
+            clearCache();
+            if (state.current?.gameCode === gameCode) state.current = null;
+            return true;
+        } catch (error) {
+            clearCache();
+            return false;
+        }
+    }
+
+    async function createGame(retryAfterActiveGame = true) {
         const nodes = els();
         resetStartGamePending();
         nodes.create.disabled = true;
@@ -413,7 +444,17 @@
             });
             renderState(data.snapshot);
         } catch (error) {
-            setStatus('Impossible de créer la partie.');
+            if (retryAfterActiveGame && connectionErrorKey(error) === 'active_game_exists') {
+                const cached = readCachedGame();
+                setStatus(ACTION_MESSAGES.active_game_exists);
+                const abandoned = await abandonCachedGame(cached);
+                if (abandoned) {
+                    nodes.create.disabled = false;
+                    await createGame(false);
+                    return;
+                }
+            }
+            setStatus(describeActionError(error, 'Impossible de créer la partie.'));
         } finally {
             nodes.create.disabled = false;
         }
@@ -427,7 +468,7 @@
             const data = await emit('joinGame', { gameCode: nodes.codeInput.value });
             renderState(data.snapshot);
         } catch (error) {
-            setStatus('Impossible de rejoindre cette partie.');
+            setStatus(describeActionError(error, 'Impossible de rejoindre cette partie.'));
         } finally {
             nodes.join.disabled = false;
         }
@@ -531,16 +572,14 @@
             nodes.tabJoin.classList.remove('is-active');
             nodes.tabCreate.setAttribute('aria-selected', 'true');
             nodes.tabJoin.setAttribute('aria-selected', 'false');
-            nodes.createPanel.hidden = false;
-            nodes.joinPanel.hidden = true;
+            if (!state.current) showView('none');
         });
         nodes.tabJoin.addEventListener('click', () => {
             nodes.tabJoin.classList.add('is-active');
             nodes.tabCreate.classList.remove('is-active');
             nodes.tabJoin.setAttribute('aria-selected', 'true');
             nodes.tabCreate.setAttribute('aria-selected', 'false');
-            nodes.joinPanel.hidden = false;
-            nodes.createPanel.hidden = true;
+            if (!state.current) showView('none');
         });
         nodes.modal.addEventListener('click', event => {
             if (event.target === nodes.modal) closeModal();
