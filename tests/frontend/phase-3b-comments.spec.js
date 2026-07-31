@@ -36,6 +36,11 @@ async function commentsState(page) {
     return page.evaluate(() => window.MemorizComments.getState());
 }
 
+async function openCommentActions(item) {
+    await item.locator('[data-action="toggle-actions"]').click();
+    await expect(item.locator('[role="menu"]')).toBeVisible();
+}
+
 test('mode degrade commentaires: Supabase absent, formulaire bloque et quiz solo utilisable', async ({ page }, testInfo) => {
     removeRuntimeConfig();
     await gotoHome(page);
@@ -121,6 +126,7 @@ test('deux utilisateurs: Broadcast, actions proprietaire et refus serveur force'
     await expect(pageA.locator('.comment-content').filter({ hasText: 'message de A' })).toHaveCount(1);
 
     const itemB = pageB.locator('.comment-item').filter({ hasText: 'message de A' });
+    await expect(itemB.locator('[data-action="toggle-actions"]')).toHaveCount(0);
     await expect(itemB.locator('[data-action="edit"]')).toHaveCount(0);
     await expect(itemB.locator('[data-action="delete"]')).toHaveCount(0);
 
@@ -154,22 +160,27 @@ test('modification, annulation, suppression logique et list_comments sans conten
     await createComment(pageA, 'a modifier');
 
     const item = pageA.locator('.comment-item').filter({ hasText: 'a modifier' });
+    await openCommentActions(item);
     await item.locator('[data-action="edit"]').click();
     await expect(pageA.locator('.comment-edit-input')).toBeFocused();
     await pageA.screenshot({ path: testInfo.outputPath('comments-edit-mode.png'), fullPage: true });
     await pageA.locator('[data-action="cancel-edit"]').click();
     await expect(pageA.locator('.comment-edit-input')).toHaveCount(0);
 
+    await openCommentActions(item);
     await item.locator('[data-action="edit"]').click();
     await pageA.locator('.comment-edit-input').fill('modifie chez A');
     await pageA.locator('.comment-edit').evaluate(form => form.requestSubmit());
     await expect(pageA.locator('.comment-edited').first()).toHaveText('Modifié');
     await expect(pageB.locator('.comment-content').filter({ hasText: 'modifie chez A' })).toBeVisible({ timeout: 20000 });
 
-    await pageA.locator('.comment-item').filter({ hasText: 'modifie chez A' }).locator('[data-action="delete"]').click();
+    const editedItem = pageA.locator('.comment-item').filter({ hasText: 'modifie chez A' });
+    await openCommentActions(editedItem);
+    await editedItem.locator('[data-action="delete"]').click();
     await pageA.locator('[data-action="cancel-delete"]').click();
     await expect(pageA.locator('.comment-content').filter({ hasText: 'modifie chez A' })).toBeVisible();
-    await pageA.locator('.comment-item').filter({ hasText: 'modifie chez A' }).locator('[data-action="delete"]').click();
+    await openCommentActions(editedItem);
+    await editedItem.locator('[data-action="delete"]').click();
     await expect(pageA.locator('[role="alertdialog"]')).toBeVisible();
     await pageA.screenshot({ path: testInfo.outputPath('comments-delete-confirmation.png'), fullPage: true });
     await pageA.locator('[data-action="confirm-delete"]').click();

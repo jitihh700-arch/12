@@ -35,11 +35,11 @@ function fakeServices() {
     return {
         multiplayerService: {
             async createGame(context) {
-                players.set(context.userId, { pseudo: context.pseudo, score: 0, ready: true, host: true });
+                players.set(context.userId, { pseudo: context.pseudo, score: 0, ready: true, host: true, connected: true });
                 return { game_code: 'ABC234', category_id: 'series', status, max_players: 4 };
             },
             async joinGame(context) {
-                players.set(context.userId, { pseudo: context.pseudo, score: 0, ready: false, host: false });
+                players.set(context.userId, { pseudo: context.pseudo, score: 0, ready: false, host: false, connected: true });
                 return { result: 'joined', game_code: 'ABC234' };
             },
             async setReady(context, input) {
@@ -59,7 +59,14 @@ function fakeServices() {
                 players.delete(context.userId);
                 return { result: 'left', game_code: 'ABC234' };
             },
-            async reconnectGame() {
+            async disconnectGame(context) {
+                const player = players.get(context.userId);
+                if (player) player.connected = false;
+                return { result: 'disconnected', game_code: 'ABC234', status };
+            },
+            async reconnectGame(context) {
+                const player = players.get(context.userId);
+                if (player) player.connected = true;
                 return { result: 'reconnected' };
             },
             async getState(context) {
@@ -79,7 +86,7 @@ function fakeServices() {
                     score: player.score,
                     correct_answers: player.score / 10,
                     is_ready: player.ready,
-                    is_connected: true,
+                    is_connected: player.connected,
                     is_host: player.host,
                     rank: rank++,
                     my_found_answer_display: userId === context.userId && player.score ? 'Walter White' : null,
@@ -233,6 +240,43 @@ describe('Socket.io multiplayer', () => {
         });
         expect(limited.ok).toBe(false);
         expect(limited.error).toBe('reaction_rate_limited');
+    });
+
+    it('distingue deconnexion reseau et depart volontaire', async () => {
+        const a = connect('a');
+        const b = connect('b');
+        await Promise.all([waitEvent(a, 'connect'), waitEvent(b, 'connect')]);
+
+        await emitAck(a, 'createGame', {
+            requestId: '70000000-0000-4000-8000-000000000501',
+            categoryId: 'series',
+            maxPlayers: 4
+        });
+        await emitAck(b, 'joinGame', {
+            requestId: '70000000-0000-4000-8000-000000000502',
+            gameCode: 'ABC234'
+        });
+
+        const disconnectedEvent = waitEvent(a, 'playerDisconnected');
+        b.disconnect();
+        const disconnected = await disconnectedEvent;
+        expect(disconnected.players.find(player => player.pseudo === 'Beta').isConnected).toBe(false);
+        expect(disconnected.players).toHaveLength(2);
+
+        const b2 = connect('b');
+        await waitEvent(b2, 'connect');
+        await emitAck(b2, 'requestGameState', {
+            requestId: '70000000-0000-4000-8000-000000000503',
+            gameCode: 'ABC234'
+        });
+
+        const leftEvent = waitEvent(a, 'playerLeft');
+        const leftAck = await emitAck(b2, 'leaveGame', {
+            requestId: '70000000-0000-4000-8000-000000000504',
+            gameCode: 'ABC234'
+        });
+        expect(leftAck.ok).toBe(true);
+        expect(await leftEvent).toEqual(expect.objectContaining({ result: 'left', game_code: 'ABC234' }));
     });
 
     it('supporte une charge locale legere sans crash ni fuite de score par reaction', async () => {

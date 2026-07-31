@@ -144,7 +144,9 @@ test('parcours complet: profil, commentaire, quiz classe, leaderboard, multijoue
     await page.evaluate(() => window.MemorizComments.reload());
     await expect(page.locator('.comment-author').first()).toHaveText(`Phase6New_${runId}`);
 
-    await page.locator('.comment-item').filter({ hasText: 'Commentaire Phase 6' }).locator('[data-action="delete"]').click();
+    const comment = page.locator('.comment-item').filter({ hasText: 'Commentaire Phase 6' });
+    await comment.locator('[data-action="toggle-actions"]').click();
+    await comment.locator('[data-action="delete"]').click();
     await page.locator('[data-action="confirm-delete"]').click();
     await expect(page.locator('.comment-content').filter({ hasText: 'Commentaire Phase 6' })).toHaveCount(0);
 });

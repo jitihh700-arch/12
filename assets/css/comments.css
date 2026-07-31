@@ -139,6 +139,7 @@ body.light-mode .comments-error {
 #comment-submit,
 .comments-load-more,
 .comment-action,
+.comment-menu-toggle,
 .comment-confirm-action {
     border: 0;
     border-radius: 999px;
@@ -161,6 +162,7 @@ body.light-mode .comments-error {
 }
 
 .comment-action,
+.comment-menu-toggle,
 .comment-confirm-action {
     background: rgba(255,255,255,0.12);
     color: inherit;
@@ -168,6 +170,7 @@ body.light-mode .comments-error {
 }
 
 body.light-mode .comment-action,
+body.light-mode .comment-menu-toggle,
 body.light-mode .comment-confirm-action {
     background: #f1f2f6;
     border-color: #dde0ea;
@@ -176,6 +179,7 @@ body.light-mode .comment-confirm-action {
 #comment-submit:hover,
 .comments-load-more:hover,
 .comment-action:hover,
+.comment-menu-toggle:hover,
 .comment-confirm-action:hover {
     transform: translateY(-2px);
 }
@@ -183,6 +187,7 @@ body.light-mode .comment-confirm-action {
 #comment-submit:disabled,
 .comments-load-more:disabled,
 .comment-action:disabled,
+.comment-menu-toggle:disabled,
 .comment-confirm-action:disabled {
     cursor: not-allowed;
     opacity: 0.55;
@@ -283,7 +288,53 @@ body.light-mode .comment-edited {
 }
 
 .comment-actions {
+    position: relative;
     justify-content: flex-end;
+}
+
+.comment-menu-toggle {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border-radius: 999px;
+    font-size: 1.35rem;
+    line-height: 1;
+}
+
+.comment-actions-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 4;
+    display: grid;
+    min-width: 150px;
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 8px;
+    background: #17172b;
+    box-shadow: 0 14px 32px rgba(0,0,0,0.32);
+}
+
+body.light-mode .comment-actions-menu {
+    background: #ffffff;
+    border-color: #dde0ea;
+}
+
+.comment-actions-menu .comment-action {
+    width: 100%;
+    justify-content: flex-start;
+    border-radius: 8px;
+    text-align: left;
+}
+
+.comment-actions-menu .comment-action[data-action="delete"],
+.comment-confirm-action[data-action="confirm-delete"] {
+    background: #b4232f;
+    color: #fff;
+    box-shadow: none;
 }
 
 .comment-edit {

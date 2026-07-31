@@ -47,12 +47,15 @@
             players: document.getElementById('multiplayer-players'),
             ready: document.getElementById('multiplayer-ready'),
             start: document.getElementById('multiplayer-start'),
+            startHint: document.getElementById('multiplayer-start-hint'),
             leave: document.getElementById('multiplayer-leave'),
             timer: document.getElementById('multiplayer-timer'),
             scoreLive: document.getElementById('multiplayer-score-live'),
+            progressLive: document.getElementById('multiplayer-progress-live'),
             scoreboard: document.getElementById('multiplayer-scoreboard'),
             form: document.getElementById('multiplayer-answer-form'),
             answer: document.getElementById('multiplayer-answer-input'),
+            answerGrid: document.getElementById('multiplayer-answer-grid'),
             found: document.getElementById('multiplayer-found-list'),
             reactions: document.getElementById('multiplayer-reactions'),
             finalRanking: document.getElementById('multiplayer-final-ranking'),
@@ -99,6 +102,11 @@
         return category?.title || categoryId || 'Catégorie';
     }
 
+    function totalAnswers(categoryId) {
+        const category = window.categoryMapping?.[categoryId];
+        return Array.isArray(category?.data) ? category.data.length : 0;
+    }
+
     function populateCategories() {
         const nodes = els();
         if (!nodes.category || nodes.category.options.length) return;
@@ -112,7 +120,7 @@
 
     function focusable(modal) {
         return [...modal.querySelectorAll('button, input, select, [href], [tabindex]:not([tabindex="-1"])')]
-            .filter(element => !element.disabled && !element.hidden);
+            .filter(element => !element.disabled && !element.hidden && element.getClientRects().length > 0);
     }
 
     async function ensureSocket() {
@@ -154,6 +162,8 @@
         socketApi.on('playerUpdated', renderState);
         socketApi.on('gameStarted', renderState);
         socketApi.on('scoreUpdate', renderState);
+        socketApi.on('playerDisconnected', renderState);
+        socketApi.on('playerLeft', refreshCurrentGame);
         socketApi.on('gameFinished', snapshot => {
             renderState(snapshot);
             showFinal(snapshot);
@@ -168,6 +178,19 @@
     async function emit(eventName, payload) {
         await ensureSocket();
         return window.MemorizMultiplayerSocket.emitWithAck(eventName, payload);
+    }
+
+    async function refreshCurrentGame() {
+        if (!state.current?.gameCode) return;
+        try {
+            const snapshot = await emit('requestGameState', { gameCode: state.current.gameCode });
+            renderState(snapshot);
+        } catch (error) {
+            setStatus('La salle n’est plus disponible.');
+            clearCache();
+            state.current = null;
+            showView('none');
+        }
     }
 
     function showView(view) {
@@ -206,7 +229,7 @@
         const score = document.createElement('span');
         score.textContent = `${Number(player.score || 0)} pts`;
         const progress = document.createElement('span');
-        progress.textContent = `${Number(player.correctAnswers || 0)} réponses`;
+        progress.textContent = `${Number(player.correctAnswers || 0)} trouvées`;
         item.append(rank, pseudo, score, progress);
         return item;
     }
@@ -242,6 +265,16 @@
             && connectedPlayers.every(player => player.isReady);
     }
 
+    function startBlockedReason(snapshot, current) {
+        if (!currentUserIsHost(snapshot, current)) return '';
+        const players = snapshot.players || [];
+        const connectedPlayers = players.filter(player => player.isConnected);
+        if (snapshot.status !== 'waiting') return '';
+        if (connectedPlayers.length < 2) return 'Il faut au moins 2 joueurs connectés.';
+        if (!connectedPlayers.every(player => player.isReady)) return 'La partie démarre quand tous les joueurs connectés sont prêts.';
+        return '';
+    }
+
     function resetStartGamePending() {
         state.startGamePending = false;
     }
@@ -253,6 +286,23 @@
         const canStart = canStartGame(snapshot, current);
         nodes.start.hidden = !isHost || snapshot.status !== 'waiting';
         nodes.start.disabled = state.startGamePending || !canStart;
+        if (nodes.startHint) nodes.startHint.textContent = startBlockedReason(snapshot, current);
+    }
+
+    function renderAnswerGrid(snapshot) {
+        const nodes = els();
+        if (!nodes.answerGrid) return;
+        const total = totalAnswers(snapshot.categoryId);
+        const found = new Map((snapshot.myFoundAnswers || []).map(answer => [Number(answer.displayOrder), answer]));
+        const cells = Array.from({ length: total }, (unused, index) => {
+            const order = index + 1;
+            const answer = found.get(order);
+            const cell = document.createElement('span');
+            cell.className = answer ? 'multiplayer-answer-cell is-found' : 'multiplayer-answer-cell';
+            cell.textContent = answer?.display || String(order);
+            return cell;
+        });
+        nodes.answerGrid.replaceChildren(...cells);
     }
 
     function renderTimer(snapshot) {
@@ -289,10 +339,17 @@
         nodes.scoreboard.replaceChildren(...(snapshot.players || []).map(scoreItem));
         nodes.finalRanking.replaceChildren(...(snapshot.players || []).map(scoreItem));
         nodes.found.replaceChildren(...(snapshot.myFoundAnswers || []).map(foundItem));
+        renderAnswerGrid(snapshot);
 
         updateStartButton(snapshot, current);
         if (nodes.ready) nodes.ready.textContent = current?.isReady ? 'Annuler prêt' : 'Prêt';
         if (nodes.scoreLive) nodes.scoreLive.textContent = current ? `Ton score: ${current.score} pts` : '';
+        if (nodes.progressLive) {
+            const total = totalAnswers(snapshot.categoryId);
+            const found = Number(current?.correctAnswers || 0);
+            const percent = total ? Math.round((found / total) * 100) : 0;
+            nodes.progressLive.textContent = total ? `Ta progression: ${found}/${total} (${percent}%)` : '';
+        }
         window.MemorizReactions?.setDisabled(nodes.reactions, snapshot.status !== 'waiting' && snapshot.status !== 'playing');
         renderTimer(snapshot);
 

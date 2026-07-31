@@ -14,6 +14,7 @@
         submitting: false,
         editingId: null,
         deletingId: null,
+        actionsOpenId: null,
         channel: null,
         reconnectTimer: null,
         toastTimer: null,
@@ -266,17 +267,45 @@
     function renderActions(comment) {
         const actions = document.createElement('div');
         actions.className = 'comment-actions';
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'comment-menu-toggle';
+        toggle.dataset.action = 'toggle-actions';
+        toggle.setAttribute('aria-label', 'Actions du commentaire');
+        toggle.setAttribute('aria-haspopup', 'menu');
+        toggle.setAttribute('aria-expanded', state.actionsOpenId === comment.id ? 'true' : 'false');
+        toggle.textContent = '⋮';
+        toggle.addEventListener('click', event => {
+            event.stopPropagation();
+            state.actionsOpenId = state.actionsOpenId === comment.id ? null : comment.id;
+            render();
+            document.querySelector(`[data-comment-id="${comment.id}"] [data-action="toggle-actions"]`)?.focus();
+        });
+        actions.append(toggle);
+
+        if (state.actionsOpenId !== comment.id) return actions;
+
+        const menu = document.createElement('div');
+        menu.className = 'comment-actions-menu';
+        menu.setAttribute('role', 'menu');
         const edit = createButton('Modifier', 'edit');
+        edit.setAttribute('role', 'menuitem');
         edit.setAttribute('aria-label', 'Modifier mon commentaire');
-        edit.addEventListener('click', () => startEdit(comment.id));
+        edit.addEventListener('click', () => {
+            state.actionsOpenId = null;
+            startEdit(comment.id);
+        });
         const del = createButton('Supprimer', 'delete');
+        del.setAttribute('role', 'menuitem');
         del.setAttribute('aria-label', 'Supprimer mon commentaire');
         del.addEventListener('click', () => {
+            state.actionsOpenId = null;
             state.deletingId = comment.id;
             render();
             document.querySelector(`[data-comment-id="${comment.id}"] [data-action="confirm-delete"]`)?.focus();
         });
-        actions.append(edit, del);
+        menu.append(edit, del);
+        actions.append(menu);
         return actions;
     }
 
@@ -621,6 +650,16 @@
         });
         els.form.addEventListener('submit', submitComment);
         els.loadMore.addEventListener('click', loadMore);
+        document.addEventListener('click', event => {
+            if (!state.actionsOpenId || event.target.closest?.('.comment-actions')) return;
+            state.actionsOpenId = null;
+            render();
+        });
+        document.addEventListener('keydown', event => {
+            if (event.key !== 'Escape' || !state.actionsOpenId) return;
+            state.actionsOpenId = null;
+            render();
+        });
         document.addEventListener('memoriz:profile-ready', event => onProfileReady(event.detail.profile));
         document.addEventListener('memoriz:profile-unavailable', () => {
             setUnavailable('Les commentaires sont temporairement indisponibles, mais le quiz solo reste disponible.');

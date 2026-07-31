@@ -245,26 +245,34 @@
             </div>
 
             <div class="multiplayer-tabs" role="tablist" aria-label="Mode multijoueur">
-                <button type="button" id="multiplayer-tab-create" class="is-active" aria-selected="true">Créer</button>
-                <button type="button" id="multiplayer-tab-join" aria-selected="false">Rejoindre</button>
+                <button type="button" id="multiplayer-tab-create" class="is-active" role="tab" aria-selected="true" aria-controls="multiplayer-create-panel">Créer</button>
+                <button type="button" id="multiplayer-tab-join" role="tab" aria-selected="false" aria-controls="multiplayer-join-panel">Rejoindre</button>
             </div>
 
-            <section id="multiplayer-create-panel" class="multiplayer-panel">
-                <label for="multiplayer-category">Catégorie</label>
-                <select id="multiplayer-category"></select>
-                <label for="multiplayer-max-players">Joueurs maximum</label>
-                <select id="multiplayer-max-players">
-                    <option value="2">2 joueurs</option>
-                    <option value="3">3 joueurs</option>
-                    <option value="4" selected>4 joueurs</option>
-                </select>
-                <button type="button" id="multiplayer-create">Créer une partie multijoueur</button>
+            <section id="multiplayer-create-panel" class="multiplayer-panel multiplayer-portal" role="tabpanel" aria-labelledby="multiplayer-tab-create">
+                <div class="multiplayer-field">
+                    <label for="multiplayer-category">Catégorie</label>
+                    <select id="multiplayer-category"></select>
+                </div>
+                <div class="multiplayer-field">
+                    <label for="multiplayer-max-players">Joueurs maximum</label>
+                    <select id="multiplayer-max-players">
+                        <option value="2">2 joueurs</option>
+                        <option value="3">3 joueurs</option>
+                        <option value="4" selected>4 joueurs</option>
+                    </select>
+                </div>
+                <p class="multiplayer-help">Crée un salon, partage le code, puis attends que tout le monde soit prêt.</p>
+                <button type="button" id="multiplayer-create">Créer une partie</button>
             </section>
 
-            <section id="multiplayer-join-panel" class="multiplayer-panel" hidden>
-                <label for="multiplayer-code-input">Code de partie</label>
-                <input id="multiplayer-code-input" type="text" inputmode="latin-prose" autocomplete="off" maxlength="6" aria-describedby="multiplayer-status">
-                <button type="button" id="multiplayer-join">Rejoindre une partie</button>
+            <section id="multiplayer-join-panel" class="multiplayer-panel multiplayer-portal" role="tabpanel" aria-labelledby="multiplayer-tab-join" hidden>
+                <div class="multiplayer-field">
+                    <label for="multiplayer-code-input">Code de partie</label>
+                    <input id="multiplayer-code-input" type="text" inputmode="latin-prose" autocomplete="off" maxlength="6" aria-describedby="multiplayer-status">
+                </div>
+                <p class="multiplayer-help">Entre le code à 6 caractères reçu par l'hôte.</p>
+                <button type="button" id="multiplayer-join">Rejoindre</button>
             </section>
 
             <section id="multiplayer-lobby" class="multiplayer-lobby" hidden aria-labelledby="multiplayer-lobby-title">
@@ -284,6 +292,7 @@
                     <button type="button" id="multiplayer-start" hidden>Lancer la partie</button>
                     <button type="button" id="multiplayer-leave">Quitter</button>
                 </div>
+                <p id="multiplayer-start-hint" class="multiplayer-help" aria-live="polite"></p>
             </section>
 
             <section id="multiplayer-game" class="multiplayer-game" hidden aria-labelledby="multiplayer-game-title">
@@ -292,6 +301,7 @@
                     <span id="multiplayer-timer" class="multiplayer-timer" role="timer" aria-live="polite">--:--</span>
                 </div>
                 <div id="multiplayer-score-live" class="multiplayer-score-live" aria-live="polite"></div>
+                <div id="multiplayer-progress-live" class="multiplayer-progress-live" aria-live="polite"></div>
                 <ol id="multiplayer-scoreboard" class="multiplayer-scoreboard" aria-label="Classement courant"></ol>
                 <form id="multiplayer-answer-form" class="multiplayer-answer-form" novalidate>
                     <label for="multiplayer-answer-input">Réponse</label>
@@ -300,6 +310,7 @@
                         <button type="submit">Valider</button>
                     </div>
                 </form>
+                <div id="multiplayer-answer-grid" class="multiplayer-answer-grid" aria-label="Tes cases de réponses"></div>
                 <ul id="multiplayer-found-list" class="multiplayer-found-list" aria-label="Tes réponses trouvées"></ul>
                 <div id="multiplayer-reactions" class="reactions-bar" aria-label="Réactions rapides"></div>
             </section>

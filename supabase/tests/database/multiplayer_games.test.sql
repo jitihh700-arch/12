@@ -4,7 +4,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(70);
+select plan(80);
 
 create temp table test_multiplayer_codes (
   name text primary key,
@@ -151,6 +151,25 @@ select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000002
 select is((select result from public.leave_multiplayer_game((select code from test_multiplayer_codes where name = 'transfer'))), 'left', 'dernier joueur quitte');
 reset role;
 select is((select status from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'transfer')), 'cancelled', 'partie annulee lorsque vide');
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000001', true);
+select lives_ok($$ insert into test_multiplayer_codes (name, code) select 'started_leave', game_code from public.create_multiplayer_game('films', 2) $$, 'cree partie pour depart en cours');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000002', true);
+select is((select result from public.join_multiplayer_game((select code from test_multiplayer_codes where name = 'started_leave'))), 'joined', 'B rejoint partie depart en cours');
+select is((select result from public.set_multiplayer_ready((select code from test_multiplayer_codes where name = 'started_leave'), true)), 'ready_updated', 'B pret pour depart en cours');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000001', true);
+select is((select result from public.start_multiplayer_game((select code from test_multiplayer_codes where name = 'started_leave'))), 'started', 'partie depart en cours demarree');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000002', true);
+select is((select result from public.submit_multiplayer_answer((select code from test_multiplayer_codes where name = 'started_leave'), 'Harry Potter', '60000000-0000-4000-8000-000000000101')), 'correct', 'B marque avant depart');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000001', true);
+select is((select result from public.leave_multiplayer_game((select code from test_multiplayer_codes where name = 'started_leave'))), 'left', 'A quitte partie commencee');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000002', true);
+select is((select result from public.leave_multiplayer_game((select code from test_multiplayer_codes where name = 'started_leave'))), 'left', 'dernier joueur quitte partie commencee');
+reset role;
+select is((select status from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'started_leave')), 'finished', 'partie commencee vide devient terminee');
+select is((select current_players from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'started_leave')), 0, 'partie commencee vide sans presence active');
+select is((select total_points from public.profiles where id = '50000000-0000-4000-8000-000000000002'), 20, 'points partiels conserves et credites');
 
 select ok(pg_get_functiondef('public.submit_multiplayer_answer(text,text,uuid)'::regprocedure) ~* 'for[[:space:]]+update', 'submit verrouille les lignes');
 select ok(pg_get_functiondef('public.start_multiplayer_game(text)'::regprocedure) ~* 'for[[:space:]]+update', 'start verrouille la partie');

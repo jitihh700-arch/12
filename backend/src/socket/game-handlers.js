@@ -36,11 +36,25 @@ function withAck(socket, limiter, key, limits, handler) {
     };
 }
 
+function rememberActiveGame(socket, gameCode) {
+    socket.data.activeGameCode = gameCode;
+}
+
+async function emitStateIfAvailable(io, service, socket, gameCode, eventName) {
+    try {
+        return await emitState(io, service, socket, gameCode, eventName);
+    } catch (error) {
+        io.to(roomName(gameCode)).emit(eventName, { gameCode, status: 'unavailable' });
+        return null;
+    }
+}
+
 export function registerGameHandlers(io, socket, { multiplayerService, limiter }) {
     socket.on('createGame', withAck(socket, limiter, 'createGame', { max: 5, windowMs: 60_000 }, async payload => {
         const input = parsePayload(createGameSchema, payload);
         const created = await multiplayerService.createGame(socket.user, input);
         socket.join(roomName(created.game_code));
+        rememberActiveGame(socket, created.game_code);
         const snapshot = await emitState(io, multiplayerService, socket, created.game_code, 'gameCreated');
         return { created, snapshot };
     }));
@@ -49,6 +63,7 @@ export function registerGameHandlers(io, socket, { multiplayerService, limiter }
         const input = parsePayload(joinGameSchema, payload);
         const joined = await multiplayerService.joinGame(socket.user, input);
         socket.join(roomName(input.gameCode));
+        rememberActiveGame(socket, input.gameCode);
         const snapshot = await emitState(io, multiplayerService, socket, input.gameCode, 'playerJoined');
         return { joined, snapshot };
     }));
@@ -79,7 +94,12 @@ export function registerGameHandlers(io, socket, { multiplayerService, limiter }
         const input = parsePayload(gameCodeSchema, payload);
         const result = await multiplayerService.leaveGame(socket.user, input);
         socket.leave(roomName(input.gameCode));
-        io.to(roomName(input.gameCode)).emit('playerLeft', result);
+        if (['finished', 'expired', 'cancelled'].includes(result.status)) {
+            io.to(roomName(input.gameCode)).emit('gameFinished', result);
+        } else {
+            io.to(roomName(input.gameCode)).emit('playerLeft', result);
+        }
+        if (socket.data.activeGameCode === input.gameCode) delete socket.data.activeGameCode;
         return result;
     }));
 
@@ -87,6 +107,17 @@ export function registerGameHandlers(io, socket, { multiplayerService, limiter }
         const input = parsePayload(gameCodeSchema, payload);
         await multiplayerService.reconnectGame(socket.user, input);
         socket.join(roomName(input.gameCode));
+        rememberActiveGame(socket, input.gameCode);
         return emitState(io, multiplayerService, socket, input.gameCode);
     }));
+
+    socket.on('disconnect', () => {
+        const gameCode = socket.data.activeGameCode;
+        if (!gameCode) return;
+        delete socket.data.activeGameCode;
+        // Une coupure reseau retire seulement la presence connectee, pas la place du joueur.
+        multiplayerService.disconnectGame(socket.user, { gameCode })
+            .then(() => emitStateIfAvailable(io, multiplayerService, socket, gameCode, 'playerDisconnected'))
+            .catch(() => {});
+    });
 }
