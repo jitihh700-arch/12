@@ -4,6 +4,7 @@ import { ALPHABET, generateGameCode, isGameCode, normalizeGameCode } from '../..
 import { EventRateLimiter } from '../../src/middlewares/rate-limit.js';
 import { logger } from '../../src/utils/logger.js';
 import { buildGameSnapshot } from '../../src/services/game-engine-service.js';
+import { MultiplayerService } from '../../src/services/multiplayer-service.js';
 import { createGameSchema, parsePayload } from '../../src/validators/multiplayer-validator.js';
 import { configureHttpServer, createShutdown } from '../../src/lifecycle.js';
 
@@ -166,6 +167,33 @@ describe('snapshot', () => {
         expect(serialized).not.toContain('answer_id');
         expect(serialized).not.toContain('answer_normalized');
         expect(serialized).not.toContain('90000000-0000-4000-8000-000000000001');
+    });
+});
+
+describe('multiplayer service', () => {
+    it('libere les anciennes salles puis retente la creation', async () => {
+        const calls = [];
+        const service = new MultiplayerService({}, () => ({
+            async rpc(name, payload) {
+                calls.push({ name, payload });
+                if (name === 'create_multiplayer_game' && calls.filter(call => call.name === name).length === 1) {
+                    return { data: null, error: { message: 'active_game_exists' } };
+                }
+                if (name === 'leave_my_active_multiplayer_games') {
+                    return { data: [{ result: 'released', released_count: 1 }], error: null };
+                }
+                return { data: [{ game_code: 'AB234C', category_id: payload.p_category_id }], error: null };
+            }
+        }));
+
+        const created = await service.createGame({ accessToken: 'token' }, { categoryId: 'series', maxPlayers: 2 });
+
+        expect(created.game_code).toBe('AB234C');
+        expect(calls.map(call => call.name)).toEqual([
+            'create_multiplayer_game',
+            'leave_my_active_multiplayer_games',
+            'create_multiplayer_game'
+        ]);
     });
 });
 

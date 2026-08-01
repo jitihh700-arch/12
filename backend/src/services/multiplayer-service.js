@@ -8,6 +8,10 @@ function throwIfError(error) {
     if (error) throw error;
 }
 
+function errorKey(error) {
+    return [error?.code, error?.message, error?.details, error?.hint].filter(Boolean).join(' ');
+}
+
 export class MultiplayerService {
     constructor(env, clientFactory = createSupabaseForUser) {
         this.env = env;
@@ -18,11 +22,15 @@ export class MultiplayerService {
         return this.clientFactory(this.env, context.accessToken);
     }
 
-    async createGame(context, { categoryId, maxPlayers }) {
+    async createGame(context, { categoryId, maxPlayers }, retryAfterActiveGame = true) {
         const { data, error } = await this.client(context).rpc('create_multiplayer_game', {
             p_category_id: categoryId,
             p_max_players: maxPlayers
         });
+        if (retryAfterActiveGame && errorKey(error).includes('active_game_exists')) {
+            await this.leaveActiveGames(context);
+            return this.createGame(context, { categoryId, maxPlayers }, false);
+        }
         throwIfError(error);
         return firstRow(data);
     }
