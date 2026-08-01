@@ -225,16 +225,16 @@ where game_id = (select id from public.multiplayer_games where game_code = (sele
 set local role service_role;
 select is(public.cleanup_expired_multiplayer_games(), 1, 'cleanup expire partie playing vide apres delai');
 reset role;
-select is((select status from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'empty_after_timeout')), 'finished', 'partie vide apres delai finalisee');
-select is((select current_players from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'empty_after_timeout')), 0, 'compteur remis a zero apres expiration');
-select is((select total_points from public.profiles where id = '50000000-0000-4000-8000-000000000002'), 40, 'points de partie vide credites');
+select is((select count(*)::integer from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'empty_after_timeout')), 0, 'partie vide apres delai supprimee');
+select is((select count(*)::integer from public.multiplayer_players where game_id not in (select id from public.multiplayer_games)), 0, 'joueurs de partie supprimee nettoyes par cascade');
+select is((select total_points from public.profiles where id = '50000000-0000-4000-8000-000000000002'), 30, 'partie vide supprimee sans credit supplementaire');
 set local role service_role;
 select is(public.cleanup_expired_multiplayer_games(), 0, 'second cleanup idempotent');
 reset role;
-select is((select total_points from public.profiles where id = '50000000-0000-4000-8000-000000000002'), 40, 'aucun double credit apres second cleanup');
+select is((select total_points from public.profiles where id = '50000000-0000-4000-8000-000000000002'), 30, 'aucun credit apres second cleanup de salle supprimee');
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000002', true);
-select throws_ok($$ select public.reconnect_multiplayer_game((select code from test_multiplayer_codes where name = 'empty_after_timeout')) $$, 'P0001', 'game_expired', 'reconnexion refusee apres cleanup expire');
+select throws_ok($$ select public.reconnect_multiplayer_game((select code from test_multiplayer_codes where name = 'empty_after_timeout')) $$, 'P0002', 'game_not_found', 'reconnexion refusee car salle supprimee');
 
 select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000001', true);
 select lives_ok($$ insert into test_multiplayer_codes (name, code) select 'host_timeout_transfer', game_code from public.create_multiplayer_game('films', 3) $$, 'cree partie transfert apres timeout');
@@ -268,8 +268,8 @@ select lives_ok($$ insert into test_multiplayer_codes (name, code) select 'relea
 select throws_ok($$ select public.create_multiplayer_game('series', 4) $$, 'P0001', 'active_game_exists', 'salle attente active bloque create');
 select is((select released_count from public.leave_my_active_multiplayer_games()), 1, 'libere une salle attente active');
 reset role;
-select is((select status from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'release_waiting')), 'cancelled', 'salle attente vide annulee');
-select is((select current_players from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'release_waiting')), 0, 'compteur remis a zero apres liberation');
+select is((select count(*)::integer from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'release_waiting')), 0, 'salle attente vide supprimee');
+select is((select count(*)::integer from public.multiplayer_players where game_id not in (select id from public.multiplayer_games)), 0, 'joueurs de salle attente supprimes par cascade');
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000005', true);
 select lives_ok($$ insert into test_multiplayer_codes (name, code) select 'release_waiting_next', game_code from public.create_multiplayer_game('series', 4) $$, 'creation possible apres liberation');
