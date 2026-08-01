@@ -150,6 +150,7 @@ async function installFakeMultiplayer(page) {
                     return { reactionType: payload.reactionType, pseudo: '<b>Beta</b>' };
                 }
                 if (event === 'leaveGame') return { result: 'left' };
+                if (event === 'leaveActiveGames') return { result: 'released', released_count: 1 };
                 return snapshot;
             }
         };
@@ -248,6 +249,22 @@ test('creation: ancienne salle en cache ignoree puis quittee si le serveur bloqu
     await expect(page.locator('#multiplayer-code-display')).toHaveText('AB234C');
     const events = await page.evaluate(() => window.__multiplayerPayloads.map(entry => `${entry.event}:${entry.payload?.gameCode || ''}`));
     expect(events).toContain('leaveGame:OLD123');
+    expect(await page.evaluate(() => window.__createAttempts)).toBe(2);
+});
+
+test('creation: ancienne salle serveur liberee sans code en cache', async ({ page }) => {
+    await installFakeMultiplayer(page);
+    await page.evaluate(() => {
+        localStorage.removeItem('memoriz_multiplayer_game');
+        window.__failCreateOnceWithActive = true;
+    });
+
+    await page.locator('#multiplayer-open').click();
+    await page.locator('#multiplayer-create').click();
+    await expect(page.locator('#multiplayer-code-display')).toHaveText('AB234C');
+    const events = await page.evaluate(() => window.__multiplayerPayloads.map(entry => entry.event));
+    expect(events).toContain('leaveActiveGames');
+    expect(events).not.toContain('requestGameState');
     expect(await page.evaluate(() => window.__createAttempts)).toBe(2);
 });
 

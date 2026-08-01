@@ -70,6 +70,12 @@ export class MultiplayerService {
         return firstRow(data);
     }
 
+    async leaveActiveGames(context) {
+        const { data, error } = await this.client(context).rpc('leave_my_active_multiplayer_games');
+        throwIfError(error);
+        return firstRow(data);
+    }
+
     async disconnectGame(context, { gameCode }) {
         const { data, error } = await this.client(context).rpc('disconnect_multiplayer_game', { p_game_code: gameCode });
         throwIfError(error);

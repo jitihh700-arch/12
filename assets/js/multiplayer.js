@@ -433,6 +433,17 @@
         }
     }
 
+    async function abandonActiveGames() {
+        try {
+            const result = await emit('leaveActiveGames', {});
+            clearCache();
+            state.current = null;
+            return Number(result?.released_count || 0) > 0;
+        } catch (error) {
+            return false;
+        }
+    }
+
     async function createGame(retryAfterActiveGame = true) {
         const nodes = els();
         resetStartGamePending();
@@ -447,7 +458,7 @@
             if (retryAfterActiveGame && connectionErrorKey(error) === 'active_game_exists') {
                 const cached = readCachedGame();
                 setStatus(ACTION_MESSAGES.active_game_exists);
-                const abandoned = await abandonCachedGame(cached);
+                const abandoned = (cached && await abandonCachedGame(cached)) || await abandonActiveGames();
                 if (abandoned) {
                     nodes.create.disabled = false;
                     await createGame(false);

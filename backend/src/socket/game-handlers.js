@@ -103,6 +103,11 @@ export function registerGameHandlers(io, socket, { multiplayerService, limiter }
         return result;
     }));
 
+    socket.on('leaveActiveGames', withAck(socket, limiter, 'leaveActiveGames', { max: 5, windowMs: 60_000 }, async () => {
+        delete socket.data.activeGameCode;
+        return multiplayerService.leaveActiveGames(socket.user);
+    }));
+
     socket.on('requestGameState', withAck(socket, limiter, 'requestGameState', { max: 30, windowMs: 60_000 }, async payload => {
         const input = parsePayload(gameCodeSchema, payload);
         await multiplayerService.reconnectGame(socket.user, input);

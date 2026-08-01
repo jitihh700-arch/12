@@ -70,6 +70,11 @@ function fakeServices() {
                 players.delete(context.userId);
                 return { result: 'left', game_code: 'ABC234' };
             },
+            async leaveActiveGames(context) {
+                calls.push({ method: 'leaveActiveGames', userId: context.userId });
+                players.delete(context.userId);
+                return { result: 'released', released_count: 1 };
+            },
             async disconnectGame(context) {
                 calls.push({ method: 'disconnectGame', userId: context.userId });
                 const player = players.get(context.userId);
@@ -259,6 +264,17 @@ describe('Socket.io multiplayer', () => {
         });
         expect(limited.ok).toBe(false);
         expect(limited.error).toBe('reaction_rate_limited');
+    });
+
+    it('libere les anciennes salles actives sans exiger de code client', async () => {
+        const a = connect('a');
+        await waitEvent(a, 'connect');
+
+        const ack = await emitAck(a, 'leaveActiveGames', {});
+
+        expect(ack.ok).toBe(true);
+        expect(ack.data).toEqual({ result: 'released', released_count: 1 });
+        expect(services.calls).toContainEqual({ method: 'leaveActiveGames', userId: 'u1' });
     });
 
     it('distingue deconnexion reseau et depart volontaire', async () => {

@@ -4,7 +4,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(122);
+select plan(140);
 
 create temp table test_multiplayer_codes (
   name text primary key,
@@ -38,7 +38,9 @@ select ok(has_function_privilege('authenticated', 'public.join_multiplayer_game(
 select ok(has_function_privilege('authenticated', 'public.start_multiplayer_game(text)', 'execute'), 'execute start_multiplayer_game');
 select ok(has_function_privilege('authenticated', 'public.submit_multiplayer_answer(text,text,uuid)', 'execute'), 'execute submit_multiplayer_answer');
 select ok(has_function_privilege('service_role', 'public.cleanup_expired_multiplayer_games()', 'execute'), 'execute cleanup_expired_multiplayer_games service_role');
+select ok(has_function_privilege('authenticated', 'public.leave_my_active_multiplayer_games()', 'execute'), 'authenticated peut liberer ses salles actives');
 select ok(not has_function_privilege('authenticated', 'public.cleanup_expired_multiplayer_games()', 'execute'), 'authenticated sans cleanup');
+select ok(not has_function_privilege('anon', 'public.leave_my_active_multiplayer_games()', 'execute'), 'anon sans liberation salles actives');
 select ok(not has_function_privilege('authenticated', 'private.generate_multiplayer_game_code()', 'execute'), 'generate code non expose');
 select ok(not has_function_privilege('authenticated', 'private.match_multiplayer_answer(text,uuid,uuid,text)', 'execute'), 'matching prive non expose');
 select ok(not has_function_privilege('anon', 'public.create_multiplayer_game(text,integer)', 'execute'), 'anon sans create');
@@ -259,6 +261,35 @@ select is((select host_id from public.multiplayer_games where game_code = (selec
 select is((select current_players from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'host_timeout_transfer')), 2, 'compteur apres hote timeout');
 select ok((select left_at is not null from public.multiplayer_players where user_id = '50000000-0000-4000-8000-000000000001' and game_id = (select id from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'host_timeout_transfer'))), 'hote timeout retire des joueurs actifs');
 select is((select status from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'host_timeout_transfer')), 'playing', 'partie reste playing si joueurs connectes');
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000005', true);
+select lives_ok($$ insert into test_multiplayer_codes (name, code) select 'release_waiting', game_code from public.create_multiplayer_game('series', 4) $$, 'cree salle attente a liberer');
+select throws_ok($$ select public.create_multiplayer_game('series', 4) $$, 'P0001', 'active_game_exists', 'salle attente active bloque create');
+select is((select released_count from public.leave_my_active_multiplayer_games()), 1, 'libere une salle attente active');
+reset role;
+select is((select status from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'release_waiting')), 'cancelled', 'salle attente vide annulee');
+select is((select current_players from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'release_waiting')), 0, 'compteur remis a zero apres liberation');
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000005', true);
+select lives_ok($$ insert into test_multiplayer_codes (name, code) select 'release_waiting_next', game_code from public.create_multiplayer_game('series', 4) $$, 'creation possible apres liberation');
+select is((select released_count from public.leave_my_active_multiplayer_games()), 1, 'libere la salle attente de validation');
+
+select lives_ok($$ insert into test_multiplayer_codes (name, code) select 'release_playing', game_code from public.create_multiplayer_game('films', 2) $$, 'cree partie playing a liberer');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000004', true);
+select is((select result from public.join_multiplayer_game((select code from test_multiplayer_codes where name = 'release_playing'))), 'joined', 'joueur D rejoint partie a liberer');
+select is((select result from public.set_multiplayer_ready((select code from test_multiplayer_codes where name = 'release_playing'), true)), 'ready_updated', 'joueur D pret partie a liberer');
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000005', true);
+select is((select result from public.start_multiplayer_game((select code from test_multiplayer_codes where name = 'release_playing'))), 'started', 'partie a liberer demarree');
+select is((select released_count from public.leave_my_active_multiplayer_games()), 1, 'libere ancienne partie playing sans code');
+reset role;
+select is((select host_id from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'release_playing')), '50000000-0000-4000-8000-000000000004'::uuid, 'hote transfere apres liberation playing');
+select is((select current_players from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'release_playing')), 1, 'compteur ajuste apres liberation playing');
+select ok((select left_at is not null from public.multiplayer_players where user_id = '50000000-0000-4000-8000-000000000005' and game_id = (select id from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'release_playing'))), 'joueur libere retire de la partie playing');
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000005', true);
+select lives_ok($$ insert into test_multiplayer_codes (name, code) select 'release_playing_next', game_code from public.create_multiplayer_game('series', 4) $$, 'creation possible apres liberation playing');
+reset role;
 
 select ok(pg_get_functiondef('public.submit_multiplayer_answer(text,text,uuid)'::regprocedure) ~* 'for[[:space:]]+update', 'submit verrouille les lignes');
 select ok(pg_get_functiondef('public.start_multiplayer_game(text)'::regprocedure) ~* 'for[[:space:]]+update', 'start verrouille la partie');
