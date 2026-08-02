@@ -43,6 +43,8 @@ Le lancement de Supabase local a été nécessaire pour les suites historiques f
 Une correction complémentaire a ajouté les pages V4 Multijoueur et Communauté, ainsi qu'un écran d'introduction Sharingan animé, pour répondre à la revue utilisateur.
 La navigation V4 affiche désormais une seule vue principale à la fois : Accueil, Explorer, Solo, Multijoueur, Communauté ou Articles.
 L'introduction n'est plus bloquée par un état `sessionStorage` persistant ; elle se rejoue au lancement normal de la page et peut seulement être désactivée par le flag de test `MEMORIZ_V4_SKIP_INTRO`.
+L'introduction utilise directement les images suivies dans `assets/images/memoriz/intro/web/` et `assets/images/memoriz/intro/mobile/`.
+Le fallback texte reste caché quand ces images sont disponibles.
 
 ## Captures de controle
 
@@ -50,3 +52,4 @@ L'introduction n'est plus bloquée par un état `sessionStorage` persistant ; el
 - `test-results/ui-review/after-routed-multiplayer.png`
 - `test-results/ui-review/after-routed-community.png`
 - `test-results/ui-review/after-intro-launch.png`
+- `test-results/ui-review/after-intro-real-assets-settled.png`

@@ -23,7 +23,9 @@ test('l’introduction V4 se joue automatiquement puis libère l’application',
     await openV4(page, { skipIntro: false, stepMs: 80, reducedMs: 80 });
 
     await expect(page.locator('#v4-intro')).toHaveClass(/is-active/);
-    await expect(page.locator('.v4-sharingan-stage')).toBeVisible();
+    await expect(page.locator('#v4-intro-fallback')).toBeHidden();
+    await expect(page.locator('#v4-intro-image')).toBeVisible();
+    await expect(page.locator('#v4-intro-image')).toHaveAttribute('src', /assets\/images\/memoriz\/intro\/mobile\/0[1-5]-.*-1080x1920\.webp/);
     await expect(page.locator('#v4-intro')).toHaveClass(/is-step-/);
     await expect(page.locator('#v4-intro')).not.toHaveClass(/is-active/, { timeout: 2500 });
     await expect(page.locator('#v4-intro')).toHaveAttribute('aria-hidden', 'true');
