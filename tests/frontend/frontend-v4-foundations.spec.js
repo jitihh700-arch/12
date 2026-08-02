@@ -24,8 +24,8 @@ test('l’introduction V4 se joue automatiquement puis libère l’application',
 
     await expect(page.locator('#v4-intro')).toHaveClass(/is-active/);
     await expect(page.locator('#v4-intro-fallback')).toBeHidden();
-    await expect(page.locator('#v4-intro-image')).toBeVisible();
-    await expect(page.locator('#v4-intro-image')).toHaveAttribute('src', /assets\/images\/memoriz\/intro\/mobile\/0[1-5]-.*-1080x1920\.webp/);
+    await expect(page.locator('.v4-intro-frame.is-visible').first()).toBeVisible();
+    await expect(page.locator('.v4-intro-frame.is-visible').first()).toHaveAttribute('src', /assets\/images\/memoriz\/intro\/(mobile|web)\/0[1-5]-.*\.webp$/);
     await expect(page.locator('#v4-intro')).toHaveClass(/is-step-/);
     await expect(page.locator('#v4-intro')).not.toHaveClass(/is-active/, { timeout: 2500 });
     await expect(page.locator('#v4-intro')).toHaveAttribute('aria-hidden', 'true');
@@ -44,7 +44,7 @@ test('prefers-reduced-motion affiche brièvement l’état final', async ({ page
     await openV4(page, { skipIntro: false, stepMs: 200, reducedMs: 20 });
 
     await expect(page.locator('#v4-intro')).not.toHaveClass(/is-active/, { timeout: 1600 });
-    await expect(page.locator('#v4-intro-image')).toHaveAttribute('src', /05-ultimate-1080x1920\.webp/);
+    await expect(page.locator('.v4-intro-frame.is-visible')).toHaveAttribute('src', /05-ultimate-.*\.webp/);
 });
 
 test('un échec de préchargement d’asset ne bloque pas l’application', async ({ page }) => {

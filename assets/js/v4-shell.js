@@ -6,9 +6,10 @@
         ['04-third-mark-1920x1080.webp', '04-third-mark-1080x1920.webp'],
         ['05-ultimate-1920x1080.webp', '05-ultimate-1080x1920.webp']
     ];
-    const STEP_MS = Number(window.MEMORIZ_V4_INTRO_STEP_MS || 520);
+    const STEP_MS = Number(window.MEMORIZ_V4_INTRO_STEP_MS || 760);
     const REDUCED_MS = Number(window.MEMORIZ_V4_INTRO_REDUCED_MS || 220);
     const timers = new Set();
+    let activeIntroFrame = 'a';
 
     function byId(id) {
         return document.getElementById(id);
@@ -32,6 +33,16 @@
         return `assets/images/memoriz/intro/${kind}/${file}`;
     }
 
+    function introKind() {
+        return window.matchMedia('(min-width: 768px)').matches ? 'web' : 'mobile';
+    }
+
+    function introSrc(index) {
+        const kind = introKind();
+        const step = INTRO_STEPS[index];
+        return introPath(kind, kind === 'web' ? step[0] : step[1]);
+    }
+
     function preloadIntro() {
         return Promise.all(INTRO_STEPS.flatMap(([web, mobile]) => [introPath('web', web), introPath('mobile', mobile)]).map(src => new Promise((resolve, reject) => {
             const image = new Image();
@@ -43,17 +54,32 @@
 
     function setIntroStep(index) {
         const intro = byId('v4-intro');
-        const image = byId('v4-intro-image');
-        const source = byId('v4-intro-source');
+        const current = byId(`v4-intro-image-${activeIntroFrame}`);
+        const nextName = activeIntroFrame === 'a' ? 'b' : 'a';
+        const next = byId(`v4-intro-image-${nextName}`);
         const step = INTRO_STEPS[index];
-        if (!image || !source || !step) return;
+        if (!current || !next || !step) return;
         if (intro) {
             intro.dataset.step = String(index + 1);
             intro.classList.remove('is-step-1', 'is-step-2', 'is-step-3', 'is-step-4', 'is-step-5');
             intro.classList.add(`is-step-${index + 1}`);
         }
-        source.srcset = introPath('web', step[0]);
-        image.src = introPath('mobile', step[1]);
+        next.src = introSrc(index);
+        next.classList.add('is-visible');
+        current.classList.remove('is-visible');
+        activeIntroFrame = nextName;
+    }
+
+    function resetIntroFrames() {
+        const first = introSrc(0);
+        const frameA = byId('v4-intro-image-a');
+        const frameB = byId('v4-intro-image-b');
+        if (!frameA || !frameB) return;
+        activeIntroFrame = 'a';
+        frameA.src = first;
+        frameB.src = first;
+        frameA.classList.add('is-visible');
+        frameB.classList.remove('is-visible');
     }
 
     function finishIntro(options = {}) {
@@ -143,6 +169,7 @@
 
         intro.dataset.started = 'true';
         intro.dataset.step = '1';
+        resetIntroFrames();
         intro.classList.add('is-active');
         intro.classList.add('is-step-1');
         intro.setAttribute('aria-hidden', 'false');
@@ -163,10 +190,10 @@
             return;
         }
 
-        INTRO_STEPS.forEach((step, index) => {
-            setTimer(() => setIntroStep(index), index * STEP_MS);
+        INTRO_STEPS.slice(1).forEach((step, index) => {
+            setTimer(() => setIntroStep(index + 1), (index + 1) * STEP_MS);
         });
-        setTimer(finishIntro, INTRO_STEPS.length * STEP_MS + 260);
+        setTimer(finishIntro, INTRO_STEPS.length * STEP_MS + 620);
     }
 
     function normalize(text) {

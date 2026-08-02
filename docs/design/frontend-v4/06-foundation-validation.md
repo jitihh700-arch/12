@@ -45,6 +45,7 @@ La navigation V4 affiche désormais une seule vue principale à la fois : Accuei
 L'introduction n'est plus bloquée par un état `sessionStorage` persistant ; elle se rejoue au lancement normal de la page et peut seulement être désactivée par le flag de test `MEMORIZ_V4_SKIP_INTRO`.
 L'introduction utilise directement les images suivies dans `assets/images/memoriz/intro/web/` et `assets/images/memoriz/intro/mobile/`.
 Le fallback texte reste caché quand ces images sont disponibles.
+La séquence d'introduction utilise deux calques d'image pour effectuer un fondu fluide entre les cinq états, sans changement brutal de `src` visible.
 
 ## Captures de controle
 
@@ -53,3 +54,5 @@ Le fallback texte reste caché quand ces images sont disponibles.
 - `test-results/ui-review/after-routed-community.png`
 - `test-results/ui-review/after-intro-launch.png`
 - `test-results/ui-review/after-intro-real-assets-settled.png`
+- `test-results/ui-review/after-intro-smooth-step-1.png`
+- `test-results/ui-review/after-intro-smooth-crossfade.png`
