@@ -1,0 +1,36 @@
+{
+  "name": "Memoriz Asset Pack V1",
+  "palette": {
+    "gunmetal": "#292F36",
+    "turquoise": "#4ECDC4",
+    "mint": "#F7FFF7",
+    "coral": "#FF6B6B",
+    "yellow": "#FFE66D"
+  },
+  "counts": {
+    "intro": 10,
+    "categories": 10,
+    "avatars": 7,
+    "gameplay": 10,
+    "multiplayer": 14,
+    "articles": 8,
+    "states": 9,
+    "backgrounds": 16,
+    "effects": 4
+  },
+  "category_audit": {
+    "known_covers": [
+      "series-tv.webp",
+      "cinema.webp",
+      "anime-manga.webp",
+      "sport-football.webp",
+      "musique.webp",
+      "histoire.webp",
+      "sciences.webp",
+      "jeux-video.webp",
+      "culture-generale.webp",
+      "celebrites.webp"
+    ],
+    "status": "10 couvertures organisées. La comparaison avec les 26 catégories exactes nécessite assets/js/quiz-data.js."
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "Memoriz Frontend Handoff V4",
+  "status": "READY",
+  "reference_count": 17,
+  "asset_files": 113,
+  "total_files_before_inventory": 133,
+  "prompt": "prompts/CODEX_FRONTEND_REBUILD_V4.md",
+  "roadmap": "docs/ROADMAP_FRONTEND_V4.md",
+  "installation": "INSTALLATION.md",
+  "references": [
+    "references/web/01-desktop-overview-approved.png",
+    "references/mobile/01-home-approved.png",
+    "references/mobile/02-explorer-approved.png",
+    "references/mobile/03-solo-approved.png",
+    "references/mobile/04-multiplayer-portal-approved.png",
+    "references/mobile/05-community-approved.png",
+    "references/mobile/intro-02-first-mark.png",
+    "references/mobile/intro-03-second-mark.png",
+    "references/mobile/intro-04-third-mark.png",
+    "references/mobile/intro-05-ultimate.png",
+    "references/mobile/intro-01-inactive.png",
+    "references/validated/portal-mobile-web.png",
+    "references/validated/leaderboard-mobile-web.png",
+    "references/validated/community-comments-mobile-web.png",
+    "references/validated/articles-mobile-web.png",
+    "references/validated/final-profile-article-states-board.png",
+    "references/web/02-desktop-reference-historical.png"
+  ]
+}
