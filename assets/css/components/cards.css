@@ -1,0 +1,54 @@
+.memoriz-v4 .profile-card,
+.memoriz-v4 .category-card,
+.memoriz-v4 .blog-article,
+.memoriz-v4 .comments-section,
+.v4-state {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+.memoriz-v4 .category-card {
+    position: relative;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+    text-align: left;
+    isolation: isolate;
+}
+
+.v4-category-image {
+    width: 100%;
+    height: clamp(120px, 12vw, 168px);
+    object-fit: cover;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-gunmetal));
+}
+
+.v4-category-body {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+}
+
+.memoriz-v4 .category-card h3 {
+    margin: 0;
+    font-size: clamp(1.1rem, 2vw, 1.35rem);
+}
+
+.memoriz-v4 .category-card p {
+    margin: 0;
+    color: var(--color-muted);
+    display: -webkit-box;
+    min-height: 2.8em;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.memoriz-v4 .questions-count {
+    width: fit-content;
+    background: rgba(78, 205, 196, 0.16);
+    color: var(--color-primary);
+    border: 1px solid rgba(78, 205, 196, 0.36);
+}

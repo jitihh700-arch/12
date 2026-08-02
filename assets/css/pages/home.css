@@ -1,0 +1,63 @@
+.memoriz-v4 .v4-home {
+    min-height: clamp(520px, 64vh, 760px);
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: var(--space-4);
+    padding: clamp(28px, 6vw, 72px);
+    margin-bottom: var(--space-6);
+    text-align: left;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--color-border);
+    background:
+        linear-gradient(90deg, rgba(8, 15, 22, 0.92), rgba(8, 15, 22, 0.62)),
+        image-set(
+            url("../../images/memoriz/backgrounds/web/home.webp") type("image/webp")
+        );
+    background-size: cover;
+    background-position: center;
+    box-shadow: var(--shadow-soft);
+}
+
+.memoriz-v4 .v4-home h1 {
+    max-width: 760px;
+    margin: 0;
+    font-size: clamp(2.3rem, 7vw, 5.3rem);
+    line-height: 1.02;
+    text-shadow: 0 8px 28px rgba(0, 0, 0, 0.42);
+}
+
+.memoriz-v4 .v4-home h1 span {
+    color: var(--color-accent);
+}
+
+.v4-home-lead {
+    max-width: 620px;
+    color: var(--color-muted);
+    font-size: clamp(1rem, 2.1vw, 1.25rem);
+    line-height: 1.6;
+}
+
+.v4-home-actions,
+.v4-home-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+.v4-home-stats span {
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 8px 14px;
+    background: rgba(247, 255, 247, 0.07);
+    color: var(--color-muted);
+    font-weight: 700;
+}
+
+.memoriz-v4 .support-banner {
+    margin: var(--space-4) 0 0;
+}
+
+.memoriz-v4 .profile-card {
+    margin: var(--space-5) 0 0;
+}

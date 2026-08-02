@@ -200,7 +200,10 @@
     function closeModal(force = false) {
         const els = getEls();
         if (state.modalMode === 'required' && !force) {
-            if (els.input) els.input.focus();
+            if (els.input) {
+                els.input.focus();
+                window.setTimeout(() => els.input.focus(), 0);
+            }
             return;
         }
         if (!els.modal) return;
@@ -333,6 +336,33 @@
         const els = getEls();
         if (!els.card) return;
 
+        document.addEventListener('pointerdown', (event) => {
+            if (state.modalMode !== 'required' || !els.modal || els.modal.hidden) return;
+            if (els.modal.querySelector('.profile-modal-content')?.contains(event.target)) return;
+            event.preventDefault();
+            if (els.input) window.setTimeout(() => els.input.focus(), 0);
+        }, true);
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Tab' || !els.modal || els.modal.hidden) return;
+            const focusable = focusableModalElements(els.modal);
+            if (focusable.length === 0) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+            const currentIndex = focusable.indexOf(document.activeElement);
+            const direction = event.shiftKey ? -1 : 1;
+            const nextIndex = currentIndex === -1
+                ? (event.shiftKey ? focusable.length - 1 : 0)
+                : (currentIndex + direction + focusable.length) % focusable.length;
+            focusable[nextIndex].focus();
+        }, true);
+        document.addEventListener('focusout', () => {
+            if (state.modalMode !== 'required' || !els.modal || els.modal.hidden) return;
+            window.setTimeout(() => {
+                if (!els.modal || els.modal.hidden || els.modal.contains(document.activeElement)) return;
+                els.input?.focus();
+            }, 0);
+        }, true);
         els.primary.addEventListener('click', () => {
             if (!els.primary.disabled) openModal();
         });

@@ -1,0 +1,17 @@
+.memoriz-v4 *,
+.memoriz-v4 *::before,
+.memoriz-v4 *::after {
+    box-sizing: border-box;
+}
+
+.memoriz-v4 button,
+.memoriz-v4 input,
+.memoriz-v4 select,
+.memoriz-v4 textarea {
+    font: inherit;
+}
+
+.memoriz-v4 img {
+    max-width: 100%;
+    display: block;
+}

@@ -1,0 +1,38 @@
+body.memoriz-v4 {
+    min-height: 100dvh;
+    background:
+        radial-gradient(circle at 50% -10%, rgba(255, 107, 107, 0.16), transparent 32rem),
+        linear-gradient(145deg, #09111A 0%, var(--color-bg) 50%, #071018 100%);
+    color: var(--color-text);
+    font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: 0;
+    padding: calc(var(--nav-height) + var(--space-5)) var(--space-4) calc(var(--mobile-nav-height) + var(--safe-bottom) + var(--space-4));
+    max-width: 100%;
+}
+
+html,
+body.memoriz-v4 {
+    overflow-x: clip;
+}
+
+body.memoriz-v4.light-mode {
+    background: #101A24;
+    color: var(--color-text);
+}
+
+.memoriz-v4 a {
+    color: inherit;
+}
+
+.memoriz-v4 :focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 3px;
+}
+
+.memoriz-v4 .sharingan-bg {
+    display: none;
+}
+
+.memoriz-v4 #particles-canvas {
+    opacity: 0.16;
+}

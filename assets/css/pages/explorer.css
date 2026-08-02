@@ -1,0 +1,29 @@
+.v4-explorer {
+    padding: clamp(22px, 4vw, 36px);
+    margin-bottom: var(--space-6);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--color-border);
+    background:
+        linear-gradient(180deg, rgba(15, 23, 32, 0.92), rgba(15, 23, 32, 0.78)),
+        url("../../images/memoriz/backgrounds/web/categories.webp");
+    background-size: cover;
+    background-position: center;
+}
+
+.memoriz-v4 .categories h2 {
+    margin: 0;
+    text-align: left;
+    color: var(--color-text);
+    -webkit-text-fill-color: currentColor;
+    background: none;
+}
+
+.memoriz-v4 .category-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    gap: var(--space-5);
+    margin: 0;
+}
+
+.category-card[hidden] {
+    display: none;
+}

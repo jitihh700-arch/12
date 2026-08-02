@@ -1,0 +1,33 @@
+.memoriz-v4 .container {
+    width: min(100%, var(--max-shell));
+    padding: 0;
+}
+
+.v4-section-heading {
+    display: grid;
+    gap: var(--space-2);
+    margin-bottom: var(--space-5);
+}
+
+.v4-section-heading h2,
+.v4-home h1 {
+    color: var(--color-text);
+    -webkit-text-fill-color: currentColor;
+    background: none;
+    letter-spacing: 0;
+}
+
+.v4-eyebrow {
+    margin: 0;
+    color: var(--color-primary);
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.blog-section,
+.comments-section,
+.main-footer {
+    width: min(100%, var(--max-shell));
+}

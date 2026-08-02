@@ -16,7 +16,6 @@
 
     <!-- Sécurité 2026 -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="DENY">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()">
     <meta name="format-detection" content="telephone=no">
@@ -41,8 +40,33 @@
     <link rel="stylesheet" href="assets/css/leaderboard.css">
     <link rel="stylesheet" href="assets/css/multiplayer.css">
     <link rel="stylesheet" href="assets/css/reactions.css">
+    <link rel="stylesheet" href="assets/css/tokens.css">
+    <link rel="stylesheet" href="assets/css/reset.css">
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <link rel="stylesheet" href="assets/css/utilities.css">
+    <link rel="stylesheet" href="assets/css/components/buttons.css">
+    <link rel="stylesheet" href="assets/css/components/cards.css">
+    <link rel="stylesheet" href="assets/css/components/forms.css">
+    <link rel="stylesheet" href="assets/css/components/navigation.css">
+    <link rel="stylesheet" href="assets/css/components/feedback.css">
+    <link rel="stylesheet" href="assets/css/pages/intro.css">
+    <link rel="stylesheet" href="assets/css/pages/home.css">
+    <link rel="stylesheet" href="assets/css/pages/explorer.css">
+    <link rel="stylesheet" href="assets/css/pages/system-states.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
 </head>
-<body>
+<body class="memoriz-v4">
+    <div class="v4-intro" id="v4-intro" aria-hidden="true">
+        <picture>
+            <source id="v4-intro-source" media="(min-width: 768px)" srcset="assets/images/memoriz/intro/web/01-inactive-1920x1080.webp">
+            <img id="v4-intro-image" src="assets/images/memoriz/intro/mobile/01-inactive-1080x1920.webp" alt="" width="1080" height="1920">
+        </picture>
+        <div class="v4-intro-fallback" id="v4-intro-fallback" hidden>
+            <strong>MEMORIZ</strong>
+            <span>Chargement de l'application...</span>
+        </div>
+    </div>
     <!-- CANVAS POUR LE FOND ANIMÉ -->
     <canvas id="particles-canvas"></canvas>
 
@@ -57,13 +81,45 @@
         </div>
     </div>
 
+    <nav class="v4-top-nav" aria-label="Navigation principale">
+        <a class="v4-brand" href="#home" data-v4-route="home" aria-label="Accueil Memoriz">
+            <img src="favicon-96x96.png" alt="" width="36" height="36">
+            <span>MEMORIZ</span>
+        </a>
+        <div class="v4-nav-links">
+            <a href="#home" data-v4-route="home" aria-current="page">Accueil</a>
+            <a href="#explorer" data-v4-route="explorer">Explorer</a>
+            <a href="#solo" data-v4-route="solo">Solo</a>
+            <a href="#multiplayer" data-v4-route="multiplayer">Multijoueur</a>
+            <a href="#community" data-v4-route="community">Communauté</a>
+        </div>
+        <div class="v4-nav-profile" aria-live="polite">
+            <span id="v4-nav-profile-name">Mode solo</span>
+        </div>
+    </nav>
+    <nav class="v4-bottom-nav" aria-label="Navigation mobile">
+        <a href="#home" data-v4-route="home" aria-current="page">Accueil</a>
+        <a href="#explorer" data-v4-route="explorer">Explorer</a>
+        <a href="#solo" data-v4-route="solo">Solo</a>
+        <a href="#articles" data-v4-route="articles">Articles</a>
+        <a href="#profile-card" data-v4-route="profile">Profil</a>
+    </nav>
+
     <div class="container">
-        <header>
-            <button class="theme-btn" id="themeToggle">🌓 Mode Clair/Sombre</button>
-            <h1>🧠 MEMORIZ 🧠</h1>
-            <p>"Ce que tu sais, tu le mémorises. Ce que tu ne sais pas, tu l'apprends."</p>
-            <div class="badge">✨ Plus de 400 personnages et thèmes à découvrir ✨</div>
-            <p style="font-size: 0.9rem; margin-top: 10px;">🎯 26 catégories | ⏱️ 10 minutes par quiz | 🏆 Teste-toi !</p>
+        <header class="v4-home" id="home" data-v4-view="home" aria-labelledby="v4-home-title">
+            <button class="theme-btn" id="themeToggle" aria-label="Basculer le thème">Mode clair</button>
+            <p class="v4-eyebrow">Quiz culture pop et mémoire</p>
+            <h1 id="v4-home-title">Teste tes connaissances. <span>Progresse chaque jour.</span></h1>
+            <p class="v4-home-lead">Des quiz rapides dans tes univers préférés, utilisables en solo même quand les services en ligne sont indisponibles.</p>
+            <div class="v4-home-actions">
+                <a href="#explorer" class="v4-button v4-button-primary" data-v4-route="explorer">Lancer un quiz</a>
+                <button type="button" class="v4-button v4-button-secondary" id="v4-home-multiplayer">Multijoueur</button>
+            </div>
+            <div class="v4-home-stats" aria-label="Résumé Memoriz">
+                <span>26 catégories</span>
+                <span>10 minutes</span>
+                <span>Solo disponible</span>
+            </div>
             
             <a href="https://www.sapeo.org/memoriz-quiz" target="_blank" class="support-banner">
                 <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
@@ -86,8 +142,30 @@
             </section>
         </header>
 
-        <div class="categories">
-            <h2>📚 Choisis ton défi</h2>
+        <div class="categories v4-explorer" id="explorer" data-v4-view="explorer" aria-labelledby="v4-explorer-title">
+            <div class="v4-section-heading">
+                <p class="v4-eyebrow">Explorer</p>
+                <h2 id="v4-explorer-title">Choisis ton défi</h2>
+                <p>Recherche une catégorie, puis lance le quiz existant sans changer les règles.</p>
+            </div>
+            <form class="v4-search" role="search" aria-label="Recherche de catégories">
+                <label for="v4-category-search">Rechercher une catégorie</label>
+                <div class="v4-search-row">
+                    <input id="v4-category-search" type="search" autocomplete="off" placeholder="Anime, football, cinéma...">
+                    <button type="button" id="v4-category-clear" aria-label="Effacer la recherche" hidden>Effacer</button>
+                </div>
+            </form>
+            <div class="v4-filter-row" aria-label="Filtres de catégories">
+                <button type="button" class="is-active" data-v4-filter="all">Toutes</button>
+                <button type="button" data-v4-filter="anime">Anime</button>
+                <button type="button" data-v4-filter="sport">Sport</button>
+                <button type="button" data-v4-filter="culture">Culture</button>
+            </div>
+            <div class="v4-state" id="v4-category-empty" role="status" aria-live="polite" hidden>
+                <img src="assets/images/memoriz/states/no-search-results.png" alt="" width="180" height="180" loading="lazy">
+                <strong>Aucune catégorie trouvée</strong>
+                <span>Essaie avec un autre mot-clé.</span>
+            </div>
             <div class="category-grid">
                 <!-- Catégories existantes -->
                 <div class="category-card" data-category="series"><h3>📺 Séries TV</h3><p>Top 20 des légendes du petit écran</p><span class="questions-count">20 personnages</span></div>
@@ -332,6 +410,7 @@
     <script defer src="assets/js/auth.js"></script>
     <script defer src="assets/js/quiz-session.js"></script>
     <script defer src="assets/js/quiz-solo.js"></script>
+    <script defer src="assets/js/v4-shell.js"></script>
     <script defer src="assets/js/leaderboard.js"></script>
     <script defer src="assets/js/multiplayer-socket.js"></script>
     <script defer src="assets/js/reactions.js"></script>

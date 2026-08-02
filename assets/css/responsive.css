@@ -1,0 +1,72 @@
+@media (max-width: 760px) {
+    body.memoriz-v4 {
+        padding-top: var(--space-4);
+    }
+
+    .v4-top-nav {
+        position: relative;
+        top: auto;
+        left: auto;
+        width: 100%;
+        max-width: 100%;
+        transform: none;
+        margin: 0 auto var(--space-4);
+    }
+
+    .v4-nav-links {
+        display: none;
+    }
+
+    .v4-bottom-nav {
+        display: grid;
+    }
+
+    .v4-nav-profile {
+        display: none;
+    }
+
+    .memoriz-v4 .v4-home {
+        min-height: auto;
+        padding: 34px 22px;
+        background-image:
+            linear-gradient(180deg, rgba(8, 15, 22, 0.9), rgba(8, 15, 22, 0.72)),
+            url("../../images/memoriz/backgrounds/mobile/home.webp");
+    }
+
+    .v4-home-actions,
+    .v4-search-row {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .v4-button {
+        width: 100%;
+    }
+
+    .memoriz-v4 .category-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 761px) {
+    .memoriz-v4 .category-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1180px) {
+    .memoriz-v4 .category-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .memoriz-v4 *,
+    .memoriz-v4 *::before,
+    .memoriz-v4 *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+}
