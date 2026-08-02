@@ -1,5 +1,4 @@
 (function() {
-    const INTRO_KEY = 'memoriz_v4_intro_seen';
     const INTRO_STEPS = [
         ['01-inactive-1920x1080.webp', '01-inactive-1080x1920.webp'],
         ['02-first-mark-1920x1080.webp', '02-first-mark-1080x1920.webp'],
@@ -60,7 +59,6 @@
     function finishIntro(options = {}) {
         const intro = byId('v4-intro');
         if (!intro) return;
-        sessionStorage.setItem(INTRO_KEY, '1');
         if (options.immediate) {
             intro.classList.remove('is-active', 'is-leaving');
             intro.setAttribute('aria-hidden', 'true');
@@ -80,7 +78,6 @@
     function skipIntro() {
         const intro = byId('v4-intro');
         if (!intro) return;
-        sessionStorage.setItem(INTRO_KEY, '1');
         intro.dataset.started = 'true';
         intro.classList.remove('is-active', 'is-leaving');
         intro.setAttribute('aria-hidden', 'true');
@@ -142,10 +139,12 @@
     async function startIntro() {
         const intro = byId('v4-intro');
         const fallback = byId('v4-intro-fallback');
-        if (!intro || sessionStorage.getItem(INTRO_KEY) === '1' || intro.dataset.started === 'true') return;
+        if (!intro || window.MEMORIZ_V4_SKIP_INTRO === true || intro.dataset.started === 'true') return;
 
         intro.dataset.started = 'true';
+        intro.dataset.step = '1';
         intro.classList.add('is-active');
+        intro.classList.add('is-step-1');
         intro.setAttribute('aria-hidden', 'false');
         watchProfileModalDuringIntro();
 
@@ -276,9 +275,11 @@
             if (isCurrent) link.setAttribute('aria-current', 'page');
             else link.removeAttribute('aria-current');
         });
+        const viewRoute = route === 'profile' ? 'home' : route;
         document.querySelectorAll('[data-v4-view]').forEach(view => {
-            view.classList.toggle('is-v4-current', view.getAttribute('data-v4-view') === route);
+            view.classList.toggle('is-v4-current', view.getAttribute('data-v4-view') === viewRoute);
         });
+        document.body.dataset.v4Route = route;
     }
 
     function routeTarget(route) {
@@ -294,10 +295,25 @@
         return byId(targets[route] || route);
     }
 
+    function routeFromHash(hash) {
+        const value = hash ? hash.replace(/^#/, '') : 'home';
+        const hashRoutes = {
+            home: 'home',
+            explorer: 'explorer',
+            solo: 'solo',
+            multiplayer: 'multiplayer',
+            community: 'community',
+            articles: 'articles',
+            'profile-card': 'profile'
+        };
+        return hashRoutes[value] || 'home';
+    }
+
     function goToRoute(route, options = {}) {
         const target = routeTarget(route);
         if (!target) return;
         setCurrentRoute(route);
+        window.location.hash = target.id;
         if (!options.silent) target.scrollIntoView({ behavior: 'auto', block: 'start' });
         if (options.focus) {
             target.setAttribute('tabindex', '-1');
@@ -338,9 +354,10 @@
         bindNavigation();
         syncProfileName();
         filterCategories();
-        setCurrentRoute('home');
+        setCurrentRoute(routeFromHash(window.location.hash));
         scheduleIntro();
         document.addEventListener('memoriz:profile-ready', syncProfileName);
+        window.addEventListener('hashchange', () => setCurrentRoute(routeFromHash(window.location.hash)));
         window.addEventListener('beforeunload', clearTimers);
     }
 

@@ -13,6 +13,7 @@
 - `npm run test:render-build` : OK.
 - `git diff --check` : OK.
 - `npx playwright test tests/frontend/frontend-v4-foundations.spec.js` après correction de portée : 13/13 tests OK.
+- Contrôle Playwright direct du routage V4 : OK.
 
 ## Resultats detailles
 
@@ -39,5 +40,13 @@
 ## Notes
 
 Le lancement de Supabase local a été nécessaire pour les suites historiques frontend et intégration.
-Le Lot 1 reste une fondation visuelle : les vues métier complètes seront traitées dans des lots séparés.
 Une correction complémentaire a ajouté les pages V4 Multijoueur et Communauté, ainsi qu'un écran d'introduction Sharingan animé, pour répondre à la revue utilisateur.
+La navigation V4 affiche désormais une seule vue principale à la fois : Accueil, Explorer, Solo, Multijoueur, Communauté ou Articles.
+L'introduction n'est plus bloquée par un état `sessionStorage` persistant ; elle se rejoue au lancement normal de la page et peut seulement être désactivée par le flag de test `MEMORIZ_V4_SKIP_INTRO`.
+
+## Captures de controle
+
+- `test-results/ui-review/after-routed-home.png`
+- `test-results/ui-review/after-routed-multiplayer.png`
+- `test-results/ui-review/after-routed-community.png`
+- `test-results/ui-review/after-intro-launch.png`
