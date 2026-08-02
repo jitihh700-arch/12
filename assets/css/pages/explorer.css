@@ -27,3 +27,35 @@
 .category-card[hidden] {
     display: none;
 }
+
+.v4-search-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+}
+
+.v4-search-suggestions[hidden] {
+    display: none;
+}
+
+.v4-search-suggestions button {
+    min-height: 40px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0 var(--space-4);
+    background: rgba(18, 29, 40, 0.78);
+    color: var(--color-text);
+    cursor: pointer;
+    transition:
+        transform var(--transition-fast),
+        border-color var(--transition-fast),
+        background var(--transition-fast);
+}
+
+.v4-search-suggestions button:hover,
+.v4-search-suggestions button:focus-visible {
+    border-color: var(--color-border-strong);
+    background: rgba(78, 205, 196, 0.16);
+    transform: translateY(-1px);
+}

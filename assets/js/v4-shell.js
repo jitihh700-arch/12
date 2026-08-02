@@ -209,6 +209,10 @@
         return 'culture';
     }
 
+    function categoryCards() {
+        return [...document.querySelectorAll('.category-card[data-category]')];
+    }
+
     function enrichCategories() {
         document.querySelectorAll('.category-card[data-category]').forEach(card => {
             const key = card.getAttribute('data-category');
@@ -251,6 +255,48 @@
         });
     }
 
+    function suggestionLabel(card) {
+        return card.querySelector('h3')?.textContent?.trim() || card.dataset.category || '';
+    }
+
+    function renderCategorySuggestions(query, activeFilter) {
+        const input = byId('v4-category-search');
+        const suggestions = byId('v4-category-suggestions');
+        if (!input || !suggestions) return;
+
+        suggestions.replaceChildren();
+        if (!query) {
+            suggestions.hidden = true;
+            return;
+        }
+
+        const matches = categoryCards()
+            .filter(card => {
+                const matchesFilter = activeFilter === 'all' || card.dataset.v4Theme === activeFilter;
+                return matchesFilter && card.dataset.v4Search.includes(query);
+            })
+            .slice(0, 5);
+
+        if (!matches.length) {
+            suggestions.hidden = true;
+            return;
+        }
+
+        matches.forEach(card => {
+            const label = suggestionLabel(card);
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = label;
+            button.addEventListener('click', () => {
+                input.value = label;
+                input.focus();
+                filterCategories();
+            });
+            suggestions.append(button);
+        });
+        suggestions.hidden = false;
+    }
+
     function filterCategories() {
         const input = byId('v4-category-search');
         const clear = byId('v4-category-clear');
@@ -259,7 +305,7 @@
         const query = normalize(input?.value || '');
         let visibleCount = 0;
 
-        document.querySelectorAll('.category-card[data-category]').forEach(card => {
+        categoryCards().forEach(card => {
             const matchesQuery = !query || card.dataset.v4Search.includes(query);
             const matchesFilter = activeFilter === 'all' || card.dataset.v4Theme === activeFilter;
             const visible = matchesQuery && matchesFilter;
@@ -268,6 +314,7 @@
         });
 
         if (clear) clear.hidden = !query;
+        renderCategorySuggestions(query, activeFilter);
         if (empty) empty.hidden = visibleCount !== 0;
     }
 

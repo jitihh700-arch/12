@@ -7,6 +7,10 @@
     text-align: center;
 }
 
+.v4-state[hidden] {
+    display: none;
+}
+
 .v4-state img {
     width: min(180px, 52vw);
     aspect-ratio: 1;

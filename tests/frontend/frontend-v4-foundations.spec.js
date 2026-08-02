@@ -118,10 +118,14 @@ test('la recherche Explorer filtre sans tenir compte de la casse ni des accents'
     await page.locator('.v4-top-nav [data-v4-route="explorer"]').click();
 
     await page.locator('#v4-category-search').fill('cinema');
+    await expect(page.locator('#v4-category-empty')).toBeHidden();
+    await expect(page.locator('#v4-category-suggestions')).toBeVisible();
+    await expect(page.locator('#v4-category-suggestions button').first()).toContainText(/Cinéma/i);
     await expect(page.locator('.category-card[data-category]:not([hidden])')).toHaveCount(1);
     await expect(page.locator('.category-card[data-category="films"]')).not.toHaveAttribute('hidden', '');
 
     await page.locator('#v4-category-clear').click();
+    await expect(page.locator('#v4-category-suggestions')).toBeHidden();
     await expect(page.locator('.category-card[data-category]:not([hidden])')).toHaveCount(26);
 });
 
@@ -131,6 +135,7 @@ test('Explorer affiche un état vide quand la recherche ne correspond à rien', 
 
     await page.locator('#v4-category-search').fill('categorie inconnue');
     await expect(page.locator('#v4-category-empty')).toBeVisible();
+    await expect(page.locator('#v4-category-suggestions')).toBeHidden();
     await expect(page.locator('.category-card[data-category]:not([hidden])')).toHaveCount(0);
 });
 
