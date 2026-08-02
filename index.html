@@ -53,11 +53,19 @@
     <link rel="stylesheet" href="assets/css/pages/intro.css">
     <link rel="stylesheet" href="assets/css/pages/home.css">
     <link rel="stylesheet" href="assets/css/pages/explorer.css">
+    <link rel="stylesheet" href="assets/css/pages/v4-pages.css">
     <link rel="stylesheet" href="assets/css/pages/system-states.css">
     <link rel="stylesheet" href="assets/css/responsive.css">
 </head>
 <body class="memoriz-v4">
     <div class="v4-intro" id="v4-intro" aria-hidden="true">
+        <div class="v4-sharingan-stage" aria-hidden="true">
+            <span class="v4-sharingan-ring"></span>
+            <span class="v4-sharingan-core"></span>
+            <span class="v4-sharingan-tomoe v4-tomoe-one"></span>
+            <span class="v4-sharingan-tomoe v4-tomoe-two"></span>
+            <span class="v4-sharingan-tomoe v4-tomoe-three"></span>
+        </div>
         <picture>
             <source id="v4-intro-source" media="(min-width: 768px)" srcset="assets/images/memoriz/intro/web/01-inactive-1920x1080.webp">
             <img id="v4-intro-image" src="assets/images/memoriz/intro/mobile/01-inactive-1080x1920.webp" alt="" width="1080" height="1920">
@@ -100,8 +108,8 @@
     <nav class="v4-bottom-nav" aria-label="Navigation mobile">
         <a href="#home" data-v4-route="home" aria-current="page">Accueil</a>
         <a href="#explorer" data-v4-route="explorer">Explorer</a>
-        <a href="#solo" data-v4-route="solo">Solo</a>
-        <a href="#articles" data-v4-route="articles">Articles</a>
+        <a href="#multiplayer" data-v4-route="multiplayer">Multi</a>
+        <a href="#community" data-v4-route="community">Communauté</a>
         <a href="#profile-card" data-v4-route="profile">Profil</a>
     </nav>
 
@@ -141,6 +149,46 @@
                 </div>
             </section>
         </header>
+
+        <section class="v4-page v4-solo-page" id="solo" data-v4-view="solo" aria-labelledby="v4-solo-title">
+            <div class="v4-page-copy">
+                <p class="v4-eyebrow">Mode solo</p>
+                <h2 id="v4-solo-title">Un quiz rapide, sans friction.</h2>
+                <p>Choisis une catégorie, réponds au clavier ou à la souris, puis garde ton rythme même si les services en ligne sont indisponibles.</p>
+                <a href="#explorer" class="v4-button v4-button-primary" data-v4-route="explorer">Voir les catégories</a>
+            </div>
+            <div class="v4-page-panel">
+                <span class="v4-panel-kicker">Règles conservées</span>
+                <strong>Score, durée et réponses restent ceux du quiz existant.</strong>
+                <ul class="v4-feature-list">
+                    <li>26 catégories existantes.</li>
+                    <li>Chronomètre solo inchangé.</li>
+                    <li>Mode dégradé disponible sans Supabase.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="v4-page v4-multiplayer-page" id="multiplayer" data-v4-view="multiplayer" aria-labelledby="v4-multiplayer-title">
+            <div class="v4-page-copy">
+                <p class="v4-eyebrow">Multijoueur</p>
+                <h2 id="v4-multiplayer-title">Crée un salon clair avant d’inviter tes joueurs.</h2>
+                <p>Cette page sert de portail V4 : elle explique l’état, garde les actions visibles, puis ouvre le flux multijoueur sécurisé déjà validé.</p>
+                <div class="v4-page-actions">
+                    <button type="button" class="v4-button v4-button-primary" id="v4-multiplayer-create">Créer une partie</button>
+                    <button type="button" class="v4-button v4-button-secondary" id="v4-multiplayer-join">Rejoindre avec un code</button>
+                </div>
+            </div>
+            <div class="v4-lobby-preview" aria-label="Aperçu du lobby multijoueur">
+                <div class="v4-room-code">
+                    <span>Code</span>
+                    <strong>------</strong>
+                </div>
+                <div class="v4-player-row is-host"><span>Hôte</span><strong>En attente</strong></div>
+                <div class="v4-player-row"><span>Joueur 2</span><strong>À inviter</strong></div>
+                <div class="v4-player-row"><span>Joueur 3</span><strong>Optionnel</strong></div>
+                <p>2 à 4 joueurs, lancement côté serveur, score jamais fourni par le client.</p>
+            </div>
+        </section>
 
         <div class="categories v4-explorer" id="explorer" data-v4-view="explorer" aria-labelledby="v4-explorer-title">
             <div class="v4-section-heading">
@@ -204,6 +252,19 @@
                 <div class="category-card" data-category="animeParOrganisation"><h3>🏛️ Anime par Organisation</h3><p>Trouve l'anime de l'organisation</p><span class="questions-count">9 organisations</span></div>
             </div>
         </div>
+
+        <section class="v4-page v4-community-page" id="community" data-v4-view="community" aria-labelledby="v4-community-title">
+            <div class="v4-page-copy">
+                <p class="v4-eyebrow">Communauté</p>
+                <h2 id="v4-community-title">Les souvenirs des joueurs, au même endroit.</h2>
+                <p>Retrouve les commentaires, les idées de quiz et les retours de la communauté dans une page dédiée, sans mélanger le flux avec l’accueil.</p>
+            </div>
+            <div class="v4-community-stats" aria-label="Résumé communauté">
+                <span>Commentaires sécurisés</span>
+                <span>Profil requis</span>
+                <span>Mode solo intact</span>
+            </div>
+        </section>
 
         <section class="blog-section">
             <h2>📝 Articles Memoriz</h2>

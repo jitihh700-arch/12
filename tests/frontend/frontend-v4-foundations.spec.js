@@ -23,6 +23,8 @@ test('l’introduction V4 se joue automatiquement puis libère l’application',
     await openV4(page, { introSeen: false, stepMs: 80, reducedMs: 80 });
 
     await expect(page.locator('#v4-intro')).toHaveClass(/is-active/);
+    await expect(page.locator('.v4-sharingan-stage')).toBeVisible();
+    await expect(page.locator('#v4-intro')).toHaveClass(/is-step-/);
     await expect(page.locator('#v4-intro')).not.toHaveClass(/is-active/, { timeout: 2500 });
     await expect(page.locator('#v4-intro')).toHaveAttribute('aria-hidden', 'true');
 });
@@ -69,6 +71,33 @@ test('la navigation Accueil / Explorer met à jour aria-current', async ({ page 
     await page.locator('.v4-top-nav [data-v4-route="explorer"]').click();
     await expect(page.locator('.v4-top-nav [data-v4-route="explorer"]')).toHaveAttribute('aria-current', 'page');
     await expect(page.locator('#explorer')).toBeInViewport();
+});
+
+test('Multijoueur et Communauté ont de vraies pages V4 navigables', async ({ page }) => {
+    await openV4(page);
+
+    await page.locator('.v4-top-nav [data-v4-route="multiplayer"]').click();
+    await expect(page.locator('.v4-top-nav [data-v4-route="multiplayer"]')).toHaveAttribute('aria-current', 'page');
+    await expect(page.locator('#multiplayer')).toBeInViewport();
+    await expect(page.locator('#v4-multiplayer-title')).toBeVisible();
+    await expect(page.locator('#multiplayer-modal')).toBeHidden();
+
+    await page.locator('.v4-top-nav [data-v4-route="community"]').click();
+    await expect(page.locator('.v4-top-nav [data-v4-route="community"]')).toHaveAttribute('aria-current', 'page');
+    await expect(page.locator('#community')).toBeInViewport();
+    await expect(page.locator('#v4-community-title')).toBeVisible();
+});
+
+test('les actions de la page multijoueur ouvrent le flux existant', async ({ page }) => {
+    await openV4(page);
+
+    await page.locator('#v4-home-multiplayer').click();
+    await expect(page.locator('#multiplayer')).toBeInViewport();
+    await expect(page.locator('#multiplayer-modal')).toBeHidden();
+
+    await page.locator('#v4-multiplayer-create').click();
+    await expect(page.locator('#multiplayer-modal')).toBeVisible();
+    await expect(page.locator('#multiplayer-tab-create')).toHaveAttribute('aria-selected', 'true');
 });
 
 test('Explorer affiche exactement les 26 catégories existantes sans duplication', async ({ page }) => {

@@ -10,6 +10,16 @@
     transition: opacity 360ms ease, visibility 360ms ease;
 }
 
+.v4-intro::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 50%, rgba(255, 107, 107, 0.2), transparent 24rem),
+        radial-gradient(circle at 50% 50%, transparent 0 34%, rgba(7, 16, 24, 0.28) 35% 100%);
+    pointer-events: none;
+}
+
 .v4-intro.is-active {
     opacity: 1;
     visibility: visible;
@@ -32,6 +42,113 @@
 
 .v4-intro img {
     object-fit: cover;
+    opacity: 0.72;
+}
+
+.v4-sharingan-stage {
+    position: absolute;
+    z-index: 2;
+    width: clamp(220px, 42vmin, 520px);
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    opacity: 0;
+    filter: drop-shadow(0 0 28px rgba(255, 107, 107, 0.58));
+    transform: scale(0.7) rotate(-18deg);
+    transition: opacity 220ms ease, transform 360ms ease, filter 360ms ease;
+}
+
+.v4-sharingan-ring,
+.v4-sharingan-core,
+.v4-sharingan-tomoe {
+    position: absolute;
+    border-radius: 50%;
+}
+
+.v4-sharingan-ring {
+    inset: 4%;
+    border: clamp(10px, 2.8vmin, 24px) solid rgba(255, 107, 107, 0.88);
+    background:
+        radial-gradient(circle, #05070a 0 12%, transparent 13% 100%),
+        radial-gradient(circle, rgba(255, 107, 107, 0.95) 0 56%, #090a0d 57% 62%, rgba(255, 107, 107, 0.86) 63% 100%);
+    box-shadow:
+        inset 0 0 42px rgba(0, 0, 0, 0.72),
+        0 0 70px rgba(255, 107, 107, 0.45);
+}
+
+.v4-sharingan-core {
+    width: 17%;
+    aspect-ratio: 1;
+    background: #030406;
+    box-shadow: 0 0 0 clamp(7px, 1.4vmin, 14px) rgba(8, 8, 10, 0.92);
+}
+
+.v4-sharingan-tomoe {
+    width: 17%;
+    aspect-ratio: 1;
+    background: #030406;
+    transform-origin: 50% 215%;
+    opacity: 0;
+}
+
+.v4-sharingan-tomoe::after {
+    content: "";
+    position: absolute;
+    left: 60%;
+    top: 28%;
+    width: 78%;
+    height: 42%;
+    border-radius: 100% 0 100% 0;
+    background: #030406;
+    transform: rotate(30deg);
+}
+
+.v4-tomoe-one {
+    transform: translateY(-108%) rotate(0deg);
+}
+
+.v4-tomoe-two {
+    transform: translateY(-108%) rotate(120deg);
+}
+
+.v4-tomoe-three {
+    transform: translateY(-108%) rotate(240deg);
+}
+
+.v4-intro.is-active .v4-sharingan-stage {
+    opacity: 1;
+    animation: v4SharinganSpin 1500ms cubic-bezier(0.2, 0.7, 0.25, 1) both;
+}
+
+.v4-intro.is-step-1 .v4-sharingan-stage {
+    opacity: 0.32;
+    filter: grayscale(0.8) drop-shadow(0 0 12px rgba(247, 255, 247, 0.18));
+}
+
+.v4-intro.is-step-2 .v4-tomoe-one,
+.v4-intro.is-step-3 .v4-tomoe-one,
+.v4-intro.is-step-3 .v4-tomoe-two,
+.v4-intro.is-step-4 .v4-sharingan-tomoe,
+.v4-intro.is-step-5 .v4-sharingan-tomoe {
+    opacity: 1;
+}
+
+.v4-intro.is-step-5 .v4-sharingan-stage {
+    transform: scale(1.04) rotate(720deg);
+    filter: drop-shadow(0 0 56px rgba(255, 230, 109, 0.72));
+}
+
+@keyframes v4SharinganSpin {
+    0% {
+        transform: scale(0.72) rotate(-26deg);
+    }
+    64% {
+        transform: scale(1.02) rotate(540deg);
+    }
+    100% {
+        transform: scale(1) rotate(720deg);
+    }
 }
 
 .v4-intro-fallback {

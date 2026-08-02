@@ -43,10 +43,16 @@
     }
 
     function setIntroStep(index) {
+        const intro = byId('v4-intro');
         const image = byId('v4-intro-image');
         const source = byId('v4-intro-source');
         const step = INTRO_STEPS[index];
         if (!image || !source || !step) return;
+        if (intro) {
+            intro.dataset.step = String(index + 1);
+            intro.classList.remove('is-step-1', 'is-step-2', 'is-step-3', 'is-step-4', 'is-step-5');
+            intro.classList.add(`is-step-${index + 1}`);
+        }
         source.srcset = introPath('web', step[0]);
         image.src = introPath('mobile', step[1]);
     }
@@ -270,6 +276,33 @@
             if (isCurrent) link.setAttribute('aria-current', 'page');
             else link.removeAttribute('aria-current');
         });
+        document.querySelectorAll('[data-v4-view]').forEach(view => {
+            view.classList.toggle('is-v4-current', view.getAttribute('data-v4-view') === route);
+        });
+    }
+
+    function routeTarget(route) {
+        const targets = {
+            home: 'home',
+            explorer: 'explorer',
+            solo: 'solo',
+            multiplayer: 'multiplayer',
+            community: 'community',
+            articles: 'articles',
+            profile: 'profile-card'
+        };
+        return byId(targets[route] || route);
+    }
+
+    function goToRoute(route, options = {}) {
+        const target = routeTarget(route);
+        if (!target) return;
+        setCurrentRoute(route);
+        if (!options.silent) target.scrollIntoView({ behavior: 'auto', block: 'start' });
+        if (options.focus) {
+            target.setAttribute('tabindex', '-1');
+            window.setTimeout(() => target.focus({ preventScroll: true }), 260);
+        }
     }
 
     function bindNavigation() {
@@ -277,20 +310,19 @@
             link.addEventListener('click', event => {
                 const route = link.getAttribute('data-v4-route');
                 if (!route) return;
-                setCurrentRoute(route);
-                if (route === 'solo') {
-                    event.preventDefault();
-                    byId('explorer')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    return;
-                }
-                if (route === 'multiplayer') {
-                    event.preventDefault();
-                    byId('multiplayer-open')?.click();
-                    return;
-                }
+                event.preventDefault();
+                goToRoute(route, { focus: true });
             });
         });
-        byId('v4-home-multiplayer')?.addEventListener('click', () => byId('multiplayer-open')?.click());
+        byId('v4-home-multiplayer')?.addEventListener('click', () => goToRoute('multiplayer', { focus: true }));
+        byId('v4-multiplayer-create')?.addEventListener('click', () => {
+            window.MemorizMultiplayer?.open?.();
+            byId('multiplayer-tab-create')?.click();
+        });
+        byId('v4-multiplayer-join')?.addEventListener('click', () => {
+            window.MemorizMultiplayer?.open?.();
+            byId('multiplayer-tab-join')?.click();
+        });
     }
 
     function syncProfileName() {
@@ -306,6 +338,7 @@
         bindNavigation();
         syncProfileName();
         filterCategories();
+        setCurrentRoute('home');
         scheduleIntro();
         document.addEventListener('memoriz:profile-ready', syncProfileName);
         window.addEventListener('beforeunload', clearTimers);

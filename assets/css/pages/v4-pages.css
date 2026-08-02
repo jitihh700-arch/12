@@ -1,0 +1,199 @@
+.v4-page {
+    position: relative;
+    width: min(100%, var(--max-shell));
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+    gap: var(--space-6);
+    align-items: center;
+    margin: 0 auto var(--space-6);
+    padding: clamp(24px, 4vw, 46px);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    background:
+        linear-gradient(135deg, rgba(15, 23, 32, 0.94), rgba(15, 23, 32, 0.72)),
+        var(--v4-page-bg, none);
+    background-size: cover;
+    background-position: center;
+    box-shadow: var(--shadow-soft);
+    scroll-margin-top: calc(var(--nav-height) + var(--space-6));
+}
+
+.v4-page::before {
+    content: "";
+    position: absolute;
+    inset: 12%;
+    border: 1px solid rgba(78, 205, 196, 0.16);
+    border-radius: 32% 68% 42% 58%;
+    transform: rotate(-8deg);
+    pointer-events: none;
+}
+
+.v4-page-copy,
+.v4-page-panel,
+.v4-lobby-preview,
+.v4-community-stats {
+    position: relative;
+    z-index: 1;
+}
+
+.v4-page-copy {
+    display: grid;
+    gap: var(--space-4);
+}
+
+.v4-page h2 {
+    max-width: 760px;
+    margin: 0;
+    color: var(--color-text);
+    font-size: clamp(2rem, 5vw, 4rem);
+    line-height: 1.04;
+}
+
+.v4-page p {
+    max-width: 620px;
+    margin: 0;
+    color: var(--color-muted);
+    font-size: clamp(1rem, 1.8vw, 1.14rem);
+    line-height: 1.65;
+}
+
+.v4-page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+.v4-page-panel,
+.v4-lobby-preview {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-lg);
+    background: rgba(5, 12, 18, 0.68);
+}
+
+.v4-panel-kicker,
+.v4-room-code span,
+.v4-player-row span {
+    color: var(--color-primary);
+    font-size: 0.78rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.v4-page-panel strong,
+.v4-room-code strong,
+.v4-player-row strong {
+    color: var(--color-text);
+}
+
+.v4-feature-list {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    color: var(--color-muted);
+    list-style: none;
+}
+
+.v4-feature-list li::before {
+    content: "•";
+    margin-right: var(--space-2);
+    color: var(--color-accent);
+}
+
+.v4-solo-page {
+    --v4-page-bg: url("../../images/memoriz/backgrounds/web/solo.webp");
+}
+
+.v4-multiplayer-page {
+    --v4-page-bg: url("../../images/memoriz/backgrounds/web/multiplayer.webp");
+}
+
+.v4-community-page {
+    --v4-page-bg: url("../../images/memoriz/backgrounds/web/community.webp");
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.v4-lobby-preview {
+    min-height: 320px;
+}
+
+.v4-room-code {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    background: rgba(78, 205, 196, 0.12);
+}
+
+.v4-room-code strong {
+    font-size: clamp(2.4rem, 6vw, 4.6rem);
+    letter-spacing: 0.16em;
+}
+
+.v4-player-row {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: rgba(247, 255, 247, 0.06);
+}
+
+.v4-player-row.is-host {
+    border-color: rgba(255, 230, 109, 0.38);
+}
+
+.v4-community-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-3);
+}
+
+.v4-community-stats span {
+    min-height: 96px;
+    display: grid;
+    place-items: center;
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: rgba(247, 255, 247, 0.07);
+    color: var(--color-text);
+    font-weight: 800;
+    text-align: center;
+}
+
+.v4-page.is-v4-current {
+    border-color: var(--color-border-strong);
+}
+
+@media (max-width: 760px) {
+    .v4-page {
+        grid-template-columns: 1fr;
+        padding: 28px 20px;
+        scroll-margin-top: var(--space-4);
+    }
+
+    .v4-page-actions,
+    .v4-community-stats {
+        grid-template-columns: 1fr;
+        flex-direction: column;
+    }
+
+    .v4-solo-page {
+        --v4-page-bg: url("../../images/memoriz/backgrounds/mobile/solo.webp");
+    }
+
+    .v4-multiplayer-page {
+        --v4-page-bg: url("../../images/memoriz/backgrounds/mobile/multiplayer.webp");
+    }
+
+    .v4-community-page {
+        --v4-page-bg: url("../../images/memoriz/backgrounds/mobile/community.webp");
+    }
+}

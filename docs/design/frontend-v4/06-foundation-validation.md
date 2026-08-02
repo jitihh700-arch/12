@@ -12,6 +12,7 @@
 - `npm run build:render` avec valeurs publiques factices : OK.
 - `npm run test:render-build` : OK.
 - `git diff --check` : OK.
+- `npx playwright test tests/frontend/frontend-v4-foundations.spec.js` après correction de portée : 13/13 tests OK.
 
 ## Resultats detailles
 
@@ -39,3 +40,4 @@
 
 Le lancement de Supabase local a été nécessaire pour les suites historiques frontend et intégration.
 Le Lot 1 reste une fondation visuelle : les vues métier complètes seront traitées dans des lots séparés.
+Une correction complémentaire a ajouté les pages V4 Multijoueur et Communauté, ainsi qu'un écran d'introduction Sharingan animé, pour répondre à la revue utilisateur.
