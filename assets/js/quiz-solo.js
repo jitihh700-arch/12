@@ -551,3 +551,5 @@ async function restartGame() {
         setTimeout(() => showGamePanel(categoryKey), 50);
     }
 }
+
+window.showGamePanel = showGamePanel;

@@ -57,6 +57,7 @@
 
 .multiplayer-close {
     position: absolute;
+    z-index: 2;
     top: clamp(14px, 2vw, 22px);
     right: clamp(14px, 2vw, 22px);
     min-width: 44px;

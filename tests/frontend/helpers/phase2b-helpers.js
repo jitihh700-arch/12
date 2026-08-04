@@ -1,4 +1,4 @@
-const { execFileSync, execSync } = require('node:child_process');
+const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const { expect } = require('@playwright/test');
@@ -8,18 +8,23 @@ const runtimeConfigPath = path.join(rootDir, 'assets', 'js', 'supabase-runtime-c
 const supabaseBrowserBundlePath = path.join(rootDir, 'node_modules', '@supabase', 'supabase-js', 'dist', 'umd', 'supabase.js');
 
 function dockerEnv() {
+    if (process.platform !== 'win32') return { ...process.env };
+
     return {
         ...process.env,
         PATH: `C:\\Program Files\\Docker\\Docker\\resources\\bin;${process.env.PATH || ''}`
     };
 }
 
+function commandName(name) {
+    return process.platform === 'win32' ? `${name}.cmd` : name;
+}
+
 function supabaseStatus() {
-    const raw = execSync('npx supabase status --output json', {
+    const raw = execFileSync(commandName('npx'), ['supabase', 'status', '--output', 'json'], {
         cwd: rootDir,
         env: dockerEnv(),
         encoding: 'utf8',
-        shell: 'cmd.exe',
         stdio: ['ignore', 'pipe', 'pipe']
     });
     return JSON.parse(raw);
@@ -43,7 +48,8 @@ function removeRuntimeConfig() {
 }
 
 function psql(sql) {
-    return execFileSync('docker.exe', ['exec', '-i', 'supabase_db_12', 'psql', '-U', 'postgres', '-d', 'postgres', '-Atc', sql], {
+    const docker = process.platform === 'win32' ? 'docker.exe' : 'docker';
+    return execFileSync(docker, ['exec', '-i', 'supabase_db_12', 'psql', '-U', 'postgres', '-d', 'postgres', '-Atc', sql], {
         cwd: rootDir,
         env: dockerEnv(),
         encoding: 'utf8'

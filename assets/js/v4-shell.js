@@ -338,6 +338,11 @@
             card.addEventListener('keydown', event => {
                 if (event.key !== 'Enter' && event.key !== ' ') return;
                 event.preventDefault();
+                const category = card.getAttribute('data-category');
+                if (category && typeof window.showGamePanel === 'function') {
+                    window.showGamePanel(category);
+                    return;
+                }
                 card.click();
             });
         });
