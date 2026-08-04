@@ -120,7 +120,7 @@
 .multiplayer-code-card button,
 .multiplayer-answer-form button,
 .multiplayer-final button {
-    min-height: 44px;
+    min-height: 48px;
     border: 0;
     border-radius: var(--radius-sm);
     padding: 10px 16px;
@@ -134,6 +134,14 @@
         color var(--transition-fast),
         box-shadow var(--transition-fast),
         transform var(--transition-fast);
+}
+
+.memoriz-v4 .multiplayer-panel button,
+.memoriz-v4 .multiplayer-actions button,
+.memoriz-v4 .multiplayer-code-card button,
+.memoriz-v4 .multiplayer-answer-form button,
+.memoriz-v4 .multiplayer-final button {
+    min-height: 48px;
 }
 
 .multiplayer-tabs button:not(.is-active),
