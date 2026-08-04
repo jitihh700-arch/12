@@ -16,12 +16,12 @@ function dockerEnv() {
     };
 }
 
-function commandName(name) {
-    return process.platform === 'win32' ? `${name}.cmd` : name;
-}
-
 function supabaseStatus() {
-    const raw = execFileSync(commandName('npx'), ['supabase', 'status', '--output', 'json'], {
+    const command = process.platform === 'win32' ? (process.env.ComSpec || 'C:\\Windows\\System32\\cmd.exe') : 'npx';
+    const args = process.platform === 'win32'
+        ? ['/d', '/s', '/c', 'npx supabase status --output json']
+        : ['supabase', 'status', '--output', 'json'];
+    const raw = execFileSync(command, args, {
         cwd: rootDir,
         env: dockerEnv(),
         encoding: 'utf8',
@@ -59,6 +59,22 @@ function psql(sql) {
 async function gotoHome(page) {
     await routeSupabaseCdn(page);
     await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+}
+
+async function openExplorer(page) {
+    const route = page.locator('.v4-top-nav [data-v4-route="explorer"]').first();
+    if (await route.count()) {
+        await route.click();
+        await expect(page.locator('#explorer')).toBeInViewport();
+    }
+}
+
+async function openCommunity(page) {
+    const route = page.locator('.v4-top-nav [data-v4-route="community"]').first();
+    if (await route.count()) {
+        await route.click();
+        await expect(page.locator('#community')).toBeInViewport();
+    }
 }
 
 async function routeSupabaseCdn(page) {
@@ -101,6 +117,8 @@ module.exports = {
     removeRuntimeConfig,
     psql,
     gotoHome,
+    openExplorer,
+    openCommunity,
     createProfile,
     currentSession,
     expectNoHorizontalOverflow

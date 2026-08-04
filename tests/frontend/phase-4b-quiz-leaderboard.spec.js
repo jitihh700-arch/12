@@ -4,6 +4,7 @@ const {
     removeRuntimeConfig,
     psql,
     gotoHome,
+    openExplorer,
     createProfile,
     currentSession,
     expectNoHorizontalOverflow
@@ -33,6 +34,7 @@ async function createRankedProfile(page, prefix) {
 }
 
 async function startRankedSeries(page) {
+    await openExplorer(page);
     await page.locator('.category-card[data-category="series"]').click();
     await expect(page.locator('#game-panel')).toBeVisible();
     await expect(page.locator('#quiz-mode-badge')).toContainText('Mode classé');
@@ -45,6 +47,7 @@ test('mode entraînement: Supabase absent, quiz jouable et leaderboard indisponi
     await gotoHome(page);
     await expect(page.locator('#profile-status-label')).toHaveText('Mode solo');
     await expect(page.locator('#leaderboard-open')).toBeDisabled();
+    await openExplorer(page);
     await page.locator('.category-card[data-category="series"]').click();
     await expect(page.locator('#quiz-mode-badge')).toContainText('Mode entraînement');
     await page.locator('#quick-input').fill('Walter White');

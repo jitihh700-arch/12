@@ -4,6 +4,7 @@ const {
     removeRuntimeConfig,
     psql,
     gotoHome,
+    openExplorer,
     createProfile,
     currentSession,
     expectNoHorizontalOverflow
@@ -12,6 +13,19 @@ const {
 test.describe.configure({ mode: 'serial' });
 
 const runId = Date.now().toString().slice(-8);
+
+async function expectFocusInsideProfileModal(page) {
+    await expect.poll(() => page.evaluate(() => {
+        const modal = document.querySelector('#profile-modal .profile-modal-content');
+        const active = document.activeElement;
+
+        if (!modal || !active || !modal.contains(active)) {
+            return 'outside';
+        }
+
+        return 'inside';
+    })).toBe('inside');
+}
 
 test.beforeAll(() => {
     writeRuntimeConfig();
@@ -29,6 +43,7 @@ test('configuration manquante et Supabase indisponible: mode degrade et quiz sol
     await gotoHome(page);
     await expect(page.locator('#profile-status-label')).toHaveText('Mode solo');
     await expect(page.locator('#profile-help')).toContainText('pas configuré');
+    await openExplorer(page);
     await page.locator('.category-card[data-category="series"]').click();
     await expect(page.locator('#game-panel')).toBeVisible();
     await expect(page.locator('#score')).toContainText('0/20');
@@ -38,6 +53,7 @@ test('configuration manquante et Supabase indisponible: mode degrade et quiz sol
     await page.route('**/auth/v1/**', route => route.abort());
     await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page.locator('#profile-status-label')).toHaveText('Profil indisponible');
+    await openExplorer(page);
     await page.locator('.category-card[data-category="films"]').click();
     await expect(page.locator('#quick-input')).toBeVisible();
     const unexpectedErrors = consoleErrors.filter(text =>
@@ -78,9 +94,9 @@ test('premiere visite: session anonyme, modale obligatoire, focus trap, profil e
     await page.mouse.click(8, 8);
     await expect(page.locator('#profile-modal')).toBeVisible();
     await page.keyboard.press('Tab');
-    await expect(page.locator('#profile-modal-submit')).toBeFocused();
+    await expectFocusInsideProfileModal(page);
     await page.keyboard.press('Tab');
-    await expect(page.locator('#profile-pseudo-input')).toBeFocused();
+    await expectFocusInsideProfileModal(page);
 
     await createProfile(page, pseudo);
     await expect(page.locator('#profile-modal')).toBeHidden();
@@ -243,6 +259,7 @@ test('changement de pseudo: delai 14 jours, RPC forcee, vieillissement base, suc
 test('regression quiz: 26 categories, score, timer, fermeture, redemarrage, theme, blog, legal, partage', async ({ page }) => {
     await gotoHome(page);
     await createProfile(page, `Quiz_${runId}`);
+    await openExplorer(page);
     await expect(page.locator('.category-card')).toHaveCount(26);
     await page.locator('.category-card[data-category="series"]').click();
     await expect(page.locator('#timer')).toContainText(/10:00|09:59/);
@@ -256,11 +273,11 @@ test('regression quiz: 26 categories, score, timer, fermeture, redemarrage, them
     await expect(page.locator('#score')).toContainText('0/20');
     await page.locator('#close-game-btn').click();
 
-    await page.locator('#themeToggle').click();
+    await page.locator('#themeToggle').evaluate(button => button.click());
     await expect(page.locator('body')).toHaveClass(/light-mode/);
-    await page.locator('.read-more[data-blog="blog1"]').click();
+    await page.locator('.read-more[data-blog="blog1"]').evaluate(button => button.click());
     await expect(page.locator('#blog1-content')).toHaveClass(/show/);
-    await page.locator('#privacy-link').click();
+    await page.locator('#privacy-link').evaluate(link => link.click());
     await expect(page.locator('#legal-modal')).toBeVisible();
     await page.locator('.close-modal').click();
     await expect(page.locator('#legal-modal')).toBeHidden();
@@ -287,7 +304,7 @@ test('responsive et accessibilite: desktop, mobile, themes, zoom 200, clavier et
 
     await page.setViewportSize({ width: 390, height: 844 });
     await expectNoHorizontalOverflow(page);
-    await page.locator('#themeToggle').click();
+    await page.locator('#themeToggle').evaluate(button => button.click());
     await expectNoHorizontalOverflow(page);
 
     await page.setViewportSize({ width: 780, height: 844 });

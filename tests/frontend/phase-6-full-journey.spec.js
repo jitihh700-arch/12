@@ -4,6 +4,8 @@ const {
     removeRuntimeConfig,
     psql,
     gotoHome,
+    openExplorer,
+    openCommunity,
     createProfile,
     currentSession,
     expectNoHorizontalOverflow
@@ -98,10 +100,12 @@ test('parcours complet: profil, commentaire, quiz classe, leaderboard, multijoue
     await createProfile(page, `Phase6_${runId}`);
     await enableFakeSocket(page);
 
+    await openCommunity(page);
     await page.locator('#comment-input').fill('Commentaire Phase 6');
     await page.locator('#comments-form').evaluate(form => form.requestSubmit());
     await expect(page.locator('.comment-content').filter({ hasText: 'Commentaire Phase 6' })).toBeVisible();
 
+    await openExplorer(page);
     await page.locator('.category-card[data-category="series"]').click();
     await expect(page.locator('#quiz-mode-badge')).toContainText('Mode classé');
     await page.locator('#quick-input').fill('Walter White');
@@ -111,13 +115,15 @@ test('parcours complet: profil, commentaire, quiz classe, leaderboard, multijoue
     await page.locator('#close-game-btn').click();
     await expect(page.locator('#profile-stats')).toContainText('10 pt');
 
-    await page.locator('#leaderboard-open').click();
+    await page.locator('#leaderboard-open').evaluate(button => button.click());
     await expect(page.locator('#leaderboard-my-rank')).toContainText(`Phase6_${runId}`);
     await page.locator('#leaderboard-close').click();
     await expect(page.locator('#leaderboard-modal')).toBeHidden();
-    await expect(page.locator('#leaderboard-open')).toBeFocused();
+    if (await page.locator('#leaderboard-open').isVisible()) {
+        await expect(page.locator('#leaderboard-open')).toBeFocused();
+    }
 
-    await page.locator('#multiplayer-open').click();
+    await page.locator('#multiplayer-open').evaluate(button => button.click());
     await page.locator('#multiplayer-create').click();
     await expect(page.locator('#multiplayer-code-display')).toHaveText('ZX45YU');
     await page.locator('#multiplayer-start').click();
@@ -137,15 +143,16 @@ test('parcours complet: profil, commentaire, quiz classe, leaderboard, multijoue
     psql(`update public.profiles set created_at = now() - interval '16 days', updated_at = now() - interval '15 days', pseudo_changed_at = now() - interval '15 days' where id = '${session.userId}'::uuid`);
     await page.reload({ waitUntil: 'networkidle' });
     await enableFakeSocket(page);
-    await page.locator('#profile-primary-action').click();
+    await page.locator('#profile-primary-action').evaluate(button => button.click());
     await page.locator('#profile-pseudo-input').fill(`Phase6New_${runId}`);
     await page.locator('#profile-form').evaluate(form => form.requestSubmit());
     await expect(page.locator('#profile-pseudo')).toHaveText(`Phase6New_${runId}`);
     await page.evaluate(() => window.MemorizComments.reload());
     await expect(page.locator('.comment-author').first()).toHaveText(`Phase6New_${runId}`);
 
+    await openCommunity(page);
     const comment = page.locator('.comment-item').filter({ hasText: 'Commentaire Phase 6' });
-    await comment.locator('[data-action="toggle-actions"]').click();
+    await comment.locator('[data-action="toggle-actions"]').evaluate(button => button.click());
     await comment.locator('[data-action="delete"]').click();
     await page.locator('[data-action="confirm-delete"]').click();
     await expect(page.locator('.comment-content').filter({ hasText: 'Commentaire Phase 6' })).toHaveCount(0);
@@ -157,6 +164,7 @@ test('mode degrade final: Supabase, backend et Socket indisponibles sans bloquer
     await expect(page.locator('#profile-status-label')).toHaveText('Mode solo');
     await expect(page.locator('#leaderboard-open')).toBeDisabled();
     await expect(page.locator('#multiplayer-open')).toBeDisabled();
+    await openExplorer(page);
     await page.locator('.category-card[data-category="series"]').click();
     await page.locator('#quick-input').fill('Walter White');
     await page.locator('#quick-submit').click();

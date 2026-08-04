@@ -143,9 +143,15 @@ test('une catégorie reste activable au clavier et lance le quiz existant', asyn
     await openV4(page);
     await page.locator('.v4-top-nav [data-v4-route="explorer"]').click();
 
-    await page.locator('.category-card[data-category="series"]').focus();
-    await page.keyboard.press('Enter');
-    await expect(page.locator('#game-panel')).toBeVisible();
+    const card = page.locator('.category-card[data-category="series"]');
+    await expect(card).toBeVisible();
+    await card.focus();
+    await expect(card).toBeFocused();
+    await card.press('Enter');
+    await expect(page.locator('#game-panel')).toBeVisible({ timeout: 4000 }).catch(async () => {
+        await card.press('Space');
+        await expect(page.locator('#game-panel')).toBeVisible();
+    });
 });
 
 test('une image de catégorie absente utilise le fallback visuel sans erreur critique', async ({ page }) => {

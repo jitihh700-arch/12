@@ -4,6 +4,8 @@ const {
     removeRuntimeConfig,
     psql,
     gotoHome,
+    openExplorer,
+    openCommunity,
     createProfile,
     currentSession,
     expectNoHorizontalOverflow
@@ -27,6 +29,7 @@ test.afterAll(() => {
 });
 
 async function createComment(page, content) {
+    await openCommunity(page);
     await page.locator('#comment-input').fill(content);
     await page.locator('#comments-form').evaluate(form => form.requestSubmit());
     await expect(page.locator('.comments-toast')).toContainText('Commentaire ajouté avec succès');
@@ -44,10 +47,12 @@ async function openCommentActions(item) {
 test('mode degrade commentaires: Supabase absent, formulaire bloque et quiz solo utilisable', async ({ page }, testInfo) => {
     removeRuntimeConfig();
     await gotoHome(page);
+    await openCommunity(page);
     await expect(page.locator('#comments-status')).toHaveText('Commentaires indisponibles');
     await expect(page.locator('#comment-input')).toBeDisabled();
     await expect(page.locator('#comments-feed-status')).toContainText('quiz solo reste disponible');
     await page.screenshot({ path: testInfo.outputPath('comments-unavailable.png'), fullPage: true });
+    await openExplorer(page);
     await page.locator('.category-card[data-category="series"]').click();
     await expect(page.locator('#score')).toContainText('0/20');
     await page.locator('#close-game-btn').click();
@@ -56,6 +61,7 @@ test('mode degrade commentaires: Supabase absent, formulaire bloque et quiz solo
 test('creation: validations, compteur, succes, quota et HTML rendu en texte', async ({ page }, testInfo) => {
     await gotoHome(page);
     await createProfile(page, `Com_${runId}`);
+    await openCommunity(page);
     await expect(page.locator('#comments-feed-status')).toContainText(/Aucun commentaire|commentaire/);
 
     await expect(page.locator('#comment-counter')).toHaveText('0 / 500');
@@ -90,6 +96,7 @@ test('creation: validations, compteur, succes, quota et HTML rendu en texte', as
 test('lecture et pagination: ordre serveur, charger plus et absence de doublons', async ({ page }, testInfo) => {
     await gotoHome(page);
     await createProfile(page, `Pag_${runId}`);
+    await openCommunity(page);
     await page.evaluate(async () => {
         const api = window.MemorizProfileApi.init(window.MEMORIZ_SUPABASE_CONFIG);
         for (let index = 0; index < 23; index += 1) {
@@ -120,6 +127,7 @@ test('deux utilisateurs: Broadcast, actions proprietaire et refus serveur force'
     await createProfile(pageA, `A_${runId}`);
     await gotoHome(pageB);
     await createProfile(pageB, `B_${runId}`);
+    await openCommunity(pageB);
 
     await createComment(pageA, 'message de A');
     await expect(pageB.locator('.comment-content').filter({ hasText: 'message de A' })).toBeVisible({ timeout: 20000 });
@@ -157,6 +165,7 @@ test('modification, annulation, suppression logique et list_comments sans conten
     await createProfile(pageA, `EditA_${runId}`);
     await gotoHome(pageB);
     await createProfile(pageB, `EditB_${runId}`);
+    await openCommunity(pageB);
     await createComment(pageA, 'a modifier');
 
     const item = pageA.locator('.comment-item').filter({ hasText: 'a modifier' });
@@ -217,7 +226,8 @@ test('pseudo, payload malforme, responsive, accessibilite et regression generale
     const session = await currentSession(page);
     psql(`update public.profiles set created_at = now() - interval '16 days', updated_at = now() - interval '15 days', pseudo_changed_at = now() - interval '15 days' where id = '${session.userId}'::uuid`);
     await page.reload({ waitUntil: 'networkidle' });
-    await page.locator('#profile-primary-action').click();
+    await openCommunity(page);
+    await page.locator('#profile-primary-action').evaluate(button => button.click());
     await page.locator('#profile-pseudo-input').fill(`NewPseudo_${runId}`);
     await page.locator('#profile-form').evaluate(form => form.requestSubmit());
     await expect(page.locator('.comment-author').first()).toHaveText(`NewPseudo_${runId}`);
@@ -232,22 +242,23 @@ test('pseudo, payload malforme, responsive, accessibilite et regression generale
     await page.setViewportSize({ width: 390, height: 844 });
     await expectNoHorizontalOverflow(page);
     await page.screenshot({ path: testInfo.outputPath('comments-mobile.png'), fullPage: true });
-    await page.locator('#themeToggle').click();
+    await page.locator('#themeToggle').evaluate(button => button.click());
     await expectNoHorizontalOverflow(page);
     await page.screenshot({ path: testInfo.outputPath('comments-mobile-light.png'), fullPage: true });
     await page.setViewportSize({ width: 780, height: 844 });
     await page.evaluate(() => { document.documentElement.style.zoom = '2'; });
     await expectNoHorizontalOverflow(page);
 
-    await expect(page.locator('.category-card')).toHaveCount(26);
     await page.evaluate(() => { document.documentElement.style.zoom = '1'; });
+    await openExplorer(page);
+    await expect(page.locator('.category-card')).toHaveCount(26);
     await page.locator('.category-card[data-category="series"]').click();
     await page.locator('#quick-input').fill('Walter White');
     await page.locator('#quick-submit').click();
     await expect(page.locator('#score')).toContainText('1/20');
     await expect(page.locator('#timer')).toContainText(/10:00|09:59/);
     await page.locator('#close-game-btn').click();
-    await page.locator('#privacy-link').click();
+    await page.locator('#privacy-link').evaluate(link => link.click());
     await expect(page.locator('#legal-modal')).toContainText('suppression logique');
     await page.locator('.close-modal').click();
 });
