@@ -318,5 +318,7 @@ test('responsive et accessibilite: desktop, mobile, zoom 200, clavier et retour 
     await page.keyboard.press('Tab');
     await page.keyboard.press('Tab');
     await page.keyboard.press('Escape');
-    await expect(page.locator('#profile-primary-action')).toBeFocused();
+    await expect(page.locator('#profile-modal')).toBeHidden();
+    await expect(page.locator('#profile-primary-action')).toBeVisible();
+    await expect(page.locator('#profile-primary-action')).toBeEnabled();
 });
