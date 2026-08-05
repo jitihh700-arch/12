@@ -88,6 +88,9 @@ async function routeSupabaseCdn(page) {
 }
 
 async function createProfile(page, pseudo) {
+    if (await page.locator('#profile-modal').isHidden()) {
+        await page.locator('#v4-nav-profile-action').click();
+    }
     await page.locator('#profile-pseudo-input').fill(pseudo);
     await page.locator('#profile-form').evaluate(form => form.requestSubmit());
     await expect(page.locator('#profile-pseudo')).toHaveText(pseudo.trim().replace(/\s+/g, ' '));

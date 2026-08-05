@@ -79,20 +79,22 @@ test('timeout d initialisation: message non bloquant et aucune boucle de creatio
     await expect.poll(() => signInCalls).toBe(2);
 });
 
-test('premiere visite: session anonyme, modale obligatoire, focus trap, profil et cache', async ({ browser }) => {
+test('premiere visite: session anonyme, ouverture volontaire du profil, focus trap et cache', async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
     const pseudo = `First_${runId}`;
     await gotoHome(page);
 
+    await expect(page.locator('#profile-modal')).toBeHidden();
+    await expect(page.locator('#v4-nav-profile-name')).toHaveText('Créer profil');
+    await page.locator('#v4-nav-profile-action').click();
     await expect(page.locator('#profile-modal')).toBeVisible();
     await expect(page.locator('#profile-modal .profile-modal-content')).toHaveAttribute('role', 'dialog');
     await expect(page.locator('#profile-modal .profile-modal-content')).toHaveAttribute('aria-modal', 'true');
     await expect(page.locator('#profile-pseudo-input')).toBeFocused();
     await page.keyboard.press('Escape');
-    await expect(page.locator('#profile-modal')).toBeVisible();
-    await page.mouse.click(8, 8);
-    await expect(page.locator('#profile-modal')).toBeVisible();
+    await expect(page.locator('#profile-modal')).toBeHidden();
+    await page.locator('#v4-nav-profile-action').click();
     await page.keyboard.press('Tab');
     await expectFocusInsideProfileModal(page);
     await page.keyboard.press('Tab');
@@ -130,7 +132,7 @@ test('persistance: reload, nouvel onglet, nouveau contexte et suppression stocka
     const otherContext = await browser.newContext();
     const otherPage = await otherContext.newPage();
     await gotoHome(otherPage);
-    await expect(otherPage.locator('#profile-modal')).toBeVisible();
+    await expect(otherPage.locator('#profile-modal')).toBeHidden();
     const otherSession = await currentSession(otherPage);
     expect(otherSession.userId).toBeTruthy();
     expect(otherSession.userId).not.toBe(first.userId);
@@ -138,7 +140,7 @@ test('persistance: reload, nouvel onglet, nouveau contexte et suppression stocka
 
     await page.evaluate(() => localStorage.clear());
     await page.reload({ waitUntil: 'networkidle' });
-    await expect(page.locator('#profile-modal')).toBeVisible();
+    await expect(page.locator('#profile-modal')).toBeHidden();
     const cleared = await currentSession(page);
     expect(cleared.userId).toBeTruthy();
     expect(cleared.userId).not.toBe(first.userId);
@@ -157,6 +159,7 @@ test('validation pseudo: longueurs, caracteres, accents, espaces, html, ponctuat
         const context = await browser.newContext();
         const page = await context.newPage();
         await gotoHome(page);
+        await page.locator('#v4-nav-profile-action').click();
         await expect(page.locator('#profile-modal')).toBeVisible();
         await page.locator('#profile-pseudo-input').fill(value);
         await page.locator('#profile-form').evaluate(form => form.requestSubmit());
@@ -176,6 +179,7 @@ test('validation pseudo: longueurs, caracteres, accents, espaces, html, ponctuat
     const context = await browser.newContext();
     const page = await context.newPage();
     await gotoHome(page);
+    await page.locator('#v4-nav-profile-action').click();
     await expect(page.locator('#profile-modal')).toBeVisible();
     await page.waitForFunction(async () => {
         const api = window.MemorizProfileApi?.init(window.MEMORIZ_SUPABASE_CONFIG);
@@ -202,11 +206,12 @@ test('deux utilisateurs: identites distinctes, doublon casse refuse, lecture pro
     const contextB = await browser.newContext();
     const pageB = await contextB.newPage();
     await gotoHome(pageB);
-    await expect(pageB.locator('#profile-modal')).toBeVisible();
+    await expect(pageB.locator('#profile-modal')).toBeHidden();
     const sessionB = await currentSession(pageB);
     expect(sessionB.userId).toBeTruthy();
     expect(sessionB.userId).not.toBe(sessionA.userId);
 
+    await pageB.locator('#v4-nav-profile-action').click();
     await pageB.locator('#profile-pseudo-input').fill(pseudo.toLowerCase());
     await pageB.locator('#profile-form').evaluate(form => form.requestSubmit());
     await expect(pageB.locator('#profile-form-error')).toHaveText('Ce pseudo est déjà pris.');
@@ -238,7 +243,7 @@ test('changement de pseudo: delai 14 jours, RPC forcee, vieillissement base, suc
     psql(`update public.profiles set created_at = now() - interval '16 days', updated_at = now() - interval '15 days', pseudo_changed_at = now() - interval '15 days' where id = '${sessionA.userId}'::uuid`);
     await pageA.reload({ waitUntil: 'networkidle' });
     await expect(pageA.locator('#profile-primary-action')).toBeEnabled();
-    await pageA.locator('#profile-primary-action').click();
+    await pageA.locator('#v4-nav-profile-action').click();
     await pageA.locator('#profile-pseudo-input').fill(`Changed_${runId}`);
     await pageA.locator('#profile-form').evaluate(form => form.requestSubmit());
     await expect(pageA.locator('#profile-pseudo')).toHaveText(`Changed_${runId}`);
@@ -310,7 +315,7 @@ test('responsive et accessibilite: desktop, mobile, zoom 200, clavier et retour 
     await page.evaluate(() => { document.documentElement.style.zoom = '2'; });
     await expectNoHorizontalOverflow(page);
 
-    await page.locator('#profile-primary-action').focus();
+    await page.locator('#v4-nav-profile-action').focus();
     await page.keyboard.press('Enter');
     await expect(page.locator('#profile-modal .profile-modal-content')).toHaveAttribute('aria-describedby', /profile-modal-intro/);
     await expect(page.locator('#profile-pseudo-input')).toHaveAttribute('aria-describedby', /profile-form-error/);
@@ -319,6 +324,6 @@ test('responsive et accessibilite: desktop, mobile, zoom 200, clavier et retour 
     await page.keyboard.press('Tab');
     await page.keyboard.press('Escape');
     await expect(page.locator('#profile-modal')).toBeHidden();
-    await expect(page.locator('#profile-primary-action')).toBeVisible();
+    await expect(page.locator('#v4-nav-profile-action')).toBeVisible();
     await expect(page.locator('#profile-primary-action')).toBeEnabled();
 });

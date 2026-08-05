@@ -57,9 +57,27 @@ async function installControlledRuntime(page, options = {}) {
                             return { data: { session }, error: null };
                         }
                     },
+                    realtime: {
+                        setAuth() {}
+                    },
+                    channel() {
+                        return {
+                            on() {
+                                return this;
+                            },
+                            subscribe(callback) {
+                                window.setTimeout(() => callback('SUBSCRIBED'), 0);
+                                return this;
+                            }
+                        };
+                    },
+                    async removeChannel() {
+                        return { error: null };
+                    },
                     async rpc(name) {
                         if (name === 'get_my_profile') return profileResponse();
                         if (name === 'register_profile') return { data: [profile], error: null };
+                        if (name === 'list_comments') return { data: [], error: null };
                         return { data: null, error: null };
                     }
                 };
@@ -172,6 +190,35 @@ test('profil absent: le socket ne demarre pas et le message reste explicite', as
 
     expect(await page.evaluate(() => window.__connectCalls)).toBe(0);
     await expect(page.locator('#multiplayer-status')).toHaveText('Ton profil doit être chargé avant d’utiliser le multijoueur.');
+});
+
+test('profil absent: aucune modale forcee ne vole le focus des champs', async ({ page }) => {
+    await routeBrowserDependencies(page);
+    await installControlledRuntime(page, { profileMode: 'missing', socketMode: 'success' });
+    await gotoHome(page);
+
+    await expect(page.locator('#profile-modal')).toBeHidden();
+    await expect(page.locator('#v4-nav-profile-name')).toHaveText('Créer profil');
+
+    await page.evaluate(() => window.MemorizMultiplayer.open());
+    await page.locator('#multiplayer-category').focus();
+    await expect(page.locator('#multiplayer-category')).toBeFocused();
+    await expect(page.locator('#profile-modal')).toBeHidden();
+});
+
+test('profil actif: le champ commentaire garde le focus', async ({ page }) => {
+    await routeBrowserDependencies(page);
+    await installControlledRuntime(page, { profileMode: 'ready', socketMode: 'success' });
+    await gotoHome(page);
+
+    await page.locator('.v4-top-nav [data-v4-route="community"]').click();
+    await expect(page.locator('#comment-input')).toBeEnabled();
+    await page.locator('#comment-input').click();
+    await page.locator('#comment-input').fill('Message de test');
+
+    await expect(page.locator('#comment-input')).toBeFocused();
+    await expect(page.locator('#comment-input')).toHaveValue('Message de test');
+    await expect(page.locator('#profile-modal')).toBeHidden();
 });
 
 test('profile_required puis profil disponible: une reconnexion nettoie lastError', async ({ page }) => {

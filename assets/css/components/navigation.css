@@ -66,8 +66,23 @@
 }
 
 .v4-nav-profile {
+    border: 0;
+    background: transparent;
     color: var(--color-muted);
     font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 999px;
+    padding: 8px 10px;
+    transition:
+        color var(--transition-fast),
+        background var(--transition-fast);
+}
+
+.v4-nav-profile:hover,
+.v4-nav-profile:focus-visible {
+    color: var(--color-primary);
+    background: rgba(78, 205, 196, 0.1);
+    outline: none;
 }
 
 .v4-menu-toggle {

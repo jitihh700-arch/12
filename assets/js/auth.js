@@ -238,7 +238,7 @@
             state.profile = null;
             setCard('needsPseudo', 'Choisis ton pseudo', 'Le quiz solo reste jouable même sans profil.');
             setActionState('create');
-            openModal('required');
+            document.dispatchEvent(new CustomEvent('memoriz:profile-needed'));
             return;
         }
 

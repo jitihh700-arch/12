@@ -240,6 +240,9 @@
         document.addEventListener('keydown', event => {
             if (event.key === 'Escape') setMobileMenu(false);
         });
+        byId('v4-nav-profile-action')?.addEventListener('click', () => {
+            window.memorizAuth?.openModal?.();
+        });
         byId('v4-multiplayer-create')?.addEventListener('click', () => {
             window.MemorizMultiplayer?.open?.();
             byId('multiplayer-tab-create')?.click();
@@ -254,7 +257,8 @@
         const target = byId('v4-nav-profile-name');
         if (!target) return;
         const profile = window.memorizAuth?.getState?.().profile || window.memorizProfile;
-        target.textContent = profile?.pseudo ? profile.pseudo : 'Mode solo';
+        const hasConfig = Boolean(window.MEMORIZ_SUPABASE_CONFIG?.url && window.MEMORIZ_SUPABASE_CONFIG?.publishableKey && window.supabase);
+        target.textContent = profile?.pseudo ? profile.pseudo : (hasConfig ? 'Créer profil' : 'Mode solo');
     }
 
     function init() {
@@ -267,6 +271,8 @@
         filterCategories();
         setCurrentRoute(routeFromHash(window.location.hash));
         document.addEventListener('memoriz:profile-ready', syncProfileName);
+        document.addEventListener('memoriz:profile-needed', syncProfileName);
+        document.addEventListener('memoriz:profile-unavailable', syncProfileName);
         window.addEventListener('hashchange', () => setCurrentRoute(routeFromHash(window.location.hash)));
     }
 
