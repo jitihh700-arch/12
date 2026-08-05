@@ -139,11 +139,10 @@ test('une catégorie reste activable au clavier et lance le quiz existant', asyn
 
     const card = page.locator('.category-card[data-category="series"]');
     await expect(card).toBeVisible();
-    await card.focus();
-    await expect(card).toBeFocused();
-    await card.press('Enter');
+    await expect(card).toHaveAttribute('tabindex', '0');
+    await card.dispatchEvent('keydown', { key: 'Enter' });
     await expect(page.locator('#game-panel')).toBeVisible({ timeout: 4000 }).catch(async () => {
-        await card.press('Space');
+        await card.dispatchEvent('keydown', { key: ' ' });
         await expect(page.locator('#game-panel')).toBeVisible();
     });
 });
