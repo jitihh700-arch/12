@@ -159,7 +159,7 @@ test('validation pseudo: longueurs, caracteres, accents, espaces, html, ponctuat
         await gotoHome(page);
         await expect(page.locator('#profile-modal')).toBeVisible();
         await page.locator('#profile-pseudo-input').fill(value);
-        await page.locator('#profile-modal-submit').click();
+        await page.locator('#profile-form').evaluate(form => form.requestSubmit());
         await expect(page.locator('#profile-form-error')).toContainText(message);
         await context.close();
     }
