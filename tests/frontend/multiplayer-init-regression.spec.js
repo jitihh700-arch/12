@@ -206,6 +206,20 @@ test('profil absent: aucune modale forcee ne vole le focus des champs', async ({
     await expect(page.locator('#profile-modal')).toBeHidden();
 });
 
+test('profil disponible: le menu categorie multijoueur garde le focus apres connexion', async ({ page }) => {
+    await routeBrowserDependencies(page);
+    await installControlledRuntime(page, { profileMode: 'ready', socketMode: 'success' });
+    await gotoHome(page);
+
+    await openMultiplayerFlow(page);
+    await expect(page.locator('#multiplayer-status')).toHaveText('Choisis une catégorie ou rejoins un code.');
+    await page.locator('#multiplayer-category').focus();
+    await page.waitForTimeout(150);
+
+    await expect(page.locator('#multiplayer-category')).toBeFocused();
+    await expect(page.locator('#multiplayer-modal')).toBeVisible();
+});
+
 test('profil actif: le champ commentaire garde le focus', async ({ page }) => {
     await routeBrowserDependencies(page);
     await installControlledRuntime(page, { profileMode: 'ready', socketMode: 'success' });
@@ -219,6 +233,20 @@ test('profil actif: le champ commentaire garde le focus', async ({ page }) => {
     await expect(page.locator('#comment-input')).toBeFocused();
     await expect(page.locator('#comment-input')).toHaveValue('Message de test');
     await expect(page.locator('#profile-modal')).toBeHidden();
+});
+
+test('profil absent: le champ commentaire reste cliquable et propose la creation du profil', async ({ page }) => {
+    await routeBrowserDependencies(page);
+    await installControlledRuntime(page, { profileMode: 'missing', socketMode: 'success' });
+    await gotoHome(page);
+
+    await page.locator('.v4-top-nav [data-v4-route="community"]').click();
+    await expect(page.locator('#comment-input')).toBeEnabled();
+    await expect(page.locator('#comment-input')).toHaveAttribute('readonly', '');
+    await expect(page.locator('#comments-status')).toHaveText('Pseudo requis');
+
+    await page.locator('#comment-input').click();
+    await expect(page.locator('#profile-modal')).toBeVisible();
 });
 
 test('profile_required puis profil disponible: une reconnexion nettoie lastError', async ({ page }) => {

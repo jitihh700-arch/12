@@ -18,7 +18,8 @@
         channel: null,
         reconnectTimer: null,
         toastTimer: null,
-        lastRemoteToastAt: 0
+        lastRemoteToastAt: 0,
+        needsProfile: false
     };
 
     function getEls() {
@@ -118,15 +119,35 @@
         if (els.submit) els.submit.disabled = disabled || state.submitting;
     }
 
+    function setNeedsProfile() {
+        const els = getEls();
+        state.needsProfile = true;
+        setDisabled(false);
+        if (els.input) {
+            els.input.readOnly = true;
+            els.input.removeAttribute('aria-disabled');
+            els.input.setAttribute('aria-readonly', 'true');
+        }
+        setText(els.status, 'Pseudo requis');
+        setText(els.feedStatus, 'Crée ton pseudo pour charger les commentaires.');
+    }
+
     function setUnavailable(message) {
         const els = getEls();
         state.profile = null;
         state.comments = [];
         state.hasMore = false;
         state.editingId = null;
+        state.needsProfile = message.includes('pseudo') || message.includes('profil');
         clearReconnectTimer();
         unsubscribe();
-        setDisabled(true);
+        setDisabled(!state.needsProfile);
+        if (els.input) {
+            els.input.readOnly = state.needsProfile;
+            els.input.removeAttribute('aria-disabled');
+            if (state.needsProfile) els.input.setAttribute('aria-readonly', 'true');
+            else els.input.removeAttribute('aria-readonly');
+        }
         setText(els.status, 'Commentaires indisponibles');
         setText(els.feedStatus, message);
         setText(els.error, '');
@@ -628,9 +649,15 @@
             state.api = window.MemorizProfileApi.init(window.MEMORIZ_SUPABASE_CONFIG || {});
             state.client = state.api.client;
             state.profile = profile;
+            state.needsProfile = false;
             state.editingId = null;
             state.deletingId = null;
             setDisabled(false);
+            if (els.input) {
+                els.input.readOnly = false;
+                els.input.removeAttribute('aria-disabled');
+                els.input.removeAttribute('aria-readonly');
+            }
             setText(els.error, '');
             updateCounter();
             await unsubscribe();
@@ -647,6 +674,14 @@
         els.input.addEventListener('input', () => {
             updateCounter();
             setText(els.error, '');
+        });
+        els.input.addEventListener('focus', () => {
+            if (!state.needsProfile) return;
+            setText(els.error, 'Crée ton pseudo pour commenter.');
+        });
+        els.input.addEventListener('click', () => {
+            if (!state.needsProfile) return;
+            window.memorizAuth?.openModal?.();
         });
         els.form.addEventListener('submit', submitComment);
         els.loadMore.addEventListener('click', loadMore);
@@ -670,9 +705,7 @@
         else if (!window.MEMORIZ_SUPABASE_CONFIG?.url || !window.MEMORIZ_SUPABASE_CONFIG?.publishableKey || !window.supabase) {
             setUnavailable('Les commentaires sont temporairement indisponibles, mais le quiz solo reste disponible.');
         } else {
-            setDisabled(true);
-            setText(els.status, 'Pseudo requis');
-            setText(els.feedStatus, 'Crée ton pseudo pour charger les commentaires.');
+            setNeedsProfile();
         }
     }
 

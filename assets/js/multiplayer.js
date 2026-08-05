@@ -406,14 +406,14 @@
         populateCategories();
         nodes.modal.hidden = false;
         nodes.modal.setAttribute('aria-hidden', 'false');
-        window.setTimeout(() => nodes.close?.focus(), 0);
+        nodes.close?.focus({ preventScroll: true });
         state.current = null;
         resetStartGamePending();
         setStatus('Connexion multijoueur...');
+        showView('none');
         try {
             await ensureSocket();
             setStatus('Choisis une catégorie ou rejoins un code.');
-            showView('none');
         } catch (error) {
             if (connectionErrorKey(error) === 'profile_required') state.retryAfterProfileRequired = true;
             setStatus(describeConnectionError(error));
