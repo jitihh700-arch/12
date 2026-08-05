@@ -68,6 +68,10 @@ async function installReadyProfileRuntime(page) {
     });
 }
 
+async function openMultiplayerFlow(page) {
+    await page.evaluate(() => window.MemorizMultiplayer.open());
+}
+
 test('categories multijoueur: quiz-data expose les 26 options reelles', async ({ page }) => {
     await routeBrowserDependencies(page);
     await installReadyProfileRuntime(page);
@@ -86,8 +90,8 @@ test('categories multijoueur: quiz-data expose les 26 options reelles', async ({
     await expect(page.locator('#multiplayer-category option').first()).not.toHaveAttribute('value', '');
     await expect(page.locator('#multiplayer-category option').first()).not.toHaveText('');
 
-    await page.locator('#multiplayer-open').click();
+    await openMultiplayerFlow(page);
     await page.locator('#multiplayer-close').click();
-    await page.locator('#multiplayer-open').click();
+    await openMultiplayerFlow(page);
     await expect(page.locator('#multiplayer-category option')).toHaveCount(26);
 });

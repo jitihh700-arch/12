@@ -123,7 +123,7 @@ test('parcours complet: profil, commentaire, quiz classe, leaderboard, multijoue
         await expect(page.locator('#leaderboard-open')).toBeFocused();
     }
 
-    await page.locator('#multiplayer-open').evaluate(button => button.click());
+    await page.evaluate(() => window.MemorizMultiplayer.open());
     await page.locator('#multiplayer-create').click();
     await expect(page.locator('#multiplayer-code-display')).toHaveText('ZX45YU');
     await page.locator('#multiplayer-start').click();
@@ -163,7 +163,7 @@ test('mode degrade final: Supabase, backend et Socket indisponibles sans bloquer
     await gotoHome(page);
     await expect(page.locator('#profile-status-label')).toHaveText('Mode solo');
     await expect(page.locator('#leaderboard-open')).toBeDisabled();
-    await expect(page.locator('#multiplayer-open')).toBeDisabled();
+    await expect(page.locator('#multiplayer-open')).toHaveCount(0);
     await openExplorer(page);
     await page.locator('.category-card[data-category="series"]').click();
     await page.locator('#quick-input').fill('Walter White');

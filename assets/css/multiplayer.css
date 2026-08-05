@@ -21,7 +21,7 @@
 }
 
 .multiplayer-modal-content {
-    width: min(860px, 100%);
+    width: min(980px, 100%);
     max-height: min(820px, calc(100dvh - 32px));
     overflow: auto;
     position: relative;
@@ -266,6 +266,117 @@
     background: #0f1c26;
 }
 
+.multiplayer-game {
+    padding: clamp(18px, 3vw, 32px);
+    border-radius: 28px;
+    background: linear-gradient(135deg, #fff, #f8f9fa);
+    color: #1e1e2f;
+    box-shadow: 0 22px 46px rgba(0, 0, 0, 0.28);
+}
+
+.multiplayer-game .multiplayer-game-topline {
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 2px solid #e8edf3;
+}
+
+.multiplayer-game .multiplayer-game-topline h3 {
+    color: #1e1e2f;
+    font-size: clamp(1.55rem, 4vw, 2.2rem);
+}
+
+.multiplayer-game .multiplayer-score-live {
+    display: inline-flex;
+    margin: 0 10px 14px 0;
+    padding: 10px 18px;
+    border-radius: 60px;
+    background: linear-gradient(135deg, #ff4757, #ff6b6b);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.multiplayer-game .multiplayer-progress-live {
+    display: inline-flex;
+    margin: 0 0 14px;
+    padding: 10px 18px;
+    border-radius: 60px;
+    background: #f0f0f0;
+    color: #1e1e2f;
+    font-size: 1rem;
+}
+
+.multiplayer-game .multiplayer-timer {
+    background: #1e1e2f;
+    color: #ffa502;
+    font-size: 1.35rem;
+    letter-spacing: 2px;
+}
+
+.multiplayer-answer-table {
+    margin-top: 18px;
+    background: #fff;
+}
+
+.multiplayer-answer-table td:first-child {
+    width: 64px;
+    text-align: center;
+    font-weight: 800;
+}
+
+.multiplayer-answer-row.is-found td {
+    color: #1f7a3b;
+    font-weight: 800;
+}
+
+.multiplayer-game .multiplayer-answer-form {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 2px solid #e8edf3;
+}
+
+.multiplayer-game .multiplayer-answer-form label {
+    color: #1e1e2f;
+}
+
+.multiplayer-game .multiplayer-answer-form input {
+    border: 2px solid #ddd;
+    border-radius: 60px;
+    background: #fefefe;
+    color: #1e1e2f;
+}
+
+.multiplayer-game .multiplayer-answer-form input:focus {
+    border-color: #ff4757;
+    box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.2);
+}
+
+.multiplayer-game .multiplayer-answer-form button {
+    border-radius: 60px;
+    background: linear-gradient(135deg, #ff4757, #ff6b6b);
+    color: #fff;
+}
+
+.multiplayer-game .multiplayer-scoreboard,
+.multiplayer-game .multiplayer-found-list {
+    padding: 14px;
+    border-radius: 18px;
+    background: #f5f5f5;
+    border-left: 4px solid #ff4757;
+}
+
+.multiplayer-game .multiplayer-score-row,
+.multiplayer-game .multiplayer-found-item {
+    border-color: #dde4ed;
+    background: #fff;
+    color: #1e1e2f;
+}
+
+.multiplayer-game .multiplayer-score-row.is-current {
+    border-color: #ffa502;
+    background: #fff7e8;
+}
+
 .multiplayer-code-card strong {
     font-family: Consolas, Monaco, monospace;
     font-size: 1.8rem;
@@ -332,33 +443,6 @@
 
 .multiplayer-progress-live {
     font-weight: 800;
-}
-
-.multiplayer-answer-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(74px, 1fr));
-    gap: 8px;
-    margin: 16px 0;
-}
-
-.multiplayer-answer-cell {
-    min-height: 42px;
-    display: grid;
-    place-items: center;
-    padding: 8px;
-    border: 1px solid #2b3648;
-    border-radius: 8px;
-    background: #101827;
-    color: #aebbd0;
-    font-weight: 800;
-    text-align: center;
-    overflow-wrap: anywhere;
-}
-
-.multiplayer-answer-cell.is-found {
-    border-color: #ffce5c;
-    background: #2b2111;
-    color: #fff;
 }
 
 .multiplayer-answer-form {

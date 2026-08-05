@@ -25,19 +25,27 @@
 
 .reaction-float-layer {
     position: fixed;
-    inset: auto 16px 16px auto;
-    z-index: 10020;
+    top: max(18px, env(safe-area-inset-top));
+    left: 50%;
+    z-index: 11000;
     display: grid;
-    gap: 6px;
+    gap: 8px;
     pointer-events: none;
+    transform: translateX(-50%);
 }
 
 .reaction-toast {
-    padding: 8px 12px;
-    border-radius: 8px;
-    background: rgba(14, 16, 30, 0.94);
+    min-width: min(280px, calc(100vw - 32px));
+    padding: 12px 16px;
+    border-radius: 999px;
+    background:
+        linear-gradient(135deg, rgba(78, 205, 196, 0.24), rgba(255, 107, 107, 0.16)),
+        rgba(8, 15, 22, 0.96);
     color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(78, 205, 196, 0.34);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.42);
+    text-align: center;
+    font-weight: 800;
     animation: reaction-rise 1600ms ease-out forwards;
 }
 

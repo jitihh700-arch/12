@@ -256,7 +256,7 @@ test('changement de pseudo: delai 14 jours, RPC forcee, vieillissement base, suc
     await contextB.close();
 });
 
-test('regression quiz: 26 categories, score, timer, fermeture, redemarrage, theme, blog, legal, partage', async ({ page }) => {
+test('regression quiz: 26 categories, score, timer, fermeture, redemarrage, blog, legal, partage', async ({ page }) => {
     await gotoHome(page);
     await createProfile(page, `Quiz_${runId}`);
     await openExplorer(page);
@@ -273,8 +273,7 @@ test('regression quiz: 26 categories, score, timer, fermeture, redemarrage, them
     await expect(page.locator('#score')).toContainText('0/20');
     await page.locator('#close-game-btn').click();
 
-    await page.locator('#themeToggle').evaluate(button => button.click());
-    await expect(page.locator('body')).toHaveClass(/light-mode/);
+    await expect(page.locator('#themeToggle')).toHaveCount(0);
     await page.locator('.read-more[data-blog="blog1"]').evaluate(button => button.click());
     await expect(page.locator('#blog1-content')).toHaveClass(/show/);
     await page.locator('#privacy-link').evaluate(link => link.click());
@@ -287,13 +286,13 @@ test('regression quiz: 26 categories, score, timer, fermeture, redemarrage, them
         window.__openedShare = [];
         window.open = url => { window.__openedShare.push(url); return null; };
     });
-    await page.evaluate(() => window.shareOnWhatsApp());
     await page.evaluate(() => window.shareOnTwitter());
     const shares = await page.evaluate(() => window.__openedShare);
-    expect(shares).toHaveLength(2);
+    expect(shares).toHaveLength(1);
+    expect(shares[0]).toContain('twitter.com/intent/tweet');
 });
 
-test('responsive et accessibilite: desktop, mobile, themes, zoom 200, clavier et retour focus', async ({ page }) => {
+test('responsive et accessibilite: desktop, mobile, zoom 200, clavier et retour focus', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await gotoHome(page);
     await createProfile(page, `Responsive_${runId}`);
@@ -304,7 +303,7 @@ test('responsive et accessibilite: desktop, mobile, themes, zoom 200, clavier et
 
     await page.setViewportSize({ width: 390, height: 844 });
     await expectNoHorizontalOverflow(page);
-    await page.locator('#themeToggle').evaluate(button => button.click());
+    await expect(page.locator('#themeToggle')).toHaveCount(0);
     await expectNoHorizontalOverflow(page);
 
     await page.setViewportSize({ width: 780, height: 844 });

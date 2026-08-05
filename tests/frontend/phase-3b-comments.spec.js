@@ -242,9 +242,9 @@ test('pseudo, payload malforme, responsive, accessibilite et regression generale
     await page.setViewportSize({ width: 390, height: 844 });
     await expectNoHorizontalOverflow(page);
     await page.screenshot({ path: testInfo.outputPath('comments-mobile.png'), fullPage: true });
-    await page.locator('#themeToggle').evaluate(button => button.click());
+    await expect(page.locator('#themeToggle')).toHaveCount(0);
     await expectNoHorizontalOverflow(page);
-    await page.screenshot({ path: testInfo.outputPath('comments-mobile-light.png'), fullPage: true });
+    await page.screenshot({ path: testInfo.outputPath('comments-mobile-dark.png'), fullPage: true });
     await page.setViewportSize({ width: 780, height: 844 });
     await page.evaluate(() => { document.documentElement.style.zoom = '2'; });
     await expectNoHorizontalOverflow(page);

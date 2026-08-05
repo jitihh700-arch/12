@@ -317,10 +317,18 @@
         const cells = Array.from({ length: total }, (unused, index) => {
             const order = index + 1;
             const answer = found.get(order);
-            const cell = document.createElement('span');
-            cell.className = answer ? 'multiplayer-answer-cell is-found' : 'multiplayer-answer-cell';
-            cell.textContent = answer?.display || String(order);
-            return cell;
+            const row = document.createElement('tr');
+            row.className = answer ? 'multiplayer-answer-row is-found' : 'multiplayer-answer-row';
+
+            const rank = document.createElement('td');
+            rank.textContent = String(order);
+            const display = document.createElement('td');
+            display.textContent = answer?.display || '???';
+            const status = document.createElement('td');
+            status.textContent = answer ? '✓' : '⏳';
+
+            row.append(rank, display, status);
+            return row;
         });
         nodes.answerGrid.replaceChildren(...cells);
     }
@@ -562,10 +570,10 @@
 
     function bind() {
         const nodes = els();
-        if (!nodes.modal || !nodes.open) return;
+        if (!nodes.modal) return;
         populateCategories();
         window.MemorizReactions?.render(nodes.reactions, sendReaction);
-        nodes.open.addEventListener('click', openModal);
+        nodes.open?.addEventListener('click', openModal);
         nodes.close.addEventListener('click', closeModal);
         nodes.finalClose.addEventListener('click', closeModal);
         nodes.create.addEventListener('click', createGame);
@@ -609,9 +617,18 @@
                 items[(index + direction + items.length) % items.length].focus();
             }
         });
+        document.addEventListener('keydown', event => {
+            if (event.key !== 'Escape' || nodes.modal.hidden) return;
+            event.preventDefault();
+            closeModal();
+        });
     }
 
-    document.addEventListener('DOMContentLoaded', bind);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bind);
+    } else {
+        bind();
+    }
     document.addEventListener('memoriz:profile-ready', event => {
         state.profile = event.detail.profile;
         const nodes = els();

@@ -55,7 +55,7 @@
         }
         animateParticles();
 
-        // Adapter les couleurs en mode clair
+        // Garde les particules cohérentes avec le thème actif.
         function updateParticlesForTheme(isLight) {
             Particle.prototype.draw = function() {
                 ctx.beginPath();
@@ -69,7 +69,7 @@
 
         // Observer le changement de thème
         const themeToggle = document.getElementById('themeToggle');
-        themeToggle.addEventListener('click', function() {
+        themeToggle?.addEventListener('click', function() {
             setTimeout(() => {
                 updateParticlesForTheme(document.body.classList.contains('light-mode'));
             }, 50);
@@ -105,10 +105,10 @@
             contact: { title: "📧 Contact", heading: "Contactez-nous", paragraphs: [
                 "Une question, une suggestion de quiz ou un problème technique ? Écrivez à jitihh700@gmail.com.",
                 "Délai de réponse indicatif : sous 48h ouvrées.",
-                "Réseaux sociaux : YouTube @noironik, TikTok @noironik, Twitch noironik1, WhatsApp noironik."
+                "Réseaux sociaux : YouTube @noironik, TikTok @noironik, Twitch noironik1."
             ] }
         };
         function showLegalPage(page) { const modal = document.getElementById('legal-modal'); const modalBody = document.getElementById('modal-body'); const content = legalContent[page]; if (content) { const wrapper = document.createElement('div'); wrapper.className = 'legal-content'; const heading = document.createElement('h2'); heading.textContent = content.heading; wrapper.append(heading); content.paragraphs.forEach(text => { const paragraph = document.createElement('p'); paragraph.textContent = text; wrapper.append(paragraph); }); modalBody.replaceChildren(wrapper); modal.style.display = 'block'; } }
         function initLegalPages() { const modal = document.getElementById('legal-modal'); const closeBtn = document.querySelector('.close-modal'); document.getElementById('privacy-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('privacy'); }); document.getElementById('terms-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('terms'); }); document.getElementById('mentions-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('mentions'); }); document.getElementById('about-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('about'); }); document.getElementById('contact-link')?.addEventListener('click', (e) => { e.preventDefault(); showLegalPage('contact'); }); if (closeBtn) closeBtn.onclick = () => { modal.style.display = 'none'; }; window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; }; }
         function initBlogArticles() { document.querySelectorAll('.read-more').forEach(button => { button.addEventListener('click', (e) => { const blogId = button.getAttribute('data-blog'); const content = document.getElementById(`${blogId}-content`); if (content) { const isVisible = content.classList.contains('show'); if (!isVisible) { content.classList.add('show'); button.textContent = 'Réduire ↑'; } else { content.classList.remove('show'); button.textContent = 'Lire la suite →'; } } }); }); }
-        function initTheme() { const savedTheme = localStorage.getItem('memoriz_theme'); if (savedTheme === 'light') document.body.classList.add('light-mode'); document.getElementById('themeToggle').addEventListener('click', () => { document.body.classList.toggle('light-mode'); localStorage.setItem('memoriz_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); }); }
+        function initTheme() { document.body.classList.remove('light-mode'); localStorage.removeItem('memoriz_theme'); }

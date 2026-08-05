@@ -1,199 +1,8 @@
 (function() {
-    const INTRO_STEPS = [
-        ['01-inactive-1920x1080.webp', '01-inactive-1080x1920.webp'],
-        ['02-first-mark-1920x1080.webp', '02-first-mark-1080x1920.webp'],
-        ['03-second-mark-1920x1080.webp', '03-second-mark-1080x1920.webp'],
-        ['04-third-mark-1920x1080.webp', '04-third-mark-1080x1920.webp'],
-        ['05-ultimate-1920x1080.webp', '05-ultimate-1080x1920.webp']
-    ];
-    const STEP_MS = Number(window.MEMORIZ_V4_INTRO_STEP_MS || 760);
-    const REDUCED_MS = Number(window.MEMORIZ_V4_INTRO_REDUCED_MS || 220);
-    const timers = new Set();
-    let activeIntroFrame = 'a';
+    let initialized = false;
 
     function byId(id) {
         return document.getElementById(id);
-    }
-
-    function setTimer(callback, delay) {
-        const id = window.setTimeout(() => {
-            timers.delete(id);
-            callback();
-        }, delay);
-        timers.add(id);
-        return id;
-    }
-
-    function clearTimers() {
-        timers.forEach(id => window.clearTimeout(id));
-        timers.clear();
-    }
-
-    function introPath(kind, file) {
-        return `assets/images/memoriz/intro/${kind}/${file}`;
-    }
-
-    function introKind() {
-        return window.matchMedia('(min-width: 768px)').matches ? 'web' : 'mobile';
-    }
-
-    function introSrc(index) {
-        const kind = introKind();
-        const step = INTRO_STEPS[index];
-        return introPath(kind, kind === 'web' ? step[0] : step[1]);
-    }
-
-    function preloadIntro() {
-        return Promise.all(INTRO_STEPS.flatMap(([web, mobile]) => [introPath('web', web), introPath('mobile', mobile)]).map(src => new Promise((resolve, reject) => {
-            const image = new Image();
-            image.onload = resolve;
-            image.onerror = reject;
-            image.src = src;
-        })));
-    }
-
-    function setIntroStep(index) {
-        const intro = byId('v4-intro');
-        const current = byId(`v4-intro-image-${activeIntroFrame}`);
-        const nextName = activeIntroFrame === 'a' ? 'b' : 'a';
-        const next = byId(`v4-intro-image-${nextName}`);
-        const step = INTRO_STEPS[index];
-        if (!current || !next || !step) return;
-        if (intro) {
-            intro.dataset.step = String(index + 1);
-            intro.classList.remove('is-step-1', 'is-step-2', 'is-step-3', 'is-step-4', 'is-step-5');
-            intro.classList.add(`is-step-${index + 1}`);
-        }
-        next.src = introSrc(index);
-        next.classList.add('is-visible');
-        current.classList.remove('is-visible');
-        activeIntroFrame = nextName;
-    }
-
-    function resetIntroFrames() {
-        const first = introSrc(0);
-        const frameA = byId('v4-intro-image-a');
-        const frameB = byId('v4-intro-image-b');
-        if (!frameA || !frameB) return;
-        activeIntroFrame = 'a';
-        frameA.src = first;
-        frameB.src = first;
-        frameA.classList.add('is-visible');
-        frameB.classList.remove('is-visible');
-    }
-
-    function finishIntro(options = {}) {
-        const intro = byId('v4-intro');
-        if (!intro) return;
-        if (options.immediate) {
-            intro.classList.remove('is-active', 'is-leaving');
-            intro.setAttribute('aria-hidden', 'true');
-            clearTimers();
-            restoreProfileModalFocus();
-            return;
-        }
-        intro.classList.add('is-leaving');
-        setTimer(() => {
-            intro.classList.remove('is-active', 'is-leaving');
-            intro.setAttribute('aria-hidden', 'true');
-            clearTimers();
-            restoreProfileModalFocus();
-        }, 380);
-    }
-
-    function skipIntro() {
-        const intro = byId('v4-intro');
-        if (!intro) return;
-        intro.dataset.started = 'true';
-        intro.classList.remove('is-active', 'is-leaving');
-        intro.setAttribute('aria-hidden', 'true');
-        clearTimers();
-    }
-
-    function restoreProfileModalFocus() {
-        const modal = byId('profile-modal');
-        const input = byId('profile-pseudo-input');
-        if (!modal || modal.hidden || !input) return;
-        window.setTimeout(() => input.focus(), 0);
-    }
-
-    function watchProfileModalDuringIntro() {
-        const modal = byId('profile-modal');
-        if (!modal || typeof MutationObserver !== 'function') return;
-
-        const observer = new MutationObserver(() => {
-            if (modal.hidden) return;
-            finishIntro({ immediate: true });
-            restoreProfileModalFocus();
-            observer.disconnect();
-        });
-
-        observer.observe(modal, { attributes: true, attributeFilter: ['hidden', 'aria-hidden'] });
-    }
-
-    function scheduleIntro() {
-        const config = window.MEMORIZ_SUPABASE_CONFIG || {};
-        const modal = byId('profile-modal');
-        if (!config.url || !config.publishableKey || !modal) {
-            startIntro();
-            return;
-        }
-
-        let settled = false;
-        let observer = null;
-        const run = () => {
-            if (settled) return;
-            settled = true;
-            observer?.disconnect();
-            if (!modal.hidden) {
-                skipIntro();
-                restoreProfileModalFocus();
-                return;
-            }
-            startIntro();
-        };
-
-        observer = new MutationObserver(() => {
-            if (!modal.hidden) run();
-        });
-        observer.observe(modal, { attributes: true, attributeFilter: ['hidden', 'aria-hidden'] });
-        document.addEventListener('memoriz:profile-ready', run, { once: true });
-        document.addEventListener('memoriz:profile-unavailable', run, { once: true });
-        setTimer(run, 3000);
-    }
-
-    async function startIntro() {
-        const intro = byId('v4-intro');
-        const fallback = byId('v4-intro-fallback');
-        if (!intro || window.MEMORIZ_V4_SKIP_INTRO === true || intro.dataset.started === 'true') return;
-
-        intro.dataset.started = 'true';
-        intro.dataset.step = '1';
-        resetIntroFrames();
-        intro.classList.add('is-active');
-        intro.classList.add('is-step-1');
-        intro.setAttribute('aria-hidden', 'false');
-        watchProfileModalDuringIntro();
-
-        try {
-            await preloadIntro();
-        } catch (error) {
-            if (fallback) fallback.hidden = false;
-            setTimer(finishIntro, REDUCED_MS);
-            return;
-        }
-
-        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (reduced) {
-            setIntroStep(INTRO_STEPS.length - 1);
-            setTimer(finishIntro, REDUCED_MS);
-            return;
-        }
-
-        INTRO_STEPS.slice(1).forEach((step, index) => {
-            setTimer(() => setIntroStep(index + 1), (index + 1) * STEP_MS);
-        });
-        setTimer(finishIntro, INTRO_STEPS.length * STEP_MS + 620);
     }
 
     function normalize(text) {
@@ -400,16 +209,37 @@
         }
     }
 
+    function setMobileMenu(open) {
+        const button = byId('v4-menu-toggle');
+        const menu = byId('v4-mobile-menu');
+        if (!button || !menu) return;
+
+        button.setAttribute('aria-expanded', open ? 'true' : 'false');
+        button.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+        menu.hidden = !open;
+    }
+
     function bindNavigation() {
-        document.querySelectorAll('[data-v4-route]').forEach(link => {
-            link.addEventListener('click', event => {
-                const route = link.getAttribute('data-v4-route');
-                if (!route) return;
+        document.addEventListener('click', event => {
+            const menuButton = event.target.closest('#v4-menu-toggle');
+            if (menuButton) {
                 event.preventDefault();
-                goToRoute(route, { focus: true });
-            });
+                const expanded = menuButton.getAttribute('aria-expanded') === 'true';
+                setMobileMenu(!expanded);
+                return;
+            }
+
+            const link = event.target.closest('[data-v4-route]');
+            if (!link) return;
+            const route = link.getAttribute('data-v4-route');
+            if (!route) return;
+            event.preventDefault();
+            setMobileMenu(false);
+            goToRoute(route, { focus: true });
         });
-        byId('v4-home-multiplayer')?.addEventListener('click', () => goToRoute('multiplayer', { focus: true }));
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') setMobileMenu(false);
+        });
         byId('v4-multiplayer-create')?.addEventListener('click', () => {
             window.MemorizMultiplayer?.open?.();
             byId('multiplayer-tab-create')?.click();
@@ -428,17 +258,21 @@
     }
 
     function init() {
+        if (initialized) return;
+        initialized = true;
         enrichCategories();
         bindExplorer();
         bindNavigation();
         syncProfileName();
         filterCategories();
         setCurrentRoute(routeFromHash(window.location.hash));
-        scheduleIntro();
         document.addEventListener('memoriz:profile-ready', syncProfileName);
         window.addEventListener('hashchange', () => setCurrentRoute(routeFromHash(window.location.hash)));
-        window.addEventListener('beforeunload', clearTimers);
     }
 
-    document.addEventListener('DOMContentLoaded', init);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 })();

@@ -50,7 +50,6 @@
     <link rel="stylesheet" href="assets/css/components/forms.css">
     <link rel="stylesheet" href="assets/css/components/navigation.css">
     <link rel="stylesheet" href="assets/css/components/feedback.css">
-    <link rel="stylesheet" href="assets/css/pages/intro.css">
     <link rel="stylesheet" href="assets/css/pages/home.css">
     <link rel="stylesheet" href="assets/css/pages/explorer.css">
     <link rel="stylesheet" href="assets/css/pages/v4-pages.css">
@@ -58,16 +57,6 @@
     <link rel="stylesheet" href="assets/css/responsive.css">
 </head>
 <body class="memoriz-v4">
-    <div class="v4-intro" id="v4-intro" aria-hidden="true">
-        <div class="v4-intro-stage" aria-hidden="true">
-            <img id="v4-intro-image-a" class="v4-intro-frame is-visible" src="assets/images/memoriz/intro/mobile/01-inactive-1080x1920.webp" alt="" width="1080" height="1920">
-            <img id="v4-intro-image-b" class="v4-intro-frame" src="assets/images/memoriz/intro/mobile/01-inactive-1080x1920.webp" alt="" width="1080" height="1920">
-        </div>
-        <div class="v4-intro-fallback" id="v4-intro-fallback" hidden>
-            <strong>MEMORIZ</strong>
-            <span>Chargement de l'application...</span>
-        </div>
-    </div>
     <!-- CANVAS POUR LE FOND ANIMÉ -->
     <canvas id="particles-canvas"></canvas>
 
@@ -87,6 +76,11 @@
             <img src="favicon-96x96.png" alt="" width="36" height="36">
             <span>MEMORIZ</span>
         </a>
+        <button class="v4-menu-toggle" id="v4-menu-toggle" type="button" aria-label="Ouvrir le menu" aria-controls="v4-mobile-menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </button>
         <div class="v4-nav-links">
             <a href="#home" data-v4-route="home" aria-current="page">Accueil</a>
             <a href="#explorer" data-v4-route="explorer">Explorer</a>
@@ -98,23 +92,36 @@
             <span id="v4-nav-profile-name">Mode solo</span>
         </div>
     </nav>
-    <nav class="v4-bottom-nav" aria-label="Navigation mobile">
-        <a href="#home" data-v4-route="home" aria-current="page">Accueil</a>
-        <a href="#explorer" data-v4-route="explorer">Explorer</a>
-        <a href="#multiplayer" data-v4-route="multiplayer">Multi</a>
-        <a href="#community" data-v4-route="community">Communauté</a>
-        <a href="#profile-card" data-v4-route="profile">Profil</a>
+    <nav class="v4-mobile-menu" id="v4-mobile-menu" aria-label="Navigation mobile" hidden>
+        <a href="#home" data-v4-route="home" aria-current="page">
+            <span class="v4-mobile-menu-icon" aria-hidden="true"></span>
+            <span>Accueil</span>
+        </a>
+        <a href="#explorer" data-v4-route="explorer">
+            <span class="v4-mobile-menu-icon" aria-hidden="true"></span>
+            <span>Explorer</span>
+        </a>
+        <a href="#solo" data-v4-route="solo">
+            <span class="v4-mobile-menu-icon" aria-hidden="true"></span>
+            <span>Solo</span>
+        </a>
+        <a href="#multiplayer" data-v4-route="multiplayer">
+            <span class="v4-mobile-menu-icon" aria-hidden="true"></span>
+            <span>Multijoueur</span>
+        </a>
+        <a href="#community" data-v4-route="community">
+            <span class="v4-mobile-menu-icon" aria-hidden="true"></span>
+            <span>Communauté</span>
+        </a>
     </nav>
 
     <div class="container">
         <header class="v4-home" id="home" data-v4-view="home" aria-labelledby="v4-home-title">
-            <button class="theme-btn" id="themeToggle" aria-label="Basculer le thème">Mode clair</button>
             <p class="v4-eyebrow">Quiz culture pop et mémoire</p>
             <h1 id="v4-home-title">Teste tes connaissances. <span>Progresse chaque jour.</span></h1>
             <p class="v4-home-lead">Des quiz rapides dans tes univers préférés, utilisables en solo même quand les services en ligne sont indisponibles.</p>
             <div class="v4-home-actions">
                 <a href="#explorer" class="v4-button v4-button-primary" data-v4-route="explorer">Lancer un quiz</a>
-                <button type="button" class="v4-button v4-button-secondary" id="v4-home-multiplayer">Multijoueur</button>
             </div>
             <div class="v4-home-stats" aria-label="Résumé Memoriz">
                 <span>26 catégories</span>
@@ -137,7 +144,6 @@
                 <div class="profile-actions">
                     <button type="button" id="profile-primary-action">Créer mon pseudo</button>
                     <button type="button" id="profile-retry-action" hidden>Réessayer</button>
-                    <button type="button" id="multiplayer-open" disabled>Multijoueur</button>
                     <button type="button" id="leaderboard-open" disabled>Classement</button>
                 </div>
             </section>
@@ -332,7 +338,6 @@
                 <a href="https://youtube.com/@noironik" target="_blank" class="social-link youtube" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="20"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.376.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.376-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg> YouTube</a>
                 <a href="https://tiktok.com/@noironik" target="_blank" class="social-link tiktok" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="20"><path d="M19.589 6.686a4.993 4.993 0 0 1-3.77-4.245V2h-3.445v13.672a2.945 2.945 0 0 1-2.942 2.94 2.945 2.945 0 0 1-2.942-2.94 2.945 2.945 0 0 1 2.942-2.94c.345 0 .675.06.98.164V8.233a6.424 6.424 0 0 0-5.4 6.273 6.424 6.424 0 0 0 6.4 6.4 6.424 6.424 0 0 0 6.4-6.4c0-.14-.007-.28-.014-.418V8.956a7.235 7.235 0 0 0 4.218 1.336V7.081a4.314 4.314 0 0 1-2.185-.395z"/></svg> TikTok</a>
                 <a href="https://twitch.tv/noironik1" target="_blank" class="social-link twitch" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="20"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm10.857 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714V11.143z"/></svg> Twitch</a>
-                <a href="https://wa.me/2250708608958?text=Salut%20Memoriz%20!" target="_blank" class="social-link whatsapp" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.472-.149-.67.149-.197.298-.767.94-.94 1.165-.173.198-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.019-.458.13-.606.134-.134.298-.347.447-.521.149-.174.198-.298.297-.497.099-.198.05-.372-.025-.521-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.372-.01-.571-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.235.612 4.334 1.678 6.147L0 24l6.001-1.676A11.97 11.97 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.878 0-3.628-.547-5.111-1.486l-.364-.216-3.563.995.995-3.555-.223-.369A9.94 9.94 0 0 1 2 12c0-5.514 4.486-10 10-10s10 4.486 10 10-4.486 10-10 10z"/></svg> WhatsApp</a>
                 <a href="https://www.sapeo.org/memoriz-quiz" target="_blank" class="social-link sapeo" rel="noopener noreferrer" style="background: #00A859; color: white;">❤️ Soutenir Memoriz</a>
             </div>
             <div class="copyright">© 2022-2026 Memoriz - Tous droits réservés | Hébergé par Render Inc. | Sharingan Edition</div>
@@ -443,7 +448,18 @@
                         <button type="submit">Valider</button>
                     </div>
                 </form>
-                <div id="multiplayer-answer-grid" class="multiplayer-answer-grid" aria-label="Tes cases de réponses"></div>
+                <div class="quiz-table multiplayer-answer-table" aria-label="Tableau de réponses multijoueur">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Réponse</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody id="multiplayer-answer-grid"></tbody>
+                    </table>
+                </div>
                 <ul id="multiplayer-found-list" class="multiplayer-found-list" aria-label="Tes réponses trouvées"></ul>
                 <div id="multiplayer-reactions" class="reactions-bar" aria-label="Réactions rapides"></div>
             </section>

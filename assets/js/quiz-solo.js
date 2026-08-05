@@ -424,12 +424,6 @@ document.addEventListener('memoriz:profile-ready', () => {
     restoreActiveGame();
 });
 
-function shareOnWhatsApp() {
-    if (!currentGame) return;
-    const text = `🎯 J'ai fait ${currentGame.score}/${currentGame.questions.length} (${Math.round(currentGame.getProgress().percentage)}%) au quiz Memoriz !`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-}
-
 function shareOnTwitter() {
     if (!currentGame) return;
     const text = `🎯 J'ai fait ${currentGame.score}/${currentGame.questions.length} (${Math.round(currentGame.getProgress().percentage)}%) au quiz Memoriz !`;
@@ -507,17 +501,12 @@ function renderFinalScreen(container, completed, percentage, serverResult) {
     replay.addEventListener('click', () => restartGame());
     const shares = document.createElement('div');
     shares.style.marginTop = '20px';
-    const whatsapp = document.createElement('button');
-    whatsapp.className = 'share-btn';
-    whatsapp.type = 'button';
-    whatsapp.textContent = '💬 Partager sur WhatsApp';
-    whatsapp.addEventListener('click', shareOnWhatsApp);
     const twitter = document.createElement('button');
     twitter.className = 'share-btn share-twitter';
     twitter.type = 'button';
     twitter.textContent = '🐦 Partager sur X (Twitter)';
     twitter.addEventListener('click', shareOnTwitter);
-    shares.append(whatsapp, twitter);
+    shares.append(twitter);
 
     final.append(title, score, text, home, replay);
     if (currentGame.mode === 'ranked') {

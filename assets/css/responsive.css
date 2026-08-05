@@ -17,12 +17,27 @@
         display: none;
     }
 
-    .v4-bottom-nav {
-        display: grid;
+    .v4-menu-toggle {
+        display: inline-flex;
     }
 
     .v4-nav-profile {
         display: none;
+    }
+
+    .theme-btn {
+        position: relative;
+        top: auto;
+        right: auto;
+        justify-self: start;
+        width: max-content;
+        margin-bottom: var(--space-2);
+        padding: 9px 14px;
+        font-size: 0.86rem;
+    }
+
+    .theme-btn:hover {
+        transform: none;
     }
 
     .memoriz-v4 .v4-home {

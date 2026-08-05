@@ -172,10 +172,13 @@ async function installFakeMultiplayer(page) {
     });
 }
 
+async function openMultiplayerFlow(page) {
+    await page.evaluate(() => window.MemorizMultiplayer.open());
+}
+
 test('lobby: creation, code, rendu texte et payloads sans champs interdits', async ({ page }) => {
     await installFakeMultiplayer(page);
-    await expect(page.locator('#multiplayer-open')).toBeEnabled();
-    await page.locator('#multiplayer-open').click();
+    await openMultiplayerFlow(page);
     await expect(page.locator('#multiplayer-modal .multiplayer-modal-content')).toHaveAttribute('role', 'dialog');
     await expect(page.locator('#multiplayer-modal .multiplayer-modal-content')).toHaveAttribute('aria-modal', 'true');
     await expect(page.locator('#multiplayer-close')).toBeFocused();
@@ -191,7 +194,7 @@ test('lobby: creation, code, rendu texte et payloads sans champs interdits', asy
 
 test('partie: start serveur, timer expiresAt, score serveur et reactions texte', async ({ page }) => {
     await installFakeMultiplayer(page);
-    await page.locator('#multiplayer-open').click();
+    await openMultiplayerFlow(page);
     await page.locator('#multiplayer-create').click();
     await page.evaluate(() => {
         window.__fakeSnapshot.currentPlayers = 2;
@@ -222,7 +225,7 @@ test('partie: start serveur, timer expiresAt, score serveur et reactions texte',
 
 test('rejoindre, quitter et cache minimal', async ({ page }) => {
     await installFakeMultiplayer(page);
-    await page.locator('#multiplayer-open').click();
+    await openMultiplayerFlow(page);
     await page.locator('#multiplayer-tab-join').click();
     await page.locator('#multiplayer-code-input').fill('ab234c');
     await page.locator('#multiplayer-join').click();
@@ -240,7 +243,7 @@ test('creation: ancienne salle en cache ignoree puis quittee si le serveur bloqu
         window.__failCreateOnceWithActive = true;
     });
 
-    await page.locator('#multiplayer-open').click();
+    await openMultiplayerFlow(page);
     await expect(page.locator('#multiplayer-lobby')).toBeHidden();
     await expect(page.locator('#multiplayer-status')).toHaveText('Choisis une catégorie ou rejoins un code.');
     expect(await page.evaluate(() => window.__multiplayerPayloads.some(entry => entry.event === 'requestGameState'))).toBe(false);
@@ -259,7 +262,7 @@ test('creation: ancienne salle serveur liberee sans code en cache', async ({ pag
         window.__failCreateOnceWithActive = true;
     });
 
-    await page.locator('#multiplayer-open').click();
+    await openMultiplayerFlow(page);
     await page.locator('#multiplayer-create').click();
     await expect(page.locator('#multiplayer-code-display')).toHaveText('AB234C');
     const events = await page.evaluate(() => window.__multiplayerPayloads.map(entry => entry.event));
@@ -271,7 +274,7 @@ test('creation: ancienne salle serveur liberee sans code en cache', async ({ pag
 test('responsive, zoom et clavier', async ({ page }) => {
     await installFakeMultiplayer(page);
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.locator('#multiplayer-open').click();
+    await openMultiplayerFlow(page);
     await page.locator('#multiplayer-create').click();
     await expectNoHorizontalOverflow(page);
     await page.keyboard.press('Tab');
@@ -279,7 +282,7 @@ test('responsive, zoom et clavier', async ({ page }) => {
     await expect(page.locator('#multiplayer-modal')).toBeHidden();
 
     await page.setViewportSize({ width: 780, height: 844 });
-    await page.locator('#multiplayer-open').click();
+    await openMultiplayerFlow(page);
     await page.evaluate(() => { document.documentElement.style.zoom = '2'; });
     await expectNoHorizontalOverflow(page);
 });

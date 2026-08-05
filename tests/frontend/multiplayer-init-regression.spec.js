@@ -120,13 +120,16 @@ async function installControlledRuntime(page, options = {}) {
     }, options);
 }
 
+async function openMultiplayerFlow(page) {
+    await page.evaluate(() => window.MemorizMultiplayer.open());
+}
+
 test('profil disponible: le socket demarre avec session et profil valides', async ({ page }) => {
     await routeBrowserDependencies(page);
     await installControlledRuntime(page, { profileMode: 'ready', socketMode: 'success' });
     await gotoHome(page);
-    await expect(page.locator('#multiplayer-open')).toBeEnabled();
 
-    await page.locator('#multiplayer-open').click();
+    await openMultiplayerFlow(page);
 
     await expect.poll(() => page.evaluate(() => window.__connectCalls)).toBe(1);
     await expect(page.locator('#multiplayer-status')).toHaveText('Choisis une catégorie ou rejoins un code.');
@@ -175,9 +178,8 @@ test('profile_required puis profil disponible: une reconnexion nettoie lastError
     await routeBrowserDependencies(page);
     await installControlledRuntime(page, { profileMode: 'ready', socketMode: 'profile-required-once' });
     await gotoHome(page);
-    await expect(page.locator('#multiplayer-open')).toBeEnabled();
 
-    await page.locator('#multiplayer-open').click();
+    await openMultiplayerFlow(page);
 
     await expect.poll(() => page.evaluate(() => window.__connectCalls)).toBe(1);
     await expect.poll(() => page.evaluate(() => window.MemorizMultiplayerSocket.getState().lastError)).toBe('profile_required');

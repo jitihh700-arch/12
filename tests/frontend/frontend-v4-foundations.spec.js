@@ -15,44 +15,15 @@ async function openV4(page, options = {}) {
         stepMs: options.stepMs ?? 30,
         reducedMs: options.reducedMs ?? 30
     });
-    await page.goto('/index.html');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
 }
 
-test('l’introduction V4 se joue automatiquement puis libère l’application', async ({ page }) => {
-    await openV4(page, { skipIntro: false, stepMs: 80, reducedMs: 80 });
-
-    await expect(page.locator('#v4-intro')).toHaveClass(/is-active/);
-    await expect(page.locator('#v4-intro-fallback')).toBeHidden();
-    await expect(page.locator('.v4-intro-frame.is-visible').first()).toBeVisible();
-    await expect(page.locator('.v4-intro-frame.is-visible').first()).toHaveAttribute('src', /assets\/images\/memoriz\/intro\/(mobile|web)\/0[1-5]-.*\.webp$/);
-    await expect(page.locator('#v4-intro')).toHaveClass(/is-step-/);
-    await expect(page.locator('#v4-intro')).not.toHaveClass(/is-active/, { timeout: 2500 });
-    await expect(page.locator('#v4-intro')).toHaveAttribute('aria-hidden', 'true');
-});
-
-test('l’introduction peut être ignorée par les tests sans bloquer le shell', async ({ page }) => {
+test('le shell V4 démarre sans écran d’introduction', async ({ page }) => {
     await openV4(page, { skipIntro: true });
 
-    await expect(page.locator('#v4-intro')).not.toHaveClass(/is-active/);
+    await expect(page.locator('#v4-intro')).toHaveCount(0);
     await expect(page.locator('.v4-top-nav')).toBeVisible();
     await expect(page.locator('#v4-home-title')).toBeVisible();
-});
-
-test('prefers-reduced-motion affiche brièvement l’état final', async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    await openV4(page, { skipIntro: false, stepMs: 200, reducedMs: 20 });
-
-    await expect(page.locator('#v4-intro')).not.toHaveClass(/is-active/, { timeout: 1600 });
-    await expect(page.locator('.v4-intro-frame.is-visible')).toHaveAttribute('src', /05-ultimate-.*\.webp/);
-});
-
-test('un échec de préchargement d’asset ne bloque pas l’application', async ({ page }) => {
-    await page.route('**/assets/images/memoriz/intro/**/03-second-mark-*', route => route.abort());
-    await openV4(page, { skipIntro: false, stepMs: 80, reducedMs: 120 });
-
-    await expect(page.locator('#v4-intro-fallback')).toBeVisible();
-    await expect(page.locator('#v4-intro')).not.toHaveClass(/is-active/, { timeout: 1600 });
 });
 
 test('le shell desktop et mobile expose la navigation attendue sans débordement', async ({ page }) => {
@@ -63,7 +34,7 @@ test('le shell desktop et mobile expose la navigation attendue sans débordement
         const hasOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
         expect(hasOverflow, `overflow horizontal à ${width}px`).toBe(false);
         await expect(page.locator('.v4-top-nav')).toBeVisible();
-        if (width <= 760) await expect(page.locator('.v4-bottom-nav')).toBeVisible();
+        if (width <= 760) await expect(page.locator('#v4-menu-toggle')).toBeVisible();
     }
 });
 
@@ -73,6 +44,29 @@ test('la navigation Accueil / Explorer met à jour aria-current', async ({ page 
     await page.locator('.v4-top-nav [data-v4-route="explorer"]').click();
     await expect(page.locator('.v4-top-nav [data-v4-route="explorer"]')).toHaveAttribute('aria-current', 'page');
     await expect(page.locator('#explorer')).toBeInViewport();
+});
+
+test('le menu burger mobile navigue vers les cinq vues principales', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.addInitScript(() => {
+        window.MEMORIZ_V4_SKIP_INTRO = true;
+    });
+    await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+
+    await expect(page.locator('#v4-menu-toggle')).toBeVisible();
+    await expect(page.locator('#v4-mobile-menu')).toBeHidden();
+
+    for (const route of ['explorer', 'solo', 'multiplayer', 'community', 'home']) {
+        await page.locator('#v4-menu-toggle').click();
+        await expect(page.locator('#v4-menu-toggle')).toHaveAttribute('aria-expanded', 'true');
+        await expect(page.locator('#v4-mobile-menu')).toBeVisible();
+        await expect(page.locator('#v4-mobile-menu [data-v4-route]')).toHaveCount(5);
+
+        await page.locator(`#v4-mobile-menu [data-v4-route="${route}"]`).click();
+        await expect(page.locator(`#v4-mobile-menu [data-v4-route="${route}"]`)).toHaveAttribute('aria-current', 'page');
+        await expect(page.locator(`#${route}`)).toBeVisible();
+        await expect(page.locator('#v4-mobile-menu')).toBeHidden();
+    }
 });
 
 test('Multijoueur et Communauté ont de vraies pages V4 navigables', async ({ page }) => {
@@ -93,7 +87,7 @@ test('Multijoueur et Communauté ont de vraies pages V4 navigables', async ({ pa
 test('les actions de la page multijoueur ouvrent le flux existant', async ({ page }) => {
     await openV4(page);
 
-    await page.locator('#v4-home-multiplayer').click();
+    await page.locator('.v4-top-nav [data-v4-route="multiplayer"]').click();
     await expect(page.locator('#multiplayer')).toBeInViewport();
     await expect(page.locator('#multiplayer-modal')).toBeHidden();
 
