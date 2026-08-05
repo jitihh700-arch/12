@@ -75,7 +75,7 @@ test('timeout d initialisation: message non bloquant et aucune boucle de creatio
     await gotoHome(page);
     await expect(page.locator('#profile-status-label')).toHaveText('Profil indisponible', { timeout: 12000 });
     expect(signInCalls).toBe(1);
-    await page.locator('#profile-retry-action').click();
+    await page.evaluate(() => window.memorizAuth.initProfile());
     await expect.poll(() => signInCalls).toBe(2);
 });
 

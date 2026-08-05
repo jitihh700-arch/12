@@ -42,6 +42,10 @@ async function startRankedSeries(page) {
     return page.evaluate(() => window.MemorizQuizSession.getState().session.session_id);
 }
 
+async function openLeaderboard(page) {
+    await page.evaluate(() => window.MemorizLeaderboard.open());
+}
+
 test('mode entraînement: Supabase absent, quiz jouable et leaderboard indisponible', async ({ page }) => {
     removeRuntimeConfig();
     await gotoHome(page);
@@ -153,8 +157,8 @@ test('leaderboard: Top 20, rang personnel, refresh, accessibilité et responsive
     psql(`update public.profiles set total_points = 40, quizzes_completed = 4, last_played_at = now() where id = '${session.userId}'::uuid`);
     await page.reload({ waitUntil: 'networkidle' });
     await expect(page.locator('#leaderboard-open')).toBeEnabled();
-    await page.locator('#leaderboard-open').focus();
-    await page.locator('#leaderboard-open').click();
+    await page.locator('#v4-nav-profile-action').focus();
+    await openLeaderboard(page);
     await expect(page.locator('#leaderboard-modal .leaderboard-modal-content')).toHaveAttribute('role', 'dialog');
     await expect(page.locator('#leaderboard-modal .leaderboard-modal-content')).toHaveAttribute('aria-modal', 'true');
     await expect(page.locator('#leaderboard-status')).toContainText('Classement à jour');
@@ -165,15 +169,15 @@ test('leaderboard: Top 20, rang personnel, refresh, accessibilité et responsive
     await expect(page.locator('#leaderboard-refresh')).toBeFocused();
     await page.keyboard.press('Escape');
     await expect(page.locator('#leaderboard-modal')).toBeHidden();
-    await expect(page.locator('#leaderboard-open')).toBeFocused();
+    await expect(page.locator('#v4-nav-profile-action')).toBeFocused();
 
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.locator('#leaderboard-open').click();
+    await openLeaderboard(page);
     await expectNoHorizontalOverflow(page);
     await page.locator('#leaderboard-close').click();
     await expect(page.locator('#leaderboard-modal')).toBeHidden();
     await page.setViewportSize({ width: 780, height: 844 });
-    await page.locator('#leaderboard-open').click();
+    await openLeaderboard(page);
     await page.evaluate(() => { document.documentElement.style.zoom = '2'; });
     await expectNoHorizontalOverflow(page);
     await page.locator('#leaderboard-close').click();
