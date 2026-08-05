@@ -235,6 +235,20 @@ test('profil actif: le champ commentaire garde le focus', async ({ page }) => {
     await expect(page.locator('#profile-modal')).toBeHidden();
 });
 
+test('navigation rapide: le champ commentaire ne perd pas le focus', async ({ page }) => {
+    await routeBrowserDependencies(page);
+    await installControlledRuntime(page, { profileMode: 'ready', socketMode: 'success' });
+    await gotoHome(page);
+
+    await page.locator('.v4-top-nav [data-v4-route="community"]').click();
+    await page.locator('#comment-input').click();
+    await page.locator('#comment-input').pressSequentially('Mon commentaire de test', { delay: 20 });
+    await page.waitForTimeout(350);
+
+    await expect(page.locator('#comment-input')).toBeFocused();
+    await expect(page.locator('#comment-input')).toHaveValue('Mon commentaire de test');
+});
+
 test('profil absent: le champ commentaire reste cliquable et propose la creation du profil', async ({ page }) => {
     await routeBrowserDependencies(page);
     await installControlledRuntime(page, { profileMode: 'missing', socketMode: 'success' });
@@ -247,6 +261,21 @@ test('profil absent: le champ commentaire reste cliquable et propose la creation
 
     await page.locator('#comment-input').click();
     await expect(page.locator('#profile-modal')).toBeVisible();
+});
+
+test('navigation rapide: le menu categorie multijoueur ne se referme pas par focus tardif', async ({ page }) => {
+    await routeBrowserDependencies(page);
+    await installControlledRuntime(page, { profileMode: 'ready', socketMode: 'success' });
+    await gotoHome(page);
+
+    await page.locator('.v4-top-nav [data-v4-route="multiplayer"]').click();
+    await page.locator('#v4-multiplayer-create').click();
+    await expect(page.locator('#multiplayer-status')).toHaveText('Choisis une catégorie ou rejoins un code.');
+    await page.locator('#multiplayer-category').focus();
+    await page.waitForTimeout(350);
+
+    await expect(page.locator('#multiplayer-category')).toBeFocused();
+    await expect(page.locator('#multiplayer-modal')).toBeVisible();
 });
 
 test('profile_required puis profil disponible: une reconnexion nettoie lastError', async ({ page }) => {

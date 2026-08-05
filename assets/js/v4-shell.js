@@ -205,7 +205,7 @@
         if (!options.silent) target.scrollIntoView({ behavior: 'auto', block: 'start' });
         if (options.focus) {
             target.setAttribute('tabindex', '-1');
-            window.setTimeout(() => target.focus({ preventScroll: true }), 260);
+            target.focus({ preventScroll: true });
         }
     }
 
