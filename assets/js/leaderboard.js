@@ -62,14 +62,12 @@
         const title = document.createElement('h3');
         title.textContent = 'Mon classement';
         els.mine.append(title);
-
         if (!rank) {
             const empty = document.createElement('p');
             empty.textContent = 'Crée un profil puis termine un quiz classé pour afficher ton rang.';
             els.mine.append(empty);
             return;
         }
-
         const card = document.createElement('div');
         card.className = 'leaderboard-my-card';
         const pseudo = document.createElement('strong');
@@ -99,29 +97,23 @@
             els.list.append(empty);
             return;
         }
-
         rows.forEach(row => {
             const item = document.createElement('li');
             item.className = 'leaderboard-row';
             if (state.profile && row.pseudo === state.profile.pseudo) item.classList.add('is-current');
-
             const rank = document.createElement('span');
             rank.className = 'leaderboard-rank';
             rank.textContent = `#${row.rank}`;
-
             const identity = document.createElement('span');
             identity.className = 'leaderboard-player';
             identity.textContent = row.pseudo || 'Profil';
             identity.title = identity.textContent;
-
             const points = document.createElement('span');
             points.className = 'leaderboard-points';
             points.textContent = `${Number(row.total_points || 0)} pts`;
-
             const quizzes = document.createElement('span');
             quizzes.className = 'leaderboard-quizzes';
             quizzes.textContent = `${Number(row.quizzes_completed || 0)} quiz`;
-
             item.append(rank, identity, points, quizzes);
             els.list.append(item);
         });
@@ -136,7 +128,6 @@
             clearNode(els.mine);
             return;
         }
-
         state.loading = true;
         if (els.refresh) els.refresh.disabled = true;
         setStatus('Chargement du classement...');
@@ -146,14 +137,12 @@
         ]);
         state.loading = false;
         if (els.refresh) els.refresh.disabled = false;
-
         if (top.error || mine.error) {
             setStatus('Classement momentanément indisponible.');
             clearNode(els.list);
             renderMine(null);
             return;
         }
-
         renderMine(mine.data);
         renderList(top.data);
         setStatus(top.data.length ? 'Classement à jour.' : 'Aucun score classé pour le moment.');
@@ -182,30 +171,9 @@
         if (state.lastFocus && typeof state.lastFocus.focus === 'function') state.lastFocus.focus();
     }
 
-    function ensureButtonVisible() {
-        const els = getEls();
-        if (!els.button) return;
-        // Si le bouton est dans un parent caché, on le rend visible
-        const parent = els.button.closest('[hidden]');
-        if (parent) {
-            parent.removeAttribute('hidden');
-        }
-    }
-
-    function activateButton() {
-        const els = getEls();
-        if (els.button) {
-            els.button.disabled = false;
-            ensureButtonVisible();
-        }
-    }
-
     function bind() {
         const els = getEls();
-        if (!els.modal || !els.button) {
-            console.warn('[Leaderboard] Bouton ou modal non trouvé');
-            return;
-        }
+        if (!els.modal || !els.button) return;
         els.button.addEventListener('click', openModal);
         els.close.addEventListener('click', closeModal);
         els.refresh.addEventListener('click', reload);
@@ -227,41 +195,22 @@
             }
         });
 
-        // Vérification immédiate
+        // Vérification immédiate au cas où le profil est déjà prêt
         const authState = window.memorizAuth?.getState?.();
         if (authState?.profile) {
-            console.log('[Leaderboard] Profil déjà prêt au bind');
             state.profile = authState.profile;
-            activateButton();
+            els.button.disabled = false;
         }
-
-        // 🔴 CORRECTION : Polling de secours si l'événement est passé avant l'écouteur
-        let checkCount = 0;
-        const checkInterval = window.setInterval(() => {
-            if (state.profile || checkCount > 20) {
-                window.clearInterval(checkInterval);
-                return;
-            }
-            checkCount++;
-            const liveState = window.memorizAuth?.getState?.();
-            if (liveState?.profile) {
-                console.log('[Leaderboard] Profil détecté par polling');
-                state.profile = liveState.profile;
-                activateButton();
-                window.clearInterval(checkInterval);
-            }
-        }, 300);
     }
 
     document.addEventListener('DOMContentLoaded', bind);
     document.addEventListener('memoriz:profile-ready', event => {
-        console.log('[Leaderboard] Event profile-ready reçu');
         state.profile = event.detail.profile;
-        activateButton();
+        const els = getEls();
+        if (els.button) els.button.disabled = false;
         if (!getEls().modal?.hidden) reload();
     });
     document.addEventListener('memoriz:profile-unavailable', () => {
-        console.log('[Leaderboard] Event profile-unavailable reçu');
         state.profile = null;
         const els = getEls();
         if (els.button) els.button.disabled = true;
