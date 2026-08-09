@@ -221,6 +221,11 @@
 
     function bindNavigation() {
         document.addEventListener('click', event => {
+            // 🔴 CORRECTION : ignorer les clics à l'intérieur des modales, commentaires et sections interactives
+            if (event.target.closest('.multiplayer-modal, .profile-modal, .leaderboard-modal, .comments-section, .modal, [aria-modal="true"]')) {
+                return;
+            }
+
             const menuButton = event.target.closest('#v4-menu-toggle');
             if (menuButton) {
                 event.preventDefault();
