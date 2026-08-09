@@ -101,7 +101,7 @@
             invalid_comment_content: 'Écris un commentaire avant de publier.',
             comment_too_long: 'Le commentaire doit contenir 500 caractères maximum.',
             comment_limit_reached: 'Vous avez atteint la limite de 50 commentaires',
-            comment_not_found: 'Ce commentaire n'est plus disponible.',
+            comment_not_found: 'Ce commentaire n’est plus disponible.',
             comment_forbidden: 'Tu ne peux modifier que tes propres commentaires.',
             comment_deleted: 'Ce commentaire est déjà supprimé.',
             invalid_pagination: 'La pagination des commentaires est invalide.'
@@ -138,7 +138,6 @@
         state.comments = [];
         state.hasMore = false;
         state.editingId = null;
-        state.deletingId = null;
         state.needsProfile = message.includes('pseudo') || message.includes('profil');
         clearReconnectTimer();
         unsubscribe();
@@ -156,7 +155,7 @@
         if (els.loadMore) els.loadMore.hidden = true;
     }
 
-    function setReadyStatus(text) {
+    function setReadyStatus(text = 'Commentaires connectés') {
         setText(getEls().status, text);
     }
 
@@ -169,19 +168,22 @@
     function formatDate(value) {
         const date = new Date(value);
         if (Number.isNaN(date.getTime())) return '';
-        return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium', timeStyle: 'short' }).format(date);
+        return new Intl.DateTimeFormat('fr-FR', {
+            dateStyle: 'medium',
+            timeStyle: 'short'
+        }).format(date);
     }
 
-    function createButton(label, action, className) {
+    function createButton(label, action, className = 'comment-action') {
         const button = document.createElement('button');
         button.type = 'button';
-        button.className = className || 'comment-action';
+        button.className = className;
         button.dataset.action = action;
         button.textContent = label;
         return button;
     }
 
-    function showToast(message, type) {
+    function showToast(message, type = 'success') {
         let region = document.querySelector('.comments-toast-region');
         if (!region) {
             region = document.createElement('div');
@@ -190,10 +192,11 @@
             region.setAttribute('aria-atomic', 'true');
             document.body.append(region);
         }
+
         region.replaceChildren();
         const toast = document.createElement('div');
         toast.className = 'comments-toast';
-        toast.dataset.type = type || 'success';
+        toast.dataset.type = type;
         toast.textContent = message;
         region.append(toast);
         window.clearTimeout(state.toastTimer);
@@ -207,7 +210,7 @@
         return true;
     }
 
-    function upsertComment(comment, position) {
+    function upsertComment(comment, position = 'top') {
         const index = state.comments.findIndex(item => item.id === comment.id);
         if (index >= 0) {
             state.comments[index] = { ...state.comments[index], ...comment };
@@ -227,6 +230,7 @@
     function render() {
         const els = getEls();
         if (!els.list) return;
+
         els.list.replaceChildren(...state.comments.map(renderComment));
         if (state.profile && state.comments.length === 0 && !state.loading) {
             setText(els.feedStatus, 'Aucun commentaire pour le moment.');
@@ -296,6 +300,7 @@
             event.stopPropagation();
             state.actionsOpenId = state.actionsOpenId === comment.id ? null : comment.id;
             render();
+            document.querySelector(`[data-comment-id="${comment.id}"] [data-action="toggle-actions"]`)?.focus();
         });
         actions.append(toggle);
 
@@ -306,18 +311,19 @@
         menu.setAttribute('role', 'menu');
         const edit = createButton('Modifier', 'edit');
         edit.setAttribute('role', 'menuitem');
-        edit.addEventListener('click', event => {
-            event.stopPropagation();
+        edit.setAttribute('aria-label', 'Modifier mon commentaire');
+        edit.addEventListener('click', () => {
             state.actionsOpenId = null;
             startEdit(comment.id);
         });
         const del = createButton('Supprimer', 'delete');
         del.setAttribute('role', 'menuitem');
-        del.addEventListener('click', event => {
-            event.stopPropagation();
+        del.setAttribute('aria-label', 'Supprimer mon commentaire');
+        del.addEventListener('click', () => {
             state.actionsOpenId = null;
             state.deletingId = comment.id;
             render();
+            document.querySelector(`[data-comment-id="${comment.id}"] [data-action="confirm-delete"]`)?.focus();
         });
         menu.append(edit, del);
         actions.append(menu);
@@ -346,6 +352,7 @@
         const error = document.createElement('p');
         error.className = 'comments-error';
         error.setAttribute('role', 'alert');
+        error.setAttribute('aria-live', 'assertive');
         const counter = document.createElement('span');
         counter.className = 'comment-counter';
         counter.textContent = `${countChars(input.value)} / ${MAX_LENGTH}`;
@@ -363,6 +370,7 @@
         cancel.addEventListener('click', () => {
             state.editingId = null;
             render();
+            focusComment(comment.id);
         });
         actions.append(save, cancel);
 
@@ -385,6 +393,7 @@
                 state.editingId = null;
                 render();
                 showToast('Commentaire modifié avec succès');
+                focusComment(comment.id);
             } catch (errorUpdate) {
                 error.textContent = describeError(errorUpdate);
                 save.disabled = false;
@@ -402,6 +411,8 @@
     function renderDeleteConfirm(comment) {
         const panel = document.createElement('div');
         panel.className = 'comment-confirm';
+        panel.setAttribute('role', 'alertdialog');
+        panel.setAttribute('aria-label', 'Confirmer la suppression du commentaire');
         const text = document.createElement('p');
         text.textContent = 'Supprimer ce commentaire ?';
         const actions = document.createElement('div');
@@ -412,10 +423,18 @@
         cancel.addEventListener('click', () => {
             state.deletingId = null;
             render();
+            focusComment(comment.id);
         });
         actions.append(confirm, cancel);
         panel.append(text, actions);
         return panel;
+    }
+
+    function focusComment(id) {
+        const item = document.querySelector(`[data-comment-id="${id}"]`);
+        if (!item) return;
+        item.setAttribute('tabindex', '-1');
+        item.focus();
     }
 
     function isOwner(comment) {
@@ -432,6 +451,7 @@
             state.deletingId = null;
             render();
             showToast('Commentaire supprimé');
+            getEls().input?.focus();
         } catch (deleteError) {
             state.deletingId = null;
             render();
@@ -445,6 +465,7 @@
         state.loading = true;
         setText(els.feedStatus, 'Chargement des commentaires...');
         if (els.loadMore) els.loadMore.disabled = true;
+
         try {
             const { data, error } = await state.api.listComments({ limit: PAGE_SIZE, offset: 0 });
             if (error) throw error;
@@ -494,6 +515,7 @@
             els.input.focus();
             return;
         }
+
         state.submitting = true;
         setDisabled(true);
         setText(els.error, '');
@@ -570,11 +592,13 @@
             scheduleReconnect();
             return;
         }
+
         state.channel = state.client
             .channel(TOPIC, { config: { private: true } })
             .on('broadcast', { event: 'comment_created' }, message => handleCreated(message.payload))
             .on('broadcast', { event: 'comment_updated' }, message => handleUpdated(message.payload))
             .on('broadcast', { event: 'comment_deleted' }, message => handleDeleted(message.payload));
+
         state.channel.subscribe(status => {
             if (status === 'SUBSCRIBED') {
                 clearReconnectTimer();
@@ -619,7 +643,6 @@
     }
 
     async function onProfileReady(profile) {
-        if (state.profile && state.profile.id === profile.id) return;
         const els = getEls();
         if (!els.section) return;
         try {
@@ -648,9 +671,18 @@
     function bind() {
         const els = getEls();
         if (!els.section) return;
-        els.input.addEventListener('input', () => { updateCounter(); setText(els.error, ''); });
-        els.input.addEventListener('focus', () => { if (!state.needsProfile) return; setText(els.error, 'Crée ton pseudo pour commenter.'); });
-        els.input.addEventListener('click', () => { if (!state.needsProfile) return; window.memorizAuth?.openModal?.(); });
+        els.input.addEventListener('input', () => {
+            updateCounter();
+            setText(els.error, '');
+        });
+        els.input.addEventListener('focus', () => {
+            if (!state.needsProfile) return;
+            setText(els.error, 'Crée ton pseudo pour commenter.');
+        });
+        els.input.addEventListener('click', () => {
+            if (!state.needsProfile) return;
+            window.memorizAuth?.openModal?.();
+        });
         els.form.addEventListener('submit', submitComment);
         els.loadMore.addEventListener('click', loadMore);
         document.addEventListener('click', event => {
@@ -668,11 +700,9 @@
             setUnavailable('Les commentaires sont temporairement indisponibles, mais le quiz solo reste disponible.');
         });
 
-        // Vérification immédiate au cas où le profil est déjà prêt
         const authState = window.memorizAuth?.getState?.();
-        if (authState?.profile) {
-            onProfileReady(authState.profile);
-        } else if (!window.MEMORIZ_SUPABASE_CONFIG?.url || !window.MEMORIZ_SUPABASE_CONFIG?.publishableKey || !window.supabase) {
+        if (authState?.profile) onProfileReady(authState.profile);
+        else if (!window.MEMORIZ_SUPABASE_CONFIG?.url || !window.MEMORIZ_SUPABASE_CONFIG?.publishableKey || !window.supabase) {
             setUnavailable('Les commentaires sont temporairement indisponibles, mais le quiz solo reste disponible.');
         } else {
             setNeedsProfile();
