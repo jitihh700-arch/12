@@ -21,7 +21,8 @@
         lastRemoteToastAt: 0,
         needsProfile: false,
         replyingToId: null,
-        replyingToPseudo: null
+        replyingToPseudo: null,
+        initialized: false
     };
 
     function getEls() {
@@ -284,7 +285,6 @@
             fragments.push(article);
         });
 
-        // Commentaires orphelins (réponses sans parent visible) affichés à la fin
         const orphanedReplies = replies.filter(r => !roots.find(root => root.id === r.parent_id));
         orphanedReplies.forEach(reply => fragments.push(renderComment(reply)));
 
@@ -371,7 +371,6 @@
         menu.className = 'comment-actions-menu';
         menu.setAttribute('role', 'menu');
 
-        // 🔴 CORRECTION : bouton Répondre visible pour tout le monde
         const reply = createButton('Répondre', 'reply');
         reply.setAttribute('role', 'menuitem');
         reply.setAttribute('aria-label', `Répondre à ${comment.pseudo}`);
@@ -601,7 +600,6 @@
         setDisabled(true);
         setText(els.error, '');
         try {
-            // 🔴 CORRECTION : passe parent_id si on répond à un commentaire
             let payload = validation.content;
             if (state.replyingToId) {
                 payload = { content: validation.content, parent_id: state.replyingToId };
@@ -733,9 +731,13 @@
     }
 
     async function onProfileReady(profile) {
+        if (state.profile && state.profile.id === profile.id) return;
         const els = getEls();
         if (!els.section) return;
         try {
+            if (!window.MemorizProfileApi) {
+                throw new Error('API non disponible');
+            }
             state.api = window.MemorizProfileApi.init(window.MEMORIZ_SUPABASE_CONFIG || {});
             state.client = state.api.client;
             state.profile = profile;
@@ -753,14 +755,20 @@
             await unsubscribe();
             await loadFirstPage();
             await subscribe();
-        } catch {
+        } catch (err) {
+            console.error('[Comments] onProfileReady error:', err);
             setUnavailable('Les commentaires sont temporairement indisponibles.');
         }
     }
 
     function bind() {
+        if (state.initialized) return;
+        state.initialized = true;
         const els = getEls();
-        if (!els.section) return;
+        if (!els.section) {
+            console.warn('[Comments] Section non trouvée');
+            return;
+        }
         els.input.addEventListener('input', () => {
             updateCounter();
             setText(els.error, '');
@@ -785,18 +793,44 @@
             state.actionsOpenId = null;
             render();
         });
-        document.addEventListener('memoriz:profile-ready', event => onProfileReady(event.detail.profile));
+        document.addEventListener('memoriz:profile-ready', event => {
+            console.log('[Comments] Event profile-ready reçu');
+            onProfileReady(event.detail.profile);
+        });
         document.addEventListener('memoriz:profile-unavailable', () => {
+            console.log('[Comments] Event profile-unavailable reçu');
             setUnavailable('Les commentaires sont temporairement indisponibles, mais le quiz solo reste disponible.');
         });
 
+        // Vérification immédiate
         const authState = window.memorizAuth?.getState?.();
-        if (authState?.profile) onProfileReady(authState.profile);
-        else if (!window.MEMORIZ_SUPABASE_CONFIG?.url || !window.MEMORIZ_SUPABASE_CONFIG?.publishableKey || !window.supabase) {
+        if (authState?.profile) {
+            console.log('[Comments] Profil déjà prêt au bind');
+            onProfileReady(authState.profile);
+        } else if (!window.MEMORIZ_SUPABASE_CONFIG?.url || !window.MEMORIZ_SUPABASE_CONFIG?.publishableKey || !window.supabase) {
+            console.log('[Comments] Config Supabase absente');
             setUnavailable('Les commentaires sont temporairement indisponibles, mais le quiz solo reste disponible.');
         } else {
+            console.log('[Comments] Profil requis');
             setNeedsProfile();
         }
+
+        // 🔴 CORRECTION : Polling de secours si l'événement est passé avant l'écouteur
+        let checkCount = 0;
+        const checkInterval = window.setInterval(() => {
+            if (state.profile || checkCount > 20) {
+                window.clearInterval(checkInterval);
+                return;
+            }
+            checkCount++;
+            const auth = window.memorizAuth;
+            const liveState = auth?.getState?.();
+            if (liveState?.profile) {
+                console.log('[Comments] Profil détecté par polling');
+                onProfileReady(liveState.profile);
+                window.clearInterval(checkInterval);
+            }
+        }, 300);
     }
 
     if (document.readyState === 'loading') {
