@@ -79,8 +79,19 @@
                 return { data: Array.isArray(data) ? data : [], error };
             },
 
-            async createComment(content) {
-                const { data, error } = await supabaseClient.rpc(RPC_NAMES.createComment, { p_content: content });
+            async createComment(contentOrPayload) {
+                // 🔴 CORRECTION : gère string simple OU objet { content, parent_id }
+                let p_content = contentOrPayload;
+                let p_parent_id = null;
+                if (contentOrPayload && typeof contentOrPayload === 'object') {
+                    p_content = contentOrPayload.content;
+                    p_parent_id = contentOrPayload.parent_id || null;
+                }
+                const params = { p_content: String(p_content || '') };
+                if (p_parent_id && isUuid(p_parent_id)) {
+                    params.p_parent_id = p_parent_id;
+                }
+                const { data, error } = await supabaseClient.rpc(RPC_NAMES.createComment, params);
                 return { data: firstRow(data), error };
             },
 
