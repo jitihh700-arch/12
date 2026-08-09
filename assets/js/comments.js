@@ -19,7 +19,9 @@
         reconnectTimer: null,
         toastTimer: null,
         lastRemoteToastAt: 0,
-        needsProfile: false
+        needsProfile: false,
+        replyingToId: null,
+        replyingToPseudo: null
     };
 
     function getEls() {
@@ -50,7 +52,8 @@
             content: row.content,
             is_edited: row.is_edited === true,
             created_at: row.created_at,
-            updated_at: row.updated_at
+            updated_at: row.updated_at,
+            parent_id: row.parent_id || null
         };
     }
 
@@ -101,7 +104,7 @@
             invalid_comment_content: 'Écris un commentaire avant de publier.',
             comment_too_long: 'Le commentaire doit contenir 500 caractères maximum.',
             comment_limit_reached: 'Vous avez atteint la limite de 50 commentaires',
-            comment_not_found: 'Ce commentaire n’est plus disponible.',
+            comment_not_found: 'Ce commentaire n'est plus disponible.',
             comment_forbidden: 'Tu ne peux modifier que tes propres commentaires.',
             comment_deleted: 'Ce commentaire est déjà supprimé.',
             invalid_pagination: 'La pagination des commentaires est invalide.'
@@ -138,6 +141,8 @@
         state.comments = [];
         state.hasMore = false;
         state.editingId = null;
+        state.replyingToId = null;
+        state.replyingToPseudo = null;
         state.needsProfile = message.includes('pseudo') || message.includes('profil');
         clearReconnectTimer();
         unsubscribe();
@@ -153,6 +158,7 @@
         setText(els.error, '');
         if (els.list) els.list.replaceChildren();
         if (els.loadMore) els.loadMore.hidden = true;
+        updateReplyBanner();
     }
 
     function setReadyStatus(text = 'Commentaires connectés') {
@@ -227,25 +233,80 @@
         return state.comments.length !== before;
     }
 
+    function updateReplyBanner() {
+        const els = getEls();
+        let banner = document.getElementById('comment-reply-banner');
+        if (!state.replyingToId) {
+            if (banner) banner.remove();
+            if (els.input) els.input.placeholder = 'Ton commentaire';
+            return;
+        }
+        if (!banner) {
+            banner = document.createElement('div');
+            banner.id = 'comment-reply-banner';
+            banner.className = 'comment-reply-banner';
+            els.form.insertBefore(banner, els.form.firstChild);
+        }
+        banner.innerHTML = '';
+        const text = document.createElement('span');
+        text.textContent = `En réponse à ${state.replyingToPseudo || 'un commentaire'}`;
+        const cancel = document.createElement('button');
+        cancel.type = 'button';
+        cancel.className = 'comment-reply-cancel';
+        cancel.textContent = 'Annuler';
+        cancel.addEventListener('click', () => {
+            state.replyingToId = null;
+            state.replyingToPseudo = null;
+            updateReplyBanner();
+            els.input?.focus();
+        });
+        banner.append(text, cancel);
+        if (els.input) els.input.placeholder = `Réponds à ${state.replyingToPseudo || '...'}`;
+    }
+
     function render() {
         const els = getEls();
         if (!els.list) return;
 
-        els.list.replaceChildren(...state.comments.map(renderComment));
+        const roots = state.comments.filter(c => !c.parent_id);
+        const replies = state.comments.filter(c => c.parent_id);
+        const fragments = [];
+
+        roots.forEach(comment => {
+            const article = renderComment(comment);
+            const commentReplies = replies.filter(r => r.parent_id === comment.id);
+            if (commentReplies.length) {
+                const replyList = document.createElement('div');
+                replyList.className = 'comment-replies';
+                commentReplies.forEach(reply => replyList.appendChild(renderComment(reply)));
+                article.appendChild(replyList);
+            }
+            fragments.push(article);
+        });
+
+        // Commentaires orphelins (réponses sans parent visible) affichés à la fin
+        const orphanedReplies = replies.filter(r => !roots.find(root => root.id === r.parent_id));
+        orphanedReplies.forEach(reply => fragments.push(renderComment(reply)));
+
+        els.list.replaceChildren(...fragments);
+
         if (state.profile && state.comments.length === 0 && !state.loading) {
             setText(els.feedStatus, 'Aucun commentaire pour le moment.');
         } else if (state.profile && !state.loading) {
-            setText(els.feedStatus, `${state.comments.length} commentaire${state.comments.length > 1 ? 's' : ''} affiché${state.comments.length > 1 ? 's' : ''}.`);
+            const rootCount = roots.length;
+            setText(els.feedStatus, `${rootCount} commentaire${rootCount > 1 ? 's' : ''} affiché${rootCount > 1 ? 's' : ''}.`);
         }
         if (els.loadMore) {
             els.loadMore.hidden = !state.hasMore || !state.profile;
             els.loadMore.disabled = state.loading;
         }
+        updateReplyBanner();
     }
 
     function renderComment(comment) {
         const article = document.createElement('article');
         article.className = 'comment-item';
+        if (comment.parent_id) article.classList.add('is-reply');
         article.dataset.commentId = comment.id;
 
         if (state.editingId === comment.id) {
@@ -274,7 +335,7 @@
         }
 
         header.append(authorLine);
-        if (isOwner(comment)) header.append(renderActions(comment));
+        header.append(renderActions(comment));
 
         const content = document.createElement('p');
         content.className = 'comment-content';
@@ -309,23 +370,43 @@
         const menu = document.createElement('div');
         menu.className = 'comment-actions-menu';
         menu.setAttribute('role', 'menu');
-        const edit = createButton('Modifier', 'edit');
-        edit.setAttribute('role', 'menuitem');
-        edit.setAttribute('aria-label', 'Modifier mon commentaire');
-        edit.addEventListener('click', () => {
+
+        // 🔴 CORRECTION : bouton Répondre visible pour tout le monde
+        const reply = createButton('Répondre', 'reply');
+        reply.setAttribute('role', 'menuitem');
+        reply.setAttribute('aria-label', `Répondre à ${comment.pseudo}`);
+        reply.addEventListener('click', event => {
+            event.stopPropagation();
             state.actionsOpenId = null;
-            startEdit(comment.id);
-        });
-        const del = createButton('Supprimer', 'delete');
-        del.setAttribute('role', 'menuitem');
-        del.setAttribute('aria-label', 'Supprimer mon commentaire');
-        del.addEventListener('click', () => {
-            state.actionsOpenId = null;
-            state.deletingId = comment.id;
+            state.replyingToId = comment.id;
+            state.replyingToPseudo = comment.pseudo;
             render();
-            document.querySelector(`[data-comment-id="${comment.id}"] [data-action="confirm-delete"]`)?.focus();
+            getEls().input?.focus();
         });
-        menu.append(edit, del);
+        menu.append(reply);
+
+        if (isOwner(comment)) {
+            const edit = createButton('Modifier', 'edit');
+            edit.setAttribute('role', 'menuitem');
+            edit.setAttribute('aria-label', 'Modifier mon commentaire');
+            edit.addEventListener('click', event => {
+                event.stopPropagation();
+                state.actionsOpenId = null;
+                startEdit(comment.id);
+            });
+            const del = createButton('Supprimer', 'delete');
+            del.setAttribute('role', 'menuitem');
+            del.setAttribute('aria-label', 'Supprimer mon commentaire');
+            del.addEventListener('click', event => {
+                event.stopPropagation();
+                state.actionsOpenId = null;
+                state.deletingId = comment.id;
+                render();
+                document.querySelector(`[data-comment-id="${comment.id}"] [data-action="confirm-delete"]`)?.focus();
+            });
+            menu.append(edit, del);
+        }
+
         actions.append(menu);
         return actions;
     }
@@ -520,12 +601,19 @@
         setDisabled(true);
         setText(els.error, '');
         try {
-            const { data, error } = await state.api.createComment(validation.content);
+            // 🔴 CORRECTION : passe parent_id si on répond à un commentaire
+            let payload = validation.content;
+            if (state.replyingToId) {
+                payload = { content: validation.content, parent_id: state.replyingToId };
+            }
+            const { data, error } = await state.api.createComment(payload);
             if (error) throw error;
             const comment = normalizeRow(data);
             if (comment) upsertComment(comment);
             els.input.value = '';
             updateCounter('');
+            state.replyingToId = null;
+            state.replyingToPseudo = null;
             render();
             showToast('Commentaire ajouté avec succès');
         } catch (createError) {
@@ -542,6 +630,8 @@
     function startEdit(id) {
         state.editingId = id;
         state.deletingId = null;
+        state.replyingToId = null;
+        state.replyingToPseudo = null;
         render();
     }
 
@@ -720,7 +810,8 @@
             comments: state.comments.map(comment => ({ ...comment })),
             hasMore: state.hasMore,
             profile: state.profile ? { ...state.profile } : null,
-            editingId: state.editingId
+            editingId: state.editingId,
+            replyingToId: state.replyingToId
         }),
         validatePublicPayload,
         validateDeletePayload,
