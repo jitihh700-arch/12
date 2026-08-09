@@ -127,11 +127,24 @@
 
     function populateCategories() {
         const nodes = els();
-        if (!nodes.category || nodes.category.options.length) return;
-        Object.entries(window.categoryMapping || {}).forEach(([id, category]) => {
+        if (!nodes.category) return;
+        // Vider complètement pour éviter les doublons ou options fantômes
+        nodes.category.innerHTML = '';
+        const mapping = window.categoryMapping || {};
+        const keys = Object.keys(mapping);
+        if (keys.length === 0) {
+            const option = document.createElement('option');
+            option.textContent = 'Chargement des catégories...';
+            option.disabled = true;
+            option.selected = true;
+            nodes.category.append(option);
+            return;
+        }
+        keys.forEach(id => {
+            const category = mapping[id];
             const option = document.createElement('option');
             option.value = id;
-            option.textContent = category.title || id;
+            option.textContent = category?.title || id;
             nodes.category.append(option);
         });
     }
@@ -143,6 +156,9 @@
 
     async function ensureSocket() {
         await waitForProfile();
+        if (!window.MemorizMultiplayerSocket) {
+            throw new Error('socket_unavailable');
+        }
         await window.MemorizMultiplayerSocket.connect();
         bindSocketEvents();
     }
@@ -213,11 +229,17 @@
 
     function showView(view) {
         const nodes = els();
+        if (!nodes.modal) return;
         nodes.lobby.hidden = view !== 'lobby';
         nodes.game.hidden = view !== 'game';
         nodes.final.hidden = view !== 'final';
-        nodes.createPanel.hidden = view !== 'none' || !nodes.tabCreate.classList.contains('is-active');
-        nodes.joinPanel.hidden = view !== 'none' || !nodes.tabJoin.classList.contains('is-active');
+
+        const isNone = view === 'none';
+        const isCreateActive = nodes.tabCreate?.classList.contains('is-active') ?? true;
+        const isJoinActive = nodes.tabJoin?.classList.contains('is-active') ?? false;
+
+        if (nodes.createPanel) nodes.createPanel.hidden = !(isNone && isCreateActive);
+        if (nodes.joinPanel) nodes.joinPanel.hidden = !(isNone && isJoinActive);
     }
 
     function playerItem(player) {
@@ -359,14 +381,14 @@
         const current = currentPlayer(snapshot);
         const host = snapshot.players?.find(player => player.isHost) || null;
 
-        nodes.codeDisplay.textContent = snapshot.gameCode;
-        nodes.categoryLabel.textContent = categoryLabel(snapshot.categoryId);
-        nodes.countLabel.textContent = `${snapshot.currentPlayers}/${snapshot.maxPlayers} joueurs`;
-        nodes.hostLabel.textContent = host ? `Hôte: ${host.pseudo}` : 'Hôte indisponible';
-        nodes.players.replaceChildren(...(snapshot.players || []).map(playerItem));
-        nodes.scoreboard.replaceChildren(...(snapshot.players || []).map(scoreItem));
-        nodes.finalRanking.replaceChildren(...(snapshot.players || []).map(scoreItem));
-        nodes.found.replaceChildren(...(snapshot.myFoundAnswers || []).map(foundItem));
+        if (nodes.codeDisplay) nodes.codeDisplay.textContent = snapshot.gameCode;
+        if (nodes.categoryLabel) nodes.categoryLabel.textContent = categoryLabel(snapshot.categoryId);
+        if (nodes.countLabel) nodes.countLabel.textContent = `${snapshot.currentPlayers}/${snapshot.maxPlayers} joueurs`;
+        if (nodes.hostLabel) nodes.hostLabel.textContent = host ? `Hôte: ${host.pseudo}` : 'Hôte indisponible';
+        if (nodes.players) nodes.players.replaceChildren(...(snapshot.players || []).map(playerItem));
+        if (nodes.scoreboard) nodes.scoreboard.replaceChildren(...(snapshot.players || []).map(scoreItem));
+        if (nodes.finalRanking) nodes.finalRanking.replaceChildren(...(snapshot.players || []).map(scoreItem));
+        if (nodes.found) nodes.found.replaceChildren(...(snapshot.myFoundAnswers || []).map(foundItem));
         renderAnswerGrid(snapshot);
 
         updateStartButton(snapshot, current);
@@ -406,11 +428,13 @@
         populateCategories();
         nodes.modal.hidden = false;
         nodes.modal.setAttribute('aria-hidden', 'false');
-        nodes.close?.focus({ preventScroll: true });
         state.current = null;
         resetStartGamePending();
         setStatus('Connexion multijoueur...');
         showView('none');
+        // Focus le premier élément focusable visible, pas le close qui peut être caché par CSS
+        const firstFocusable = focusable(nodes.modal)[0] || nodes.close;
+        firstFocusable?.focus({ preventScroll: true });
         try {
             await ensureSocket();
             setStatus('Choisis une catégorie ou rejoins un code.');
@@ -573,6 +597,8 @@
         if (!nodes.modal) return;
         populateCategories();
         window.MemorizReactions?.render(nodes.reactions, sendReaction);
+
+        // Écouteurs internes de la modale
         nodes.open?.addEventListener('click', openModal);
         nodes.close.addEventListener('click', closeModal);
         nodes.finalClose.addEventListener('click', closeModal);
@@ -621,6 +647,18 @@
             if (event.key !== 'Escape' || nodes.modal.hidden) return;
             event.preventDefault();
             closeModal();
+        });
+
+        // Écouteurs sur les boutons de la page V4 (sécurité si v4-shell n'est pas prêt)
+        const v4Create = document.getElementById('v4-multiplayer-create');
+        const v4Join = document.getElementById('v4-multiplayer-join');
+        v4Create?.addEventListener('click', () => {
+            openModal();
+            setTimeout(() => document.getElementById('multiplayer-tab-create')?.click(), 0);
+        });
+        v4Join?.addEventListener('click', () => {
+            openModal();
+            setTimeout(() => document.getElementById('multiplayer-tab-join')?.click(), 0);
         });
     }
 
