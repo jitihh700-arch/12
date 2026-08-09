@@ -205,6 +205,13 @@
                 items[(index + direction + items.length) % items.length].focus();
             }
         });
+
+        // 🔴 CORRECTION : activer le bouton si le profil est déjà prêt au chargement
+        const authState = window.memorizAuth?.getState?.();
+        if (authState?.profile) {
+            state.profile = authState.profile;
+            els.button.disabled = false;
+        }
     }
 
     document.addEventListener('DOMContentLoaded', bind);
