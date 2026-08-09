@@ -182,9 +182,30 @@
         if (state.lastFocus && typeof state.lastFocus.focus === 'function') state.lastFocus.focus();
     }
 
+    function ensureButtonVisible() {
+        const els = getEls();
+        if (!els.button) return;
+        // Si le bouton est dans un parent caché, on le rend visible
+        const parent = els.button.closest('[hidden]');
+        if (parent) {
+            parent.removeAttribute('hidden');
+        }
+    }
+
+    function activateButton() {
+        const els = getEls();
+        if (els.button) {
+            els.button.disabled = false;
+            ensureButtonVisible();
+        }
+    }
+
     function bind() {
         const els = getEls();
-        if (!els.modal || !els.button) return;
+        if (!els.modal || !els.button) {
+            console.warn('[Leaderboard] Bouton ou modal non trouvé');
+            return;
+        }
         els.button.addEventListener('click', openModal);
         els.close.addEventListener('click', closeModal);
         els.refresh.addEventListener('click', reload);
@@ -206,22 +227,41 @@
             }
         });
 
-        // 🔴 CORRECTION : activer le bouton si le profil est déjà prêt au chargement
+        // Vérification immédiate
         const authState = window.memorizAuth?.getState?.();
         if (authState?.profile) {
+            console.log('[Leaderboard] Profil déjà prêt au bind');
             state.profile = authState.profile;
-            els.button.disabled = false;
+            activateButton();
         }
+
+        // 🔴 CORRECTION : Polling de secours si l'événement est passé avant l'écouteur
+        let checkCount = 0;
+        const checkInterval = window.setInterval(() => {
+            if (state.profile || checkCount > 20) {
+                window.clearInterval(checkInterval);
+                return;
+            }
+            checkCount++;
+            const liveState = window.memorizAuth?.getState?.();
+            if (liveState?.profile) {
+                console.log('[Leaderboard] Profil détecté par polling');
+                state.profile = liveState.profile;
+                activateButton();
+                window.clearInterval(checkInterval);
+            }
+        }, 300);
     }
 
     document.addEventListener('DOMContentLoaded', bind);
     document.addEventListener('memoriz:profile-ready', event => {
+        console.log('[Leaderboard] Event profile-ready reçu');
         state.profile = event.detail.profile;
-        const els = getEls();
-        if (els.button) els.button.disabled = false;
+        activateButton();
         if (!getEls().modal?.hidden) reload();
     });
     document.addEventListener('memoriz:profile-unavailable', () => {
+        console.log('[Leaderboard] Event profile-unavailable reçu');
         state.profile = null;
         const els = getEls();
         if (els.button) els.button.disabled = true;
