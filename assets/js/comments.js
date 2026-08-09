@@ -366,6 +366,7 @@
         const actions = document.createElement('div');
         actions.className = 'comment-edit-actions';
         const save = createButton('Enregistrer', 'save-edit');
+        save.type = 'submit';
         const cancel = createButton('Annuler', 'cancel-edit');
         cancel.addEventListener('click', () => {
             state.editingId = null;
