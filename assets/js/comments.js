@@ -1,6 +1,4 @@
 (function() {
-    console.log('[Comments] Script chargé, version 2.1');
-
     const PAGE_SIZE = 20;
     const MAX_LENGTH = 500;
     const TOPIC = 'comments:public';
@@ -21,11 +19,7 @@
         reconnectTimer: null,
         toastTimer: null,
         lastRemoteToastAt: 0,
-        needsProfile: false,
-        replyingToId: null,
-        replyingToPseudo: null,
-        initialized: false,
-        bindAttempts: 0
+        needsProfile: false
     };
 
     function getEls() {
@@ -56,8 +50,7 @@
             content: row.content,
             is_edited: row.is_edited === true,
             created_at: row.created_at,
-            updated_at: row.updated_at,
-            parent_id: row.parent_id || null
+            updated_at: row.updated_at
         };
     }
 
@@ -145,8 +138,7 @@
         state.comments = [];
         state.hasMore = false;
         state.editingId = null;
-        state.replyingToId = null;
-        state.replyingToPseudo = null;
+        state.deletingId = null;
         state.needsProfile = message.includes('pseudo') || message.includes('profil');
         clearReconnectTimer();
         unsubscribe();
@@ -162,10 +154,9 @@
         setText(els.error, '');
         if (els.list) els.list.replaceChildren();
         if (els.loadMore) els.loadMore.hidden = true;
-        updateReplyBanner();
     }
 
-    function setReadyStatus(text = 'Commentaires connectés') {
+    function setReadyStatus(text) {
         setText(getEls().status, text);
     }
 
@@ -178,22 +169,19 @@
     function formatDate(value) {
         const date = new Date(value);
         if (Number.isNaN(date.getTime())) return '';
-        return new Intl.DateTimeFormat('fr-FR', {
-            dateStyle: 'medium',
-            timeStyle: 'short'
-        }).format(date);
+        return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium', timeStyle: 'short' }).format(date);
     }
 
-    function createButton(label, action, className = 'comment-action') {
+    function createButton(label, action, className) {
         const button = document.createElement('button');
         button.type = 'button';
-        button.className = className;
+        button.className = className || 'comment-action';
         button.dataset.action = action;
         button.textContent = label;
         return button;
     }
 
-    function showToast(message, type = 'success') {
+    function showToast(message, type) {
         let region = document.querySelector('.comments-toast-region');
         if (!region) {
             region = document.createElement('div');
@@ -202,11 +190,10 @@
             region.setAttribute('aria-atomic', 'true');
             document.body.append(region);
         }
-
         region.replaceChildren();
         const toast = document.createElement('div');
         toast.className = 'comments-toast';
-        toast.dataset.type = type;
+        toast.dataset.type = type || 'success';
         toast.textContent = message;
         region.append(toast);
         window.clearTimeout(state.toastTimer);
@@ -220,7 +207,7 @@
         return true;
     }
 
-    function upsertComment(comment, position = 'top') {
+    function upsertComment(comment, position) {
         const index = state.comments.findIndex(item => item.id === comment.id);
         if (index >= 0) {
             state.comments[index] = { ...state.comments[index], ...comment };
@@ -237,79 +224,24 @@
         return state.comments.length !== before;
     }
 
-    function updateReplyBanner() {
-        const els = getEls();
-        let banner = document.getElementById('comment-reply-banner');
-        if (!state.replyingToId) {
-            if (banner) banner.remove();
-            if (els.input) els.input.placeholder = 'Ton commentaire';
-            return;
-        }
-        if (!banner) {
-            banner = document.createElement('div');
-            banner.id = 'comment-reply-banner';
-            banner.className = 'comment-reply-banner';
-            els.form.insertBefore(banner, els.form.firstChild);
-        }
-        banner.innerHTML = '';
-        const text = document.createElement('span');
-        text.textContent = `En réponse à ${state.replyingToPseudo || 'un commentaire'}`;
-        const cancel = document.createElement('button');
-        cancel.type = 'button';
-        cancel.className = 'comment-reply-cancel';
-        cancel.textContent = 'Annuler';
-        cancel.addEventListener('click', () => {
-            state.replyingToId = null;
-            state.replyingToPseudo = null;
-            updateReplyBanner();
-            els.input?.focus();
-        });
-        banner.append(text, cancel);
-        if (els.input) els.input.placeholder = `Réponds à ${state.replyingToPseudo || '...'}`;
-    }
-
     function render() {
         const els = getEls();
         if (!els.list) return;
-
-        const roots = state.comments.filter(c => !c.parent_id);
-        const replies = state.comments.filter(c => c.parent_id);
-        const fragments = [];
-
-        roots.forEach(comment => {
-            const article = renderComment(comment);
-            const commentReplies = replies.filter(r => r.parent_id === comment.id);
-            if (commentReplies.length) {
-                const replyList = document.createElement('div');
-                replyList.className = 'comment-replies';
-                commentReplies.forEach(reply => replyList.appendChild(renderComment(reply)));
-                article.appendChild(replyList);
-            }
-            fragments.push(article);
-        });
-
-        const orphanedReplies = replies.filter(r => !roots.find(root => root.id === r.parent_id));
-        orphanedReplies.forEach(reply => fragments.push(renderComment(reply)));
-
-        els.list.replaceChildren(...fragments);
-
+        els.list.replaceChildren(...state.comments.map(renderComment));
         if (state.profile && state.comments.length === 0 && !state.loading) {
             setText(els.feedStatus, 'Aucun commentaire pour le moment.');
         } else if (state.profile && !state.loading) {
-            const rootCount = roots.length;
-            setText(els.feedStatus, `${rootCount} commentaire${rootCount > 1 ? 's' : ''} affiché${rootCount > 1 ? 's' : ''}.`);
+            setText(els.feedStatus, `${state.comments.length} commentaire${state.comments.length > 1 ? 's' : ''} affiché${state.comments.length > 1 ? 's' : ''}.`);
         }
         if (els.loadMore) {
             els.loadMore.hidden = !state.hasMore || !state.profile;
             els.loadMore.disabled = state.loading;
         }
-        updateReplyBanner();
     }
 
     function renderComment(comment) {
         const article = document.createElement('article');
         article.className = 'comment-item';
-        if (comment.parent_id) article.classList.add('is-reply');
         article.dataset.commentId = comment.id;
 
         if (state.editingId === comment.id) {
@@ -338,7 +270,7 @@
         }
 
         header.append(authorLine);
-        header.append(renderActions(comment));
+        if (isOwner(comment)) header.append(renderActions(comment));
 
         const content = document.createElement('p');
         content.className = 'comment-content';
@@ -364,7 +296,6 @@
             event.stopPropagation();
             state.actionsOpenId = state.actionsOpenId === comment.id ? null : comment.id;
             render();
-            document.querySelector(`[data-comment-id="${comment.id}"] [data-action="toggle-actions"]`)?.focus();
         });
         actions.append(toggle);
 
@@ -373,42 +304,22 @@
         const menu = document.createElement('div');
         menu.className = 'comment-actions-menu';
         menu.setAttribute('role', 'menu');
-
-        const reply = createButton('Répondre', 'reply');
-        reply.setAttribute('role', 'menuitem');
-        reply.setAttribute('aria-label', `Répondre à ${comment.pseudo}`);
-        reply.addEventListener('click', event => {
+        const edit = createButton('Modifier', 'edit');
+        edit.setAttribute('role', 'menuitem');
+        edit.addEventListener('click', event => {
             event.stopPropagation();
             state.actionsOpenId = null;
-            state.replyingToId = comment.id;
-            state.replyingToPseudo = comment.pseudo;
-            render();
-            getEls().input?.focus();
+            startEdit(comment.id);
         });
-        menu.append(reply);
-
-        if (isOwner(comment)) {
-            const edit = createButton('Modifier', 'edit');
-            edit.setAttribute('role', 'menuitem');
-            edit.setAttribute('aria-label', 'Modifier mon commentaire');
-            edit.addEventListener('click', event => {
-                event.stopPropagation();
-                state.actionsOpenId = null;
-                startEdit(comment.id);
-            });
-            const del = createButton('Supprimer', 'delete');
-            del.setAttribute('role', 'menuitem');
-            del.setAttribute('aria-label', 'Supprimer mon commentaire');
-            del.addEventListener('click', event => {
-                event.stopPropagation();
-                state.actionsOpenId = null;
-                state.deletingId = comment.id;
-                render();
-                document.querySelector(`[data-comment-id="${comment.id}"] [data-action="confirm-delete"]`)?.focus();
-            });
-            menu.append(edit, del);
-        }
-
+        const del = createButton('Supprimer', 'delete');
+        del.setAttribute('role', 'menuitem');
+        del.addEventListener('click', event => {
+            event.stopPropagation();
+            state.actionsOpenId = null;
+            state.deletingId = comment.id;
+            render();
+        });
+        menu.append(edit, del);
         actions.append(menu);
         return actions;
     }
@@ -435,7 +346,6 @@
         const error = document.createElement('p');
         error.className = 'comments-error';
         error.setAttribute('role', 'alert');
-        error.setAttribute('aria-live', 'assertive');
         const counter = document.createElement('span');
         counter.className = 'comment-counter';
         counter.textContent = `${countChars(input.value)} / ${MAX_LENGTH}`;
@@ -453,7 +363,6 @@
         cancel.addEventListener('click', () => {
             state.editingId = null;
             render();
-            focusComment(comment.id);
         });
         actions.append(save, cancel);
 
@@ -476,7 +385,6 @@
                 state.editingId = null;
                 render();
                 showToast('Commentaire modifié avec succès');
-                focusComment(comment.id);
             } catch (errorUpdate) {
                 error.textContent = describeError(errorUpdate);
                 save.disabled = false;
@@ -494,8 +402,6 @@
     function renderDeleteConfirm(comment) {
         const panel = document.createElement('div');
         panel.className = 'comment-confirm';
-        panel.setAttribute('role', 'alertdialog');
-        panel.setAttribute('aria-label', 'Confirmer la suppression du commentaire');
         const text = document.createElement('p');
         text.textContent = 'Supprimer ce commentaire ?';
         const actions = document.createElement('div');
@@ -506,18 +412,10 @@
         cancel.addEventListener('click', () => {
             state.deletingId = null;
             render();
-            focusComment(comment.id);
         });
         actions.append(confirm, cancel);
         panel.append(text, actions);
         return panel;
-    }
-
-    function focusComment(id) {
-        const item = document.querySelector(`[data-comment-id="${id}"]`);
-        if (!item) return;
-        item.setAttribute('tabindex', '-1');
-        item.focus();
     }
 
     function isOwner(comment) {
@@ -534,7 +432,6 @@
             state.deletingId = null;
             render();
             showToast('Commentaire supprimé');
-            getEls().input?.focus();
         } catch (deleteError) {
             state.deletingId = null;
             render();
@@ -548,7 +445,6 @@
         state.loading = true;
         setText(els.feedStatus, 'Chargement des commentaires...');
         if (els.loadMore) els.loadMore.disabled = true;
-
         try {
             const { data, error } = await state.api.listComments({ limit: PAGE_SIZE, offset: 0 });
             if (error) throw error;
@@ -598,23 +494,16 @@
             els.input.focus();
             return;
         }
-
         state.submitting = true;
         setDisabled(true);
         setText(els.error, '');
         try {
-            let payload = validation.content;
-            if (state.replyingToId) {
-                payload = { content: validation.content, parent_id: state.replyingToId };
-            }
-            const { data, error } = await state.api.createComment(payload);
+            const { data, error } = await state.api.createComment(validation.content);
             if (error) throw error;
             const comment = normalizeRow(data);
             if (comment) upsertComment(comment);
             els.input.value = '';
             updateCounter('');
-            state.replyingToId = null;
-            state.replyingToPseudo = null;
             render();
             showToast('Commentaire ajouté avec succès');
         } catch (createError) {
@@ -631,8 +520,6 @@
     function startEdit(id) {
         state.editingId = id;
         state.deletingId = null;
-        state.replyingToId = null;
-        state.replyingToPseudo = null;
         render();
     }
 
@@ -683,13 +570,11 @@
             scheduleReconnect();
             return;
         }
-
         state.channel = state.client
             .channel(TOPIC, { config: { private: true } })
             .on('broadcast', { event: 'comment_created' }, message => handleCreated(message.payload))
             .on('broadcast', { event: 'comment_updated' }, message => handleUpdated(message.payload))
             .on('broadcast', { event: 'comment_deleted' }, message => handleDeleted(message.payload));
-
         state.channel.subscribe(status => {
             if (status === 'SUBSCRIBED') {
                 clearReconnectTimer();
@@ -734,19 +619,10 @@
     }
 
     async function onProfileReady(profile) {
-        if (state.profile && state.profile.id === profile.id) {
-            console.log('[Comments] Profil déjà initialisé, ignoré');
-            return;
-        }
+        if (state.profile && state.profile.id === profile.id) return;
         const els = getEls();
-        if (!els.section) {
-            console.warn('[Comments] Section manquante dans onProfileReady');
-            return;
-        }
+        if (!els.section) return;
         try {
-            if (!window.MemorizProfileApi) {
-                throw new Error('API non disponible');
-            }
             state.api = window.MemorizProfileApi.init(window.MEMORIZ_SUPABASE_CONFIG || {});
             state.client = state.api.client;
             state.profile = profile;
@@ -764,62 +640,17 @@
             await unsubscribe();
             await loadFirstPage();
             await subscribe();
-            console.log('[Comments] Initialisation terminée avec succès');
-        } catch (err) {
-            console.error('[Comments] onProfileReady error:', err);
+        } catch {
             setUnavailable('Les commentaires sont temporairement indisponibles.');
         }
     }
 
-    function tryInit() {
-        if (state.profile) return true;
-        const auth = window.memorizAuth;
-        const authState = auth?.getState?.();
-        if (authState?.profile) {
-            console.log('[Comments] Profil trouvé via memorizAuth');
-            onProfileReady(authState.profile);
-            return true;
-        }
-        // 🔴 CORRECTION : vérifie aussi les variables globales alternatives
-        if (window.memorizProfile && window.memorizProfile.id) {
-            console.log('[Comments] Profil trouvé via memorizProfile');
-            onProfileReady(window.memorizProfile);
-            return true;
-        }
-        return false;
-    }
-
     function bind() {
-        if (state.initialized) {
-            console.log('[Comments] Déjà initialisé');
-            return;
-        }
-        state.initialized = true;
-        state.bindAttempts++;
-
         const els = getEls();
-        if (!els.section) {
-            console.warn('[Comments] Section non trouvée, tentative ' + state.bindAttempts);
-            // Si la section n'est pas encore dans le DOM, on réessaie plus tard
-            if (state.bindAttempts < 5) {
-                window.setTimeout(bind, 500);
-            }
-            return;
-        }
-        console.log('[Comments] Section trouvée, binding...');
-
-        els.input.addEventListener('input', () => {
-            updateCounter();
-            setText(els.error, '');
-        });
-        els.input.addEventListener('focus', () => {
-            if (!state.needsProfile) return;
-            setText(els.error, 'Crée ton pseudo pour commenter.');
-        });
-        els.input.addEventListener('click', () => {
-            if (!state.needsProfile) return;
-            window.memorizAuth?.openModal?.();
-        });
+        if (!els.section) return;
+        els.input.addEventListener('input', () => { updateCounter(); setText(els.error, ''); });
+        els.input.addEventListener('focus', () => { if (!state.needsProfile) return; setText(els.error, 'Crée ton pseudo pour commenter.'); });
+        els.input.addEventListener('click', () => { if (!state.needsProfile) return; window.memorizAuth?.openModal?.(); });
         els.form.addEventListener('submit', submitComment);
         els.loadMore.addEventListener('click', loadMore);
         document.addEventListener('click', event => {
@@ -832,58 +663,25 @@
             state.actionsOpenId = null;
             render();
         });
-        document.addEventListener('memoriz:profile-ready', event => {
-            console.log('[Comments] Event profile-ready reçu');
-            onProfileReady(event.detail.profile);
-        });
+        document.addEventListener('memoriz:profile-ready', event => onProfileReady(event.detail.profile));
         document.addEventListener('memoriz:profile-unavailable', () => {
-            console.log('[Comments] Event profile-unavailable reçu');
             setUnavailable('Les commentaires sont temporairement indisponibles, mais le quiz solo reste disponible.');
         });
 
-        // Tentative immédiate
-        if (tryInit()) return;
-
-        // Vérification de la config
-        if (!window.MEMORIZ_SUPABASE_CONFIG?.url || !window.MEMORIZ_SUPABASE_CONFIG?.publishableKey || !window.supabase) {
-            console.log('[Comments] Config Supabase absente');
+        // Vérification immédiate au cas où le profil est déjà prêt
+        const authState = window.memorizAuth?.getState?.();
+        if (authState?.profile) {
+            onProfileReady(authState.profile);
+        } else if (!window.MEMORIZ_SUPABASE_CONFIG?.url || !window.MEMORIZ_SUPABASE_CONFIG?.publishableKey || !window.supabase) {
             setUnavailable('Les commentaires sont temporairement indisponibles, mais le quiz solo reste disponible.');
-            return;
+        } else {
+            setNeedsProfile();
         }
-
-        // Profil requis pour l'instant
-        console.log('[Comments] Profil requis, en attente...');
-        setNeedsProfile();
-
-        // 🔴 CORRECTION : Polling ultra-robuste
-        let checkCount = 0;
-        const maxChecks = 40; // 40 x 300ms = 12 secondes
-        const checkInterval = window.setInterval(() => {
-            checkCount++;
-            if (state.profile) {
-                console.log('[Comments] Profil déjà connecté, arrêt du polling');
-                window.clearInterval(checkInterval);
-                return;
-            }
-            if (tryInit()) {
-                window.clearInterval(checkInterval);
-                return;
-            }
-            if (checkCount >= maxChecks) {
-                console.log('[Comments] Polling terminé sans profil');
-                window.clearInterval(checkInterval);
-                // On reste en mode "profil requis"
-            }
-        }, 300);
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('[Comments] DOMContentLoaded');
-            bind();
-        });
+        document.addEventListener('DOMContentLoaded', bind);
     } else {
-        console.log('[Comments] DOM déjà prêt, bind immédiat');
         bind();
     }
 
@@ -892,8 +690,7 @@
             comments: state.comments.map(comment => ({ ...comment })),
             hasMore: state.hasMore,
             profile: state.profile ? { ...state.profile } : null,
-            editingId: state.editingId,
-            replyingToId: state.replyingToId
+            editingId: state.editingId
         }),
         validatePublicPayload,
         validateDeletePayload,
