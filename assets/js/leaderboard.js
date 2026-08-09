@@ -62,12 +62,14 @@
         const title = document.createElement('h3');
         title.textContent = 'Mon classement';
         els.mine.append(title);
+
         if (!rank) {
             const empty = document.createElement('p');
             empty.textContent = 'Crée un profil puis termine un quiz classé pour afficher ton rang.';
             els.mine.append(empty);
             return;
         }
+
         const card = document.createElement('div');
         card.className = 'leaderboard-my-card';
         const pseudo = document.createElement('strong');
@@ -97,23 +99,29 @@
             els.list.append(empty);
             return;
         }
+
         rows.forEach(row => {
             const item = document.createElement('li');
             item.className = 'leaderboard-row';
             if (state.profile && row.pseudo === state.profile.pseudo) item.classList.add('is-current');
+
             const rank = document.createElement('span');
             rank.className = 'leaderboard-rank';
             rank.textContent = `#${row.rank}`;
+
             const identity = document.createElement('span');
             identity.className = 'leaderboard-player';
             identity.textContent = row.pseudo || 'Profil';
             identity.title = identity.textContent;
+
             const points = document.createElement('span');
             points.className = 'leaderboard-points';
             points.textContent = `${Number(row.total_points || 0)} pts`;
+
             const quizzes = document.createElement('span');
             quizzes.className = 'leaderboard-quizzes';
             quizzes.textContent = `${Number(row.quizzes_completed || 0)} quiz`;
+
             item.append(rank, identity, points, quizzes);
             els.list.append(item);
         });
@@ -128,6 +136,7 @@
             clearNode(els.mine);
             return;
         }
+
         state.loading = true;
         if (els.refresh) els.refresh.disabled = true;
         setStatus('Chargement du classement...');
@@ -137,12 +146,14 @@
         ]);
         state.loading = false;
         if (els.refresh) els.refresh.disabled = false;
+
         if (top.error || mine.error) {
             setStatus('Classement momentanément indisponible.');
             clearNode(els.list);
             renderMine(null);
             return;
         }
+
         renderMine(mine.data);
         renderList(top.data);
         setStatus(top.data.length ? 'Classement à jour.' : 'Aucun score classé pour le moment.');
@@ -174,6 +185,14 @@
     function bind() {
         const els = getEls();
         if (!els.modal || !els.button) return;
+
+        // Si le profil est deja pret, activer le bouton immediatement
+        const authState = window.memorizAuth?.getState?.();
+        if (authState?.profile) {
+            state.profile = authState.profile;
+            els.button.disabled = false;
+        }
+
         els.button.addEventListener('click', openModal);
         els.close.addEventListener('click', closeModal);
         els.refresh.addEventListener('click', reload);
@@ -194,13 +213,6 @@
                 items[(index + direction + items.length) % items.length].focus();
             }
         });
-
-        // Vérification immédiate au cas où le profil est déjà prêt
-        const authState = window.memorizAuth?.getState?.();
-        if (authState?.profile) {
-            state.profile = authState.profile;
-            els.button.disabled = false;
-        }
     }
 
     document.addEventListener('DOMContentLoaded', bind);
