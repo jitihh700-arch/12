@@ -1,6 +1,6 @@
--- Fix : les points des sessions expirées doivent être conservés
--- et crédités au profil quand même
+-- Fix : quand une session solo expire, conserver les points deja acquis
 
+-- 1. D'abord la fonction privee (pas de dependance externe)
 create or replace function private.finish_quiz_session_locked(
   p_session_id uuid,
   p_now timestamptz
@@ -32,11 +32,9 @@ begin
     return v_session;
   end if;
 
-  -- ⬇️ FIX : calculer les points AVANT de décider si c'est expiré
   v_points := v_session.correct_answers * 10;
 
   if v_session.expires_at <= p_now then
-    -- ⬇️ FIX : on garde les points déjà acquis au lieu de 0
     update public.quiz_sessions as qs
     set
       status = 'expired',
@@ -45,7 +43,7 @@ begin
     where qs.id = p_session_id
     returning * into v_session;
 
-    -- ⬇️ FIX : on crédite quand même le profil avec les points acquis
+    -- Crediter le profil meme si expiree
     update public.profiles as p
     set
       total_points = p.total_points + v_points,
@@ -125,8 +123,7 @@ begin
 end;
 $$;
 
--- Fix submit_quiz_answer : quand on soumet et que c'est déjà expiré,
--- ne pas renvoyer points_current = 0
+-- 2. Ensuite submit_quiz_answer (depend de finish_quiz_session_locked)
 create or replace function public.submit_quiz_answer(
   p_session_id uuid,
   p_answer text
@@ -193,11 +190,9 @@ begin
   end if;
 
   if v_session.expires_at <= v_now then
-    -- ⬇️ FIX : on finalise la session avec les points acquis
     v_session := private.finish_quiz_session_locked(v_session.id, v_now);
     result := 'expired';
     correct_answers := v_session.correct_answers;
-    -- ⬇️ FIX : points_current = points acquis, pas 0
     points_current := v_session.correct_answers * 10;
     remaining_answers_count := null;
     expires_at := v_session.expires_at;
@@ -223,7 +218,7 @@ begin
         and (
           qa.answer_normalized = v_normalized
           or (split_part(qa.answer_normalized, ' ', 1) = v_normalized and char_length(split_part(qa.answer_normalized, ' ', 1)) > 2)
-          or (array_length(string_to_array(qa.answer_normalized, ' '), 1) > 1 and regexp_replace(qa.answer_normalized, '^.*\s', '') = v_normalized and char_length(regexp_replace(qa.answer_normalized, '^.*\s', '')) > 2)
+          or (array_length(string_to_array(qa.answer_normalized, ' '), 1) > 1 and regexp_replace(qa.answer_normalized, '^.*\\s', '') = v_normalized and char_length(regexp_replace(qa.answer_normalized, '^.*\\s', '')) > 2)
         )
     ) then
       result := 'duplicate';
@@ -280,7 +275,6 @@ begin
   end if;
 
   correct_answers := v_session.correct_answers;
-  -- ⬇️ FIX : toujours calculer les points sur correct_answers
   points_current := v_session.correct_answers * 10;
   remaining_answers_count := greatest(v_total_answers - v_session.correct_answers, 0);
   expires_at := v_session.expires_at;
@@ -289,7 +283,7 @@ begin
 end;
 $$;
 
--- Fix get_my_quiz_session : ne pas renvoyer 0 quand expired
+-- 3. Enfin get_my_quiz_session (independante)
 create or replace function public.get_my_quiz_session(p_session_id uuid)
 returns table (
   session_id uuid,
@@ -336,7 +330,6 @@ begin
   status := v_session.status;
   duration_seconds := v_session.duration_seconds;
   correct_answers := v_session.correct_answers;
-  -- ⬇️ FIX : toujours renvoyer correct_answers * 10, même si expired
   points_current := v_session.correct_answers * 10;
   started_at := v_session.started_at;
   expires_at := v_session.expires_at;
