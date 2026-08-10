@@ -19,6 +19,7 @@ class QuizGame {
         this.hintList = hintList;
         this.correctAnswers = new Array(this.questions.length).fill(false);
         this.score = 0;
+        this.points = 0;           // ⬇️ NOUVEAU : système de points
         this.serverPoints = 0;
         this.timeLeft = 600;
         this.expiresAt = null;
@@ -26,6 +27,17 @@ class QuizGame {
         this.gameActive = true;
         this.finalized = false;
         this.pendingAnswer = false;
+    }
+
+    // ⬇️ NOUVEAU : calcul des points
+    calculatePoints() {
+        const basePoints = this.score * 10;
+        // Bonus temps si tout trouvé avant la fin
+        let timeBonus = 0;
+        if (this.mode === 'practice' && this.timeLeft > 0 && this.isComplete()) {
+            timeBonus = Math.floor(this.timeLeft / 10); // 1 point par 10 sec restantes
+        }
+        return basePoints + timeBonus;
     }
 
     findMatchingQuestion(answer) {
@@ -54,6 +66,7 @@ class QuizGame {
         if (this.correctAnswers[matchIndex]) return { success: false, alreadyAnswered: true };
         this.correctAnswers[matchIndex] = true;
         this.score++;
+        this.points = this.calculatePoints();  // ⬇️ NOUVEAU
         return { success: true, index: matchIndex, correctName: this.questions[matchIndex] };
     }
 
@@ -63,6 +76,7 @@ class QuizGame {
         if (!this.correctAnswers[index]) this.correctAnswers[index] = true;
         this.score = Number(payload.correct_answers || this.score);
         this.serverPoints = Number(payload.points_current || this.score * 10);
+        this.points = this.serverPoints;  // ⬇️ NOUVEAU
         return {
             index,
             correctName: payload.matched_answer_display || this.questions[index]
@@ -77,7 +91,8 @@ class QuizGame {
             }
         });
         this.score = this.correctAnswers.filter(Boolean).length;
-        this.serverPoints = this.score * 10;
+        this.serverPoints = Number(this.serverPoints || this.score * 10);
+        this.points = this.mode === 'ranked' ? this.serverPoints : this.calculatePoints();  // ⬇️ NOUVEAU
     }
 
     isComplete() {
@@ -378,9 +393,12 @@ function updateScoreAndProgress() {
     const scoreElement = document.getElementById('score');
     const progressElement = document.getElementById('progress');
     if (scoreElement) {
+        const displayPoints = currentGame.mode === 'ranked' 
+            ? currentGame.serverPoints 
+            : currentGame.points;
         scoreElement.textContent = currentGame.mode === 'ranked'
-            ? `🎯 ${currentGame.serverPoints} pts · ${progress.answered}/${currentGame.questions.length}`
-            : `🎯 ${currentGame.score}/${currentGame.questions.length}`;
+            ? `🎯 ${displayPoints} pts · ${progress.answered}/${currentGame.questions.length}`
+            : `🎯 ${displayPoints} pts · ${progress.answered}/${currentGame.questions.length}`;
     }
     if (progressElement) {
         progressElement.textContent = `📊 Progression: ${progress.answered}/${progress.total} (${Math.round(progress.percentage)}%)`;
@@ -443,7 +461,11 @@ async function endGame(completed) {
         if (finalResult.data) {
             currentGame.score = Number(finalResult.data.correct_answers || currentGame.score);
             currentGame.serverPoints = Number(finalResult.data.points_awarded || currentGame.serverPoints);
+            currentGame.points = currentGame.serverPoints;
         }
+    } else {
+        // Mettre à jour les points en mode practice avant de terminer
+        currentGame.points = currentGame.calculatePoints();
     }
 
     const gameContainer = document.querySelector('.game-container');
@@ -478,9 +500,15 @@ function renderFinalScreen(container, completed, percentage, serverResult) {
     const score = document.createElement('p');
     score.style.fontSize = '1.5rem';
     score.style.margin = '20px 0';
+    
+    const displayPoints = currentGame.mode === 'ranked' 
+        ? currentGame.serverPoints 
+        : currentGame.points;
+    
     score.textContent = currentGame.mode === 'ranked'
-        ? `Score serveur : ${currentGame.serverPoints} pts (${currentGame.score}/${currentGame.questions.length}, ${Math.round(percentage)}%)`
-        : `Ton score : ${currentGame.score}/${currentGame.questions.length} (${Math.round(percentage)}%)`;
+        ? `Score serveur : ${displayPoints} pts (${currentGame.score}/${currentGame.questions.length}, ${Math.round(percentage)}%)`
+        : `Ton score : ${displayPoints} pts (${currentGame.score}/${currentGame.questions.length}, ${Math.round(percentage)}%)`;
+    
     const text = document.createElement('p');
     if (currentGame.mode === 'ranked') {
         const won = Number(serverResult?.points_awarded || 0);
