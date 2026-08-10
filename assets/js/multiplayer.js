@@ -364,6 +364,12 @@
             const minutes = String(Math.floor(remaining / 60)).padStart(2, '0');
             const seconds = String(remaining % 60).padStart(2, '0');
             if (nodes.timer) nodes.timer.textContent = `${minutes}:${seconds}`;
+            
+            // ⬇️ AJOUT : quand le temps tombe à 0, on récupère l'état final
+            if (remaining <= 0 && snapshot?.status === 'playing') {
+                window.clearInterval(state.timerId);
+                refreshCurrentGame();
+            }
         }
         tick();
         if (snapshot?.status === 'playing') state.timerId = window.setInterval(tick, 1000);
