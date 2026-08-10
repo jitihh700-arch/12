@@ -127,9 +127,8 @@
 
     function populateCategories() {
         const nodes = els();
+        if (!nodes.category) return;
         nodes.category.replaceChildren();
-        // Vider complètement pour éviter les doublons ou options fantômes
-        nodes.category.innerHTML = '';
         const mapping = window.categoryMapping || {};
         const keys = Object.keys(mapping);
         if (keys.length === 0) {
@@ -365,7 +364,6 @@
             const seconds = String(remaining % 60).padStart(2, '0');
             if (nodes.timer) nodes.timer.textContent = `${minutes}:${seconds}`;
             
-            // ⬇️ AJOUT : quand le temps tombe à 0, on récupère l'état final
             if (remaining <= 0 && snapshot?.status === 'playing') {
                 window.clearInterval(state.timerId);
                 refreshCurrentGame();
@@ -438,7 +436,6 @@
         resetStartGamePending();
         setStatus('Connexion multijoueur...');
         showView('none');
-        // Focus le premier élément focusable visible, pas le close qui peut être caché par CSS
         const firstFocusable = focusable(nodes.modal)[0] || nodes.close;
         firstFocusable?.focus({ preventScroll: true });
         try {
@@ -604,7 +601,6 @@
         populateCategories();
         window.MemorizReactions?.render(nodes.reactions, sendReaction);
 
-        // Écouteurs internes de la modale
         nodes.open?.addEventListener('click', openModal);
         nodes.close.addEventListener('click', closeModal);
         nodes.finalClose.addEventListener('click', closeModal);
@@ -655,7 +651,6 @@
             closeModal();
         });
 
-        // Écouteurs sur les boutons de la page V4 (sécurité si v4-shell n'est pas prêt)
         const v4Create = document.getElementById('v4-multiplayer-create');
         const v4Join = document.getElementById('v4-multiplayer-join');
         v4Create?.addEventListener('click', () => {
