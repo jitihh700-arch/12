@@ -16,11 +16,11 @@ function roomName(gameCode) {
 async function emitState(io, service, socket, gameCode, eventName = 'gameState') {
     const rows = await service.getState(socket.user, { gameCode });
     
-    // 1. Snapshot PUBLIC (sans les réponses personnelles) → envoyé à la room
+    // 1. Snapshot PUBLIC (sans les réponses personnelles) → envoyé à toute la room
     const publicSnapshot = buildGameSnapshot(rows, null);
     io.to(roomName(gameCode)).emit(eventName, publicSnapshot);
     
-    // 2. Snapshot PRIVÉ (avec myFoundAnswers) → envoyé à chaque joueur individuellement
+    // 2. Snapshot PRIVÉ (avec myFoundAnswers) → envoyé à CHAQUE joueur individuellement
     const room = io.sockets.adapter.rooms.get(roomName(gameCode));
     if (room) {
         for (const socketId of room) {
@@ -32,7 +32,7 @@ async function emitState(io, service, socket, gameCode, eventName = 'gameState')
         }
     }
     
-    // Retourne le snapshot du joueur courant pour la réponse ACK
+    // Retourne le snapshot privé du joueur courant pour la réponse ACK
     return buildGameSnapshot(rows, socket.user.userId);
 }
 
