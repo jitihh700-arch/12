@@ -1,5 +1,5 @@
--- Fix : get_my_multiplayer_game_state doit retourner les réponses de TOUS les joueurs
--- pour que le serveur Node puisse construire un snapshot privé par joueur
+-- Fix : get_my_multiplayer_game_state doit retourner les reponses de TOUS les joueurs
+-- pour que le serveur Node puisse construire un snapshot prive par joueur
 
 create or replace function public.get_my_multiplayer_game_state(p_game_code text)
 returns table (
@@ -81,7 +81,6 @@ begin
     where mp.game_id = v_game.id
       and mp.left_at is null
   ),
-  -- ⬇️ FIX : on récupère les réponses de TOUS les joueurs, pas seulement v_player
   all_answers as (
     select
       mp.user_id as found_user_id,
