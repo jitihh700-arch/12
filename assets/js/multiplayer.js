@@ -127,7 +127,7 @@
 
     function populateCategories() {
         const nodes = els();
-        if (!nodes.category) return;
+        nodes.category.replaceChildren();
         // Vider complètement pour éviter les doublons ou options fantômes
         nodes.category.innerHTML = '';
         const mapping = window.categoryMapping || {};
