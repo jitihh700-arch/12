@@ -137,7 +137,6 @@ export function registerGameHandlers(io, socket, { multiplayerService, limiter }
         const gameCode = socket.data.activeGameCode;
         if (!gameCode) return;
         delete socket.data.activeGameCode;
-        // Une coupure reseau retire seulement la presence connectee, pas la place du joueur.
         multiplayerService.disconnectGame(socket.user, { gameCode })
             .then(() => emitStateIfAvailable(io, multiplayerService, socket, gameCode, 'playerDisconnected'))
             .catch(() => {});
