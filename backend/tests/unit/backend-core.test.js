@@ -87,7 +87,7 @@ describe('rate limiter', () => {
 });
 
 describe('snapshot', () => {
-    it('construit un etat sans reponses des autres joueurs', () => {
+    it('construit un etat avec reponses globales trouvees', () => {
         const snapshot = buildGameSnapshot([
             {
                 game_code: 'ABC234',
@@ -110,7 +110,10 @@ describe('snapshot', () => {
                 rank: 1,
                 my_found_answer_display: 'Walter White',
                 my_found_display_order: 1,
-                my_answered_at: '2026-01-01T00:00:01Z'
+                my_answered_at: '2026-01-01T00:00:01Z',
+                all_found_answers: [
+                    { display: 'Walter White', displayOrder: 1, answerYear: '2008', hint: 'Chimie' }
+                ]
             },
             {
                 game_code: 'ABC234',
@@ -135,6 +138,8 @@ describe('snapshot', () => {
 
         expect(snapshot.players).toHaveLength(2);
         expect(snapshot.myFoundAnswers).toEqual([expect.objectContaining({ display: 'Walter White' })]);
+        expect(snapshot.allFoundAnswers).toEqual([expect.objectContaining({ display: 'Walter White' })]);
+        expect(snapshot.players[0].rank).toBe(1);
         expect(snapshot.players[1].pseudo).toBe('<script>');
     });
 

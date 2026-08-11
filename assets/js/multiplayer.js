@@ -94,6 +94,18 @@
     if (n.status) n.status.textContent = msg || '';
   }
 
+  function answerResultMessage(result) {
+    const key = typeof result === 'string' ? result : result?.result;
+    return {
+      correct: 'Bonne réponse !',
+      incorrect: 'Mauvaise réponse.',
+      duplicate: 'Tu as déjà trouvé cette réponse.',
+      already_found_by_other: 'Cette réponse a déjà été trouvée par un autre joueur.',
+      game_finished: 'La partie est déjà terminée.',
+      expired: 'Le temps est écoulé.'
+    }[key] || '';
+  }
+
   // ===================== CORRECTION CLÉ : isCurrent =====================
   // Le backend calcule déjà isCurrent dans buildGameSnapshot.
   // On n'a PAS besoin de matcher un userId côté client.
@@ -319,9 +331,12 @@
     if (!answer) return;
     input.value = '';
     try {
-      await window.MemorizMultiplayerSocket.emitWithAck('submitAnswer', {
+      const result = await window.MemorizMultiplayerSocket.emitWithAck('submitAnswer', {
         gameCode: state.current.gameCode, answer
       });
+      const message = answerResultMessage(result?.result);
+      if (message) setStatus(message);
+      if (result?.snapshot) renderState(result.snapshot);
     } catch(err) { setStatus(`Erreur: ${err.message||'Réponse refusée'}`); }
   }
 

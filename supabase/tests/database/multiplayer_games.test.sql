@@ -4,7 +4,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(140);
+select plan(143);
 
 create temp table test_multiplayer_codes (
   name text primary key,
@@ -26,7 +26,7 @@ select ok((select relrowsecurity from pg_class where oid = 'public.multiplayer_r
 select ok(exists (select 1 from pg_constraint where conname = 'multiplayer_games_code_format_check'), 'contrainte format code');
 select ok(exists (select 1 from pg_constraint where conname = 'multiplayer_games_max_players_check'), 'contrainte 2 a 4 joueurs');
 select ok(exists (select 1 from pg_constraint where conname = 'multiplayer_players_score_consistent_check'), 'contrainte score = correct * 10');
-select ok(exists (select 1 from pg_constraint where conname = 'multiplayer_answers_unique_answer'), 'contrainte reponse unique par joueur');
+select ok(exists (select 1 from pg_constraint where conname = 'multiplayer_answers_unique_answer'), 'contrainte reponse unique par partie');
 
 select ok(not has_table_privilege('authenticated', 'public.multiplayer_games', 'insert'), 'authenticated sans insert direct games');
 select ok(not has_table_privilege('authenticated', 'public.multiplayer_players', 'update'), 'authenticated sans update direct players');
@@ -117,6 +117,15 @@ set local role authenticated;
 
 select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000002', true);
 select is((select result from public.submit_multiplayer_answer((select code from test_multiplayer_codes where name = 'main'), 'Walter White', '60000000-0000-4000-8000-000000000001')), 'correct', 'reponse correcte');
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000003', true);
+select is((select result from public.submit_multiplayer_answer((select code from test_multiplayer_codes where name = 'main'), 'Walter White', '60000000-0000-4000-8000-000000000004')), 'already_found_by_other', 'reponse deja trouvee par un autre joueur');
+reset role;
+select is((select score from public.multiplayer_players where game_id = (select id from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'main')) and user_id = '50000000-0000-4000-8000-000000000003'), 0, 'reponse deja trouvee sans credit');
+select is((select count(*)::integer from public.multiplayer_answers where game_id = (select id from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'main'))), 1, 'une seule revendication globale');
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000002', true);
 select is((select result from public.submit_multiplayer_answer((select code from test_multiplayer_codes where name = 'main'), 'Walter White', '60000000-0000-4000-8000-000000000002')), 'duplicate', 'doublon sans credit');
 select is((select result from public.submit_multiplayer_answer((select code from test_multiplayer_codes where name = 'main'), 'Inconnu', '60000000-0000-4000-8000-000000000003')), 'incorrect', 'mauvaise reponse');
 reset role;

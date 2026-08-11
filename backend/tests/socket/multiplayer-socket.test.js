@@ -31,6 +31,7 @@ function fakeAuth() {
 
 function fakeServices() {
     const players = new Map();
+    const claimedAnswers = new Map();
     const calls = [];
     let status = 'waiting';
     return {
@@ -59,11 +60,30 @@ function fakeServices() {
                 status = 'playing';
                 return { result: 'started', game_code: 'ABC234', category_id: 'series' };
             },
-            async submitAnswer(context) {
+            async submitAnswer(context, input) {
                 calls.push({ method: 'submitAnswer', userId: context.userId });
                 const player = players.get(context.userId);
+                const normalized = String(input.answer || '').trim().toLowerCase();
+                const currentOwner = claimedAnswers.get(normalized);
+                if (currentOwner === context.userId) {
+                    return { result: 'duplicate', points_current: player.score, correct_answers: player.score / 10 };
+                }
+                if (currentOwner) {
+                    return {
+                        result: 'already_found_by_other',
+                        points_current: player.score,
+                        correct_answers: player.score / 10,
+                        matched_answer_display: 'Walter White'
+                    };
+                }
+                claimedAnswers.set(normalized, context.userId);
                 player.score += 10;
-                return { result: 'correct', points_current: player.score, correct_answers: player.score / 10 };
+                return {
+                    result: 'correct',
+                    points_current: player.score,
+                    correct_answers: player.score / 10,
+                    matched_answer_display: 'Walter White'
+                };
             },
             async leaveGame(context) {
                 calls.push({ method: 'leaveGame', userId: context.userId });
@@ -113,7 +133,10 @@ function fakeServices() {
                     is_host: player.host,
                     rank: rank++,
                     my_found_answer_display: userId === context.userId && player.score ? 'Walter White' : null,
-                    my_found_display_order: userId === context.userId && player.score ? 1 : null
+                    my_found_display_order: userId === context.userId && player.score ? 1 : null,
+                    all_found_answers: claimedAnswers.size
+                        ? [{ display: 'Walter White', displayOrder: 1 }]
+                        : []
                 }));
             }
         },
@@ -217,15 +240,29 @@ describe('Socket.io multiplayer', () => {
         expect(startAck.ok).toBe(true);
         expect(startAck.data.snapshot.status).toBe('playing');
 
-        const answerEvent = waitEvent(b, 'answerResult');
+        const answerEvent = waitEvent(b, 'scoreUpdate');
         const answerAck = await emitAck(b, 'submitAnswer', {
             requestId: '70000000-0000-4000-8000-000000000005',
             gameCode: 'ABC234',
             answer: 'Walter White'
         });
         expect(answerAck.ok).toBe(true);
-        expect((await answerEvent).result).toBe('correct');
+        expect((await answerEvent).allFoundAnswers).toEqual([
+            expect.objectContaining({ display: 'Walter White' })
+        ]);
         expect(answerAck.data.snapshot.players.find(player => player.pseudo === 'Beta').score).toBe(10);
+        expect(answerAck.data.snapshot.allFoundAnswers).toEqual([
+            expect.objectContaining({ display: 'Walter White' })
+        ]);
+
+        const alreadyFoundAck = await emitAck(a, 'submitAnswer', {
+            requestId: '70000000-0000-4000-8000-000000000007',
+            gameCode: 'ABC234',
+            answer: 'Walter White'
+        });
+        expect(alreadyFoundAck.ok).toBe(true);
+        expect(alreadyFoundAck.data.result.result).toBe('already_found_by_other');
+        expect(alreadyFoundAck.data.snapshot.players.find(player => player.pseudo === 'Alpha').score).toBe(0);
 
         const reactionEvent = waitEvent(a, 'reactionReceived');
         const reactionAck = await emitAck(b, 'sendReaction', {

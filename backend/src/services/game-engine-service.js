@@ -16,7 +16,7 @@ export function buildGameSnapshot(rows, currentUserId, fallbackGameCode = null) 
         isConnected: Boolean(row.is_connected),
         isHost: Boolean(row.is_host),
         isCurrent: row.user_id === currentUserId,
-        rank: Number(row.player_rank) || 0
+        rank: Number(row.player_rank ?? row.rank) || 0
       });
     }
 
@@ -36,7 +36,7 @@ export function buildGameSnapshot(rows, currentUserId, fallbackGameCode = null) 
 
   const first = list[0] || {};
 
-  // CORRECTION : parse les réponses trouvées par tout le monde (tableau partagé)
+  // Les reponses deja trouvees restent visibles pour toute la salle.
   let allFoundAnswers = [];
   try {
     const raw = first.all_found_answers;
