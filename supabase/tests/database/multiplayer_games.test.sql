@@ -4,7 +4,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(139);
+select plan(142);
 
 create temp table test_multiplayer_codes (
   name text primary key,
@@ -274,6 +274,12 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000005', true);
 select lives_ok($$ insert into test_multiplayer_codes (name, code) select 'release_waiting_next', game_code from public.create_multiplayer_game('series', 4) $$, 'creation possible apres liberation');
 select is((select released_count from public.leave_my_active_multiplayer_games()), 1, 'libere la salle attente de validation');
+select lives_ok($$ insert into test_multiplayer_codes (name, code) select 'leave_last_waiting', game_code from public.create_multiplayer_game('series', 4) $$, 'cree salle a supprimer au depart du dernier joueur');
+select is((select result from public.leave_multiplayer_game((select code from test_multiplayer_codes where name = 'leave_last_waiting'))), 'deleted', 'dernier joueur supprime la salle');
+reset role;
+select is((select count(*)::integer from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'leave_last_waiting')), 0, 'salle supprimee apres depart du dernier joueur');
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000005', true);
 
 select lives_ok($$ insert into test_multiplayer_codes (name, code) select 'release_playing', game_code from public.create_multiplayer_game('films', 2) $$, 'cree partie playing a liberer');
 select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000004', true);

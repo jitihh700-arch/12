@@ -88,7 +88,23 @@ function fakeServices() {
             async leaveGame(context) {
                 calls.push({ method: 'leaveGame', userId: context.userId });
                 players.delete(context.userId);
-                return { result: 'left', game_code: 'ABC234' };
+                if (players.size === 0) {
+                    status = 'cancelled';
+                    return {
+                        result: 'deleted',
+                        game_code: 'ABC234',
+                        status,
+                        current_players: 0,
+                        host_id: null
+                    };
+                }
+                return {
+                    result: 'left',
+                    game_code: 'ABC234',
+                    status,
+                    current_players: players.size,
+                    host_id: players.has('u1') ? 'u1' : 'u2'
+                };
             },
             async leaveActiveGames(context) {
                 calls.push({ method: 'leaveActiveGames', userId: context.userId });
@@ -312,6 +328,32 @@ describe('Socket.io multiplayer', () => {
         expect(ack.ok).toBe(true);
         expect(ack.data).toEqual({ result: 'released', released_count: 1 });
         expect(services.calls).toContainEqual({ method: 'leaveActiveGames', userId: 'u1' });
+    });
+
+    it('supprime la salle quand le dernier joueur la quitte volontairement', async () => {
+        const a = connect('a');
+        await waitEvent(a, 'connect');
+
+        await emitAck(a, 'createGame', {
+            requestId: '70000000-0000-4000-8000-000000000701',
+            categoryId: 'series',
+            maxPlayers: 4
+        });
+
+        const leftAck = await emitAck(a, 'leaveGame', {
+            requestId: '70000000-0000-4000-8000-000000000702',
+            gameCode: 'ABC234'
+        });
+
+        expect(leftAck.ok).toBe(true);
+        expect(leftAck.data).toEqual(expect.objectContaining({
+            result: 'deleted',
+            game_code: 'ABC234',
+            status: 'cancelled',
+            current_players: 0,
+            host_id: null
+        }));
+        expect(services.calls).toContainEqual({ method: 'leaveGame', userId: 'u1' });
     });
 
     it('distingue deconnexion reseau et depart volontaire', async () => {
