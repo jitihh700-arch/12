@@ -7,7 +7,8 @@
     startGamePending: false,
     modalOpen: false,
     activeTab: 'create',
-    listenersBound: false
+    listenersBound: false,
+    socketListenersBound: false
   };
 
   function byId(id) { return document.getElementById(id); }
@@ -77,6 +78,13 @@
   }
   function clearCache() {
     try { localStorage.removeItem(CACHE_KEY); } catch(e){}
+  }
+
+  function resetCurrentGame() {
+    clearCache();
+    state.current = null;
+    state.startGamePending = false;
+    showView('portal');
   }
 
   function showView(name) {
@@ -190,8 +198,9 @@
   function renderTimer(snap) {
     const n = els();
     if (!n.timer) return;
-    if (snap.status==='playing' && snap.endsAt) {
-      const rem = Math.max(0, Math.ceil((new Date(snap.endsAt).getTime()-Date.now())/1000));
+    const endAt = snap.endsAt || snap.expiresAt;
+    if (snap.status==='playing' && endAt) {
+      const rem = Math.max(0, Math.ceil((new Date(endAt).getTime()-Date.now())/1000));
       n.timer.textContent = `${Math.floor(rem/60)}:${(rem%60).toString().padStart(2,'0')}`;
     } else {
       n.timer.textContent = '--:--';
@@ -243,7 +252,8 @@
     if (n.hostLabel) n.hostLabel.textContent = host ? `Hôte: ${host.pseudo}` : 'Hôte indisponible';
     if (n.players) n.players.replaceChildren(...(snap.players||[]).map(playerItem));
     if (n.scoreboard) n.scoreboard.replaceChildren(...(snap.players||[]).map(scoreItem));
-    if (n.foundList) n.foundList.replaceChildren(...(snap.allFoundAnswers||[]).map(foundItem));
+    const visibleFoundAnswers = snap.allFoundAnswers || snap.myFoundAnswers || [];
+    if (n.foundList) n.foundList.replaceChildren(...visibleFoundAnswers.map(foundItem));
 
     renderAnswerGrid(snap);
     updateStartButton(snap, cur);
@@ -268,7 +278,8 @@
 
   function bindSocketEvents() {
     const s = window.MemorizMultiplayerSocket;
-    if (!s) return;
+    if (!s || state.socketListenersBound) return;
+    state.socketListenersBound = true;
     const events = ['gameState','gameCreated','playerJoined','playerUpdated','gameStarted','scoreUpdate','gameFinished','playerLeft','playerDisconnected'];
     events.forEach(ev => {
       s.on(ev, (snap) => {
@@ -276,12 +287,40 @@
         renderState(snap);
       });
     });
+    s.on('reactionReceived', (event) => {
+      if (event?.gameCode && event.gameCode !== state.current?.gameCode) return;
+      window.MemorizReactions?.showReaction?.(event);
+    });
   }
 
   async function ensureConnected() {
     const st = window.MemorizMultiplayerSocket?.getState?.();
     if (st?.connected) return window.MemorizMultiplayerSocket;
     return await window.MemorizMultiplayerSocket.connect();
+  }
+
+  function isActiveGameError(err) {
+    const text = [err?.code, err?.message, err?.details, err?.hint].filter(Boolean).join(' ');
+    return text.includes('active_game_exists');
+  }
+
+  async function leaveCachedGameIfAny(socket) {
+    const code = getCachedGame();
+    if (!code) return;
+    try {
+      await socket.emitWithAck('leaveGame', { gameCode: code });
+    } catch(err) {
+      // Une salle locale peut déjà avoir été supprimée côté serveur.
+    }
+    clearCache();
+  }
+
+  async function releaseActiveGames(socket) {
+    try {
+      await socket.emitWithAck('leaveActiveGames', {});
+    } catch(err) {
+      // L'action suivante fera remonter l'erreur réelle si le nettoyage échoue.
+    }
   }
 
   // ===================== ACTIONS =====================
@@ -292,8 +331,16 @@
     if (!categoryId) { setStatus('Choisis une catégorie.'); return; }
     try {
       setStatus('Création…');
-      await ensureConnected();
-      const result = await window.MemorizMultiplayerSocket.emitWithAck('createGame', { categoryId, maxPlayers });
+      const socket = await ensureConnected();
+      await leaveCachedGameIfAny(socket);
+      let result;
+      try {
+        result = await socket.emitWithAck('createGame', { categoryId, maxPlayers });
+      } catch(err) {
+        if (!isActiveGameError(err)) throw err;
+        await releaseActiveGames(socket);
+        result = await socket.emitWithAck('createGame', { categoryId, maxPlayers });
+      }
       if (result?.created?.game_code) {
         state.current = { gameCode: result.created.game_code };
         renderState(result.snapshot);
@@ -309,8 +356,16 @@
     if (!code) { setStatus('Saisis un code.'); return; }
     try {
       setStatus('Connexion…');
-      await ensureConnected();
-      const result = await window.MemorizMultiplayerSocket.emitWithAck('joinGame', { gameCode: code });
+      const socket = await ensureConnected();
+      await leaveCachedGameIfAny(socket);
+      let result;
+      try {
+        result = await socket.emitWithAck('joinGame', { gameCode: code });
+      } catch(err) {
+        if (!isActiveGameError(err)) throw err;
+        await releaseActiveGames(socket);
+        result = await socket.emitWithAck('joinGame', { gameCode: code });
+      }
       if (result?.joined) {
         state.current = { gameCode: code };
         renderState(result.snapshot);
@@ -370,6 +425,19 @@
     } catch(err) { setStatus(`Erreur: ${err.message||'Réponse refusée'}`); }
   }
 
+  async function sendReaction(type) {
+    if (!state.current?.gameCode || !type) return;
+    try {
+      const socket = await ensureConnected();
+      await socket.emitWithAck('sendReaction', {
+        gameCode: state.current.gameCode,
+        reactionType: type
+      });
+    } catch(err) {
+      setStatus('Réaction impossible pour le moment.');
+    }
+  }
+
   async function leaveGame() {
     if (!state.current?.gameCode) { close(); return; }
     try {
@@ -390,7 +458,14 @@
       await ensureConnected();
       const result = await window.MemorizMultiplayerSocket.emitWithAck('requestGameState', { gameCode: code });
       if (result) { state.current = { gameCode: code }; renderState(result); }
-    } catch(err) { clearCache(); }
+      else {
+        resetCurrentGame();
+        setStatus('Ancienne salle introuvable. Tu peux créer ou rejoindre une nouvelle partie.');
+      }
+    } catch(err) {
+      resetCurrentGame();
+      setStatus('Ancienne salle introuvable. Tu peux créer ou rejoindre une nouvelle partie.');
+    }
   }
 
   function populateCategories() {
@@ -425,8 +500,12 @@
     n.modal.classList.add('is-open');
     state.modalOpen = true;
     switchTab(state.activeTab);
+    if (window.MemorizReactions?.render) {
+      window.MemorizReactions.render(n.reactions, sendReaction);
+    }
     bindSocketEvents();
-    reconnect().catch(()=>{});
+    setStatus('Choisis une catégorie ou rejoins un code.');
+    n.closeBtn?.focus({ preventScroll: true });
   }
 
   function close() {
@@ -474,6 +553,10 @@
       if (e.target===n.modal && !state.current?.gameCode) close();
     });
 
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && state.modalOpen) close();
+    });
+
     document.addEventListener('memoriz:multiplayer-error', (e)=>{
       setStatus(`Réseau: ${e.detail?.error||'déconnecté'}`);
     });
@@ -490,7 +573,7 @@
   window.MemorizMultiplayer = {
     open, close,
     getState: () => ({...state}),
-    renderState,
+    renderState, reconnect,
     createGame, joinGame, setReady, startGame, submitAnswer, leaveGame
   };
 })();

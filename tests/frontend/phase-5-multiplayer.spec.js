@@ -123,6 +123,10 @@ async function installFakeMultiplayer(page) {
                     return { created: { game_code: 'AB234C' }, snapshot };
                 }
                 if (event === 'joinGame') {
+                    window.__joinAttempts = (window.__joinAttempts || 0) + 1;
+                    if (window.__failJoinOnceWithActive && window.__joinAttempts === 1) {
+                        throw new Error('active_game_exists');
+                    }
                     snapshot.currentPlayers = 2;
                     if (snapshot.players.length === 1) {
                         snapshot.players.push({ playerId: 'p2', pseudo: 'Beta', score: 0, correctAnswers: 0, isReady: false, isConnected: true, isHost: false, isCurrent: false, rank: 2 });
@@ -231,7 +235,8 @@ test('rejoindre, quitter et cache minimal', async ({ page }) => {
     await page.locator('#multiplayer-join').click();
     await expect(page.locator('#multiplayer-count-label')).toHaveText('2/4 joueurs');
     const cache = await page.evaluate(() => JSON.parse(localStorage.getItem('memoriz_multiplayer_game')));
-    expect(cache).toEqual({ gameCode: 'AB234C' });
+    expect(cache.gameCode).toBe('AB234C');
+    expect(typeof cache.ts).toBe('number');
     await page.locator('#multiplayer-leave').click();
     expect(await page.evaluate(() => localStorage.getItem('memoriz_multiplayer_game'))).toBe(null);
 });
@@ -269,6 +274,23 @@ test('creation: ancienne salle serveur liberee sans code en cache', async ({ pag
     expect(events).toContain('leaveActiveGames');
     expect(events).not.toContain('requestGameState');
     expect(await page.evaluate(() => window.__createAttempts)).toBe(2);
+});
+
+test('rejoindre: ancienne salle serveur liberee avant connexion', async ({ page }) => {
+    await installFakeMultiplayer(page);
+    await page.evaluate(() => {
+        localStorage.removeItem('memoriz_multiplayer_game');
+        window.__failJoinOnceWithActive = true;
+    });
+
+    await openMultiplayerFlow(page);
+    await page.locator('#multiplayer-tab-join').click();
+    await page.locator('#multiplayer-code-input').fill('ab234c');
+    await page.locator('#multiplayer-join').click();
+    await expect(page.locator('#multiplayer-code-display')).toHaveText('AB234C');
+    const events = await page.evaluate(() => window.__multiplayerPayloads.map(entry => entry.event));
+    expect(events).toContain('leaveActiveGames');
+    expect(await page.evaluate(() => window.__joinAttempts)).toBe(2);
 });
 
 test('responsive, zoom et clavier', async ({ page }) => {
