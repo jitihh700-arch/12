@@ -244,17 +244,13 @@ describe('Socket.io multiplayer', () => {
         expect(joinedAck.ok).toBe(true);
         expect((await joinedEvent).players).toHaveLength(2);
 
-        await emitAck(b, 'setReady', {
-            requestId: '70000000-0000-4000-8000-000000000003',
-            gameCode: 'ABC234',
-            ready: true
-        });
         const startAck = await emitAck(a, 'startGame', {
             requestId: '70000000-0000-4000-8000-000000000004',
             gameCode: 'ABC234'
         });
         expect(startAck.ok).toBe(true);
         expect(startAck.data.snapshot.status).toBe('playing');
+        expect(services.calls).not.toContainEqual({ method: 'setReady', userId: 'u2' });
 
         const answerEvent = waitEvent(b, 'scoreUpdate');
         const answerAck = await emitAck(b, 'submitAnswer', {
