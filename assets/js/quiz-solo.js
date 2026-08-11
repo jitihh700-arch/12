@@ -495,21 +495,21 @@ function renderFinalScreen(container, completed, percentage, serverResult) {
     const score = document.createElement('p');
     score.style.fontSize = '1.5rem';
     score.style.margin = '20px 0';
-    
+
     // ⬇️ NOUVEAU : affiche les points dans tous les modes
-    const displayPoints = currentGame.mode === 'ranked' 
-        ? currentGame.serverPoints 
+    const displayPoints = currentGame.mode === 'ranked'
+        ? currentGame.serverPoints
         : currentGame.points;
     score.textContent = `🎯 ${displayPoints} pts (${currentGame.score}/${currentGame.questions.length}, ${Math.round(percentage)}%)`;
-    
+
     const text = document.createElement('p');
     if (currentGame.mode === 'ranked') {
         const won = Number(serverResult?.points_awarded || 0);
         text.textContent = won > 0 ? `Vous avez gagné ${won} points !` : 'Aucun point classé supplémentaire.';
     } else {
         // ⬇️ NOUVEAU : message avec points en entraînement
-        text.textContent = displayPoints > 0 
-            ? `Tu as accumulé ${displayPoints} points ! Continue comme ça !` 
+        text.textContent = displayPoints > 0
+            ? `Tu as accumulé ${displayPoints} points ! Continue comme ça !`
             : 'Continue à t\'entraîner, tu vas y arriver !';
     }
 
