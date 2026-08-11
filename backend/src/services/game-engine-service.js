@@ -1,11 +1,11 @@
-export function buildGameSnapshot(rows, currentUserId) {
+export function buildGameSnapshot(rows, currentUserId, fallbackGameCode = null) {
   const list = Array.isArray(rows) ? rows : [];
   const playerMap = new Map();
   const foundMap = new Map();
 
   for (const row of list) {
     if (!row?.player_id) continue;
-    
+
     // Construction du joueur
     if (!playerMap.has(row.player_id)) {
       playerMap.set(row.player_id, {
@@ -16,15 +16,13 @@ export function buildGameSnapshot(rows, currentUserId) {
         isReady: Boolean(row.is_ready),
         isConnected: Boolean(row.is_connected),
         isHost: Boolean(row.is_host),
-        isCurrent: row.user_id === currentUserId, // Comparer user_id ici
+        isCurrent: row.user_id === currentUserId,
         rank: Number(row.player_rank) || 0
       });
     }
-    
+
     // Collecte des réponses trouvées pour l'utilisateur actuel
-    // Utiliser != null pour capturer même si la valeur est 0
     if (row.user_id === currentUserId && row.my_found_display_order != null) {
-      // Éviter les doublons si plusieurs lignes ont le même displayOrder
       const order = Number(row.my_found_display_order);
       if (!foundMap.has(order)) {
         foundMap.set(order, {
@@ -38,11 +36,12 @@ export function buildGameSnapshot(rows, currentUserId) {
     }
   }
 
-  // Extraire les valeurs du premier élément pour les métadonnées
   const first = list[0] || {};
-  
+
   return {
-    gameCode: first.game_code || null,
+    // CORRECTION : fallbackGameCode évite que gameCode soit null
+    // quand la requête SQL retourne 0 ligne pour un joueur
+    gameCode: first.game_code || fallbackGameCode || null,
     categoryId: first.category_id || null,
     status: first.status || null,
     maxPlayers: Number(first.max_players) || 0,
