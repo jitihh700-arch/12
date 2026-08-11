@@ -21,49 +21,53 @@
 
   function els() {
     return {
+      // Modale
       modal: byId('multiplayer-modal'),
+      closeBtn: byId('multiplayer-close'),
+      title: byId('multiplayer-title'),
+      status: byId('multiplayer-status'),
       // Onglets
       tabCreate: byId('multiplayer-tab-create'),
       tabJoin: byId('multiplayer-tab-join'),
-      panelCreate: byId('multiplayer-panel-create'),
-      panelJoin: byId('multiplayer-panel-join'),
+      panelCreate: byId('multiplayer-create-panel'),
+      panelJoin: byId('multiplayer-join-panel'),
       // Créer
-      createCategory: byId('multiplayer-create-category'),
-      createBtn: byId('multiplayer-create-btn'),
+      createCategory: byId('multiplayer-category'),
+      createMaxPlayers: byId('multiplayer-max-players'),
+      createBtn: byId('multiplayer-create'),
       // Rejoindre
-      joinCode: byId('multiplayer-join-code'),
-      joinBtn: byId('multiplayer-join-btn'),
+      joinCode: byId('multiplayer-code-input'),
+      joinBtn: byId('multiplayer-join'),
       // Lobby
       lobbyView: byId('multiplayer-lobby'),
-      codeDisplay: byId('multiplayer-code'),
-      categoryLabel: byId('multiplayer-category'),
-      countLabel: byId('multiplayer-count'),
-      hostLabel: byId('multiplayer-host'),
+      lobbyTitle: byId('multiplayer-lobby-title'),
+      codeDisplay: byId('multiplayer-code-display'),
+      copyCodeBtn: byId('multiplayer-copy-code'),
+      categoryLabel: byId('multiplayer-category-label'),
+      countLabel: byId('multiplayer-count-label'),
+      hostLabel: byId('multiplayer-host-label'),
       players: byId('multiplayer-players'),
-      startGame: byId('multiplayer-start-btn'),
-      ready: byId('multiplayer-ready-btn'),
-      leaveLobby: byId('multiplayer-leave-lobby-btn'),
+      readyBtn: byId('multiplayer-ready'),
+      startBtn: byId('multiplayer-start'),
+      leaveLobbyBtn: byId('multiplayer-leave'),
+      startHint: byId('multiplayer-start-hint'),
       // Jeu
       gameView: byId('multiplayer-game'),
+      gameTitle: byId('multiplayer-game-title'),
+      answerForm: byId('multiplayer-answer-form'),
       answerInput: byId('multiplayer-answer-input'),
       answerGrid: byId('multiplayer-answer-grid'),
       scoreLive: byId('multiplayer-score-live'),
       progressLive: byId('multiplayer-progress-live'),
       timer: byId('multiplayer-timer'),
-      found: byId('multiplayer-found'),
+      foundList: byId('multiplayer-found-list'),
       scoreboard: byId('multiplayer-scoreboard'),
       reactions: byId('multiplayer-reactions'),
-      leaveGame: byId('multiplayer-leave-game-btn'),
       // Final
       finalView: byId('multiplayer-final'),
+      finalTitle: byId('multiplayer-final-title'),
       finalRanking: byId('multiplayer-final-ranking'),
-      finalCode: byId('multiplayer-final-code'),
-      playAgain: byId('multiplayer-play-again'),
-      closeFinal: byId('multiplayer-close-final'),
-      // Statut
-      status: byId('multiplayer-status'),
-      // Fallback
-      fallback: byId('multiplayer-fallback')
+      closeFinalBtn: byId('multiplayer-final-close')
     };
   }
 
@@ -95,7 +99,6 @@
       const raw = localStorage.getItem(CACHE_KEY);
       if (!raw) return null;
       const parsed = JSON.parse(raw);
-      // Expire après 2h
       if (Date.now() - parsed.ts > 2 * 60 * 60 * 1000) {
         localStorage.removeItem(CACHE_KEY);
         return null;
@@ -113,15 +116,24 @@
   // ===================== VUES =====================
   function showView(viewName) {
     const nodes = els();
-    const views = ['lobbyView', 'gameView', 'finalView', 'fallback'];
+    const views = ['lobbyView', 'gameView', 'finalView'];
     views.forEach(v => {
       if (nodes[v]) nodes[v].hidden = true;
     });
+    // Masquer aussi les panels portail
+    if (nodes.panelCreate) nodes.panelCreate.hidden = true;
+    if (nodes.panelJoin) nodes.panelJoin.hidden = true;
+
     const target = viewName === 'lobby' ? nodes.lobbyView
                  : viewName === 'game' ? nodes.gameView
                  : viewName === 'final' ? nodes.finalView
-                 : nodes.fallback;
-    if (target) target.hidden = false;
+                 : null;
+    if (target) {
+      target.hidden = false;
+    } else if (viewName === 'portal') {
+      // Retour aux onglets créer/rejoindre
+      switchTab(state.activeTab);
+    }
   }
 
   function setStatus(msg) {
@@ -133,54 +145,68 @@
   function currentPlayer(snapshot) {
     if (!snapshot?.players) return null;
     const api = getApi();
-    const userId = api?.client?.auth?.currentSession?.user?.id
-                || api?.client?.auth?.session()?.user?.id;
-    return snapshot.players.find(p => p.userId === userId) || null;
+    const session = api?.client?.auth?.getSession?.();
+    const userId = session?.data?.session?.user?.id
+                || api?.client?.auth?.currentSession?.user?.id;
+    return snapshot.players.find(p => p.userId === userId || p.id === userId) || null;
   }
 
   function playerItem(player) {
-    const div = document.createElement('div');
-    div.className = 'multiplayer-player-item';
+    const li = document.createElement('li');
+    li.className = 'multiplayer-player-item';
     const readyIcon = player.isReady ? '✅' : '⏳';
     const hostIcon = player.isHost ? '👑 ' : '';
-    div.textContent = `${hostIcon}${player.pseudo || 'Anonyme'} ${readyIcon}`;
-    if (player.isHost) div.classList.add('is-host');
-    if (player.isReady) div.classList.add('is-ready');
-    return div;
+    li.textContent = `${hostIcon}${player.pseudo || 'Anonyme'} ${readyIcon}`;
+    if (player.isHost) li.classList.add('is-host');
+    if (player.isReady) li.classList.add('is-ready');
+    return li;
   }
 
   function scoreItem(player) {
-    const div = document.createElement('div');
-    div.className = 'multiplayer-score-item';
+    const li = document.createElement('li');
+    li.className = 'multiplayer-score-item';
     const rank = player.rank ? `#${player.rank} ` : '';
-    div.textContent = `${rank}${player.pseudo || 'Anonyme'} — ${player.score || 0} pts (${player.correctAnswers || 0} bonnes réponses)`;
-    if (player.isHost) div.classList.add('is-host');
-    return div;
+    li.textContent = `${rank}${player.pseudo || 'Anonyme'} — ${player.score || 0} pts (${player.correctAnswers || 0} bonnes réponses)`;
+    if (player.isHost) li.classList.add('is-host');
+    return li;
   }
 
   function foundItem(answer) {
-    const div = document.createElement('div');
-    div.className = 'multiplayer-found-item';
-    div.textContent = answer.display || answer.answer || '???';
-    return div;
+    const li = document.createElement('li');
+    li.className = 'multiplayer-found-item';
+    li.textContent = answer.display || answer.answer || '???';
+    return li;
   }
 
   // ===================== BOUTONS =====================
   function updateStartButton(snapshot, current) {
     const nodes = els();
-    if (!nodes.startGame) return;
+    if (!nodes.startBtn) return;
     const canStart = snapshot.status === 'waiting'
       && current?.isHost
       && snapshot.currentPlayers >= 2
       && snapshot.players?.every(p => p.isReady || p.isHost);
-    nodes.startGame.disabled = !canStart || state.startGamePending;
-    nodes.startGame.textContent = state.startGamePending ? 'Lancement…' : 'Lancer la partie';
+    nodes.startBtn.hidden = !canStart;
+    nodes.startBtn.disabled = state.startGamePending;
+    nodes.startBtn.textContent = state.startGamePending ? 'Lancement…' : 'Lancer la partie';
+
+    if (nodes.startHint) {
+      if (canStart) {
+        nodes.startHint.textContent = '';
+      } else if (snapshot.currentPlayers < 2) {
+        nodes.startHint.textContent = 'Attends au moins un autre joueur.';
+      } else if (!snapshot.players?.every(p => p.isReady || p.isHost)) {
+        nodes.startHint.textContent = 'Tous les joueurs doivent être prêts.';
+      } else {
+        nodes.startHint.textContent = '';
+      }
+    }
   }
 
   function resetStartGamePending() {
     state.startGamePending = false;
     const nodes = els();
-    if (nodes.startGame) nodes.startGame.textContent = 'Lancer la partie';
+    if (nodes.startBtn) nodes.startBtn.textContent = 'Lancer la partie';
   }
 
   function renderTimer(snapshot) {
@@ -190,11 +216,11 @@
       const remaining = Math.max(0, Math.ceil((new Date(snapshot.endsAt).getTime() - Date.now()) / 1000));
       const m = Math.floor(remaining / 60);
       const s = remaining % 60;
-      nodes.timer.textContent = `⏱️ ${m}:${s.toString().padStart(2, '0')}`;
+      nodes.timer.textContent = `${m}:${s.toString().padStart(2, '0')}`;
     } else if (snapshot.status === 'waiting') {
-      nodes.timer.textContent = 'En attente…';
+      nodes.timer.textContent = '--:--';
     } else {
-      nodes.timer.textContent = '';
+      nodes.timer.textContent = '--:--';
     }
   }
 
@@ -202,7 +228,7 @@
     showView('final');
     setStatus('Partie terminée !');
     const nodes = els();
-    if (nodes.finalCode) nodes.finalCode.textContent = snapshot.gameCode || '';
+    if (nodes.finalTitle) nodes.finalTitle.textContent = 'Classement final — ' + (snapshot.gameCode || '');
   }
 
   // ===================== RENDU GRILLE RÉPONSES =====================
@@ -211,8 +237,7 @@
     if (!nodes.answerGrid) return;
     const total = totalAnswers(snapshot.categoryId);
     const found = new Map((snapshot.allFoundAnswers || []).map(a => [Number(a.displayOrder), a]));
-    const tbody = nodes.answerGrid.querySelector('tbody') || nodes.answerGrid;
-    tbody.replaceChildren();
+    nodes.answerGrid.replaceChildren();
     for (let i = 1; i <= total; i++) {
       const answer = found.get(i);
       const row = document.createElement('tr');
@@ -224,7 +249,7 @@
       const status = document.createElement('td');
       status.textContent = answer ? '✓' : '⏳';
       row.append(rank, display, status);
-      tbody.append(row);
+      nodes.answerGrid.append(row);
     }
   }
 
@@ -232,7 +257,6 @@
   function renderState(snapshot) {
     if (!snapshot) return;
 
-    // Fallback gameCode depuis l'état local si absent du snapshot
     if (!snapshot.gameCode && state.current?.gameCode) {
       snapshot = { ...snapshot, gameCode: state.current.gameCode };
     }
@@ -257,12 +281,12 @@
     if (nodes.players) nodes.players.replaceChildren(...(snapshot.players || []).map(playerItem));
     if (nodes.scoreboard) nodes.scoreboard.replaceChildren(...(snapshot.players || []).map(scoreItem));
     if (nodes.finalRanking) nodes.finalRanking.replaceChildren(...(snapshot.players || []).map(scoreItem));
-    if (nodes.found) nodes.found.replaceChildren(...(snapshot.allFoundAnswers || []).map(foundItem));
+    if (nodes.foundList) nodes.foundList.replaceChildren(...(snapshot.allFoundAnswers || []).map(foundItem));
 
     renderAnswerGrid(snapshot);
     updateStartButton(snapshot, current);
 
-    if (nodes.ready) nodes.ready.textContent = current?.isReady ? 'Annuler prêt' : 'Prêt';
+    if (nodes.readyBtn) nodes.readyBtn.textContent = current?.isReady ? 'Annuler prêt' : 'Prêt';
     if (nodes.scoreLive) nodes.scoreLive.textContent = current ? `Ton score: ${current.score || 0} pts` : '';
     if (nodes.progressLive) {
       const total = totalAnswers(snapshot.categoryId);
@@ -320,16 +344,17 @@
   async function createGame() {
     const nodes = els();
     const categoryId = nodes.createCategory?.value;
+    const maxPlayers = parseInt(nodes.createMaxPlayers?.value || '4', 10);
     if (!categoryId) {
       setStatus('Veuillez choisir une catégorie.');
       return;
     }
     try {
       setStatus('Création du salon…');
-      const socket = await ensureConnected();
+      await ensureConnected();
       const result = await window.MemorizMultiplayerSocket.emitWithAck('createGame', {
         categoryId,
-        maxPlayers: 4,
+        maxPlayers,
         timeLimitSeconds: 300
       });
       if (result?.created?.game_code) {
@@ -350,7 +375,7 @@
     }
     try {
       setStatus('Connexion au salon…');
-      const socket = await ensureConnected();
+      await ensureConnected();
       const result = await window.MemorizMultiplayerSocket.emitWithAck('joinGame', { gameCode: code });
       if (result?.joined) {
         state.current = { gameCode: code };
@@ -364,9 +389,10 @@
   async function setReady() {
     if (!state.current?.gameCode) return;
     try {
+      const current = currentPlayer(state.current);
       const result = await window.MemorizMultiplayerSocket.emitWithAck('setReady', {
         gameCode: state.current.gameCode,
-        isReady: !(currentPlayer(state.current)?.isReady)
+        isReady: !current?.isReady
       });
       if (result?.snapshot) renderState(result.snapshot);
     } catch (err) {
@@ -456,6 +482,7 @@
   function populateCategories() {
     const nodes = els();
     if (!nodes.createCategory) return;
+    const currentVal = nodes.createCategory.value;
     nodes.createCategory.replaceChildren();
     const mapping = window.categoryMapping || {};
     Object.entries(mapping).forEach(([key, info]) => {
@@ -464,13 +491,22 @@
       opt.textContent = info.title || key;
       nodes.createCategory.append(opt);
     });
+    if (currentVal && mapping[currentVal]) {
+      nodes.createCategory.value = currentVal;
+    }
   }
 
   function switchTab(tab) {
     state.activeTab = tab;
     const nodes = els();
-    if (nodes.tabCreate) nodes.tabCreate.classList.toggle('is-active', tab === 'create');
-    if (nodes.tabJoin) nodes.tabJoin.classList.toggle('is-active', tab === 'join');
+    if (nodes.tabCreate) {
+      nodes.tabCreate.classList.toggle('is-active', tab === 'create');
+      nodes.tabCreate.setAttribute('aria-selected', tab === 'create' ? 'true' : 'false');
+    }
+    if (nodes.tabJoin) {
+      nodes.tabJoin.classList.toggle('is-active', tab === 'join');
+      nodes.tabJoin.setAttribute('aria-selected', tab === 'join' ? 'true' : 'false');
+    }
     if (nodes.panelCreate) nodes.panelCreate.hidden = tab !== 'create';
     if (nodes.panelJoin) nodes.panelJoin.hidden = tab !== 'join';
   }
@@ -480,11 +516,11 @@
     if (!nodes.modal) return;
     populateCategories();
     nodes.modal.hidden = false;
+    nodes.modal.setAttribute('aria-hidden', 'false');
     nodes.modal.classList.add('is-open');
     state.modalOpen = true;
     switchTab(state.activeTab);
     bindSocketEvents();
-    // Tente de reconnecter une partie en cache
     reconnect().catch(() => {});
   }
 
@@ -492,15 +528,23 @@
     const nodes = els();
     if (!nodes.modal) return;
     nodes.modal.hidden = true;
+    nodes.modal.setAttribute('aria-hidden', 'true');
     nodes.modal.classList.remove('is-open');
     state.modalOpen = false;
     state.current = null;
-    showView('lobby');
+    showView('portal');
+    setStatus('Connecte ton profil pour jouer à plusieurs.');
   }
 
   // ===================== BINDINGS =====================
   function bindEvents() {
     const nodes = els();
+
+    // Fermer modale
+    nodes.closeBtn?.addEventListener('click', () => {
+      if (!state.current?.gameCode) close();
+      else leaveGame();
+    });
 
     // Onglets
     nodes.tabCreate?.addEventListener('click', () => switchTab('create'));
@@ -515,27 +559,33 @@
       if (e.key === 'Enter') joinGame();
     });
 
+    // Copier code
+    nodes.copyCodeBtn?.addEventListener('click', () => {
+      const code = nodes.codeDisplay?.textContent;
+      if (code) {
+        navigator.clipboard?.writeText(code).then(() => {
+          setStatus('Code copié !');
+          setTimeout(() => setStatus('Lobby synchronisé.'), 1500);
+        }).catch(() => {});
+      }
+    });
+
     // Lobby
-    nodes.ready?.addEventListener('click', setReady);
-    nodes.startGame?.addEventListener('click', startGame);
-    nodes.leaveLobby?.addEventListener('click', leaveGame);
+    nodes.readyBtn?.addEventListener('click', setReady);
+    nodes.startBtn?.addEventListener('click', startGame);
+    nodes.leaveLobbyBtn?.addEventListener('click', leaveGame);
 
     // Jeu
-    nodes.answerInput?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') submitAnswer();
+    nodes.answerForm?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      submitAnswer();
     });
-    nodes.leaveGame?.addEventListener('click', leaveGame);
+    nodes.leaveLobbyBtn?.addEventListener('click', leaveGame);
 
     // Final
-    nodes.playAgain?.addEventListener('click', () => {
-      clearCache();
-      state.current = null;
-      switchTab('create');
-      showView('lobby');
-    });
-    nodes.closeFinal?.addEventListener('click', close);
+    nodes.closeFinalBtn?.addEventListener('click', close);
 
-    // Fermer modale via backdrop
+    // Fermer modale via backdrop (clic hors du contenu)
     nodes.modal?.addEventListener('click', (e) => {
       if (e.target === nodes.modal && !state.current?.gameCode) {
         close();
@@ -547,7 +597,6 @@
       setStatus(`Réseau: ${e.detail?.error || 'déconnecté'}`);
     });
 
-    // Écouter les connexions
     document.addEventListener('memoriz:multiplayer-network', (e) => {
       if (e.detail?.connected) {
         setStatus('Connecté au serveur multijoueur.');
