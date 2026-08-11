@@ -1,7 +1,4 @@
-/**
- * Memoriz - Module Multijoueur
- * Remplace le fichier multiplayer.js incomplet du repo.
- */
+/* Memoriz - Module Multijoueur (debug version) */
 (function() {
   'use strict';
 
@@ -10,7 +7,8 @@
     startGamePending: false,
     modalOpen: false,
     activeTab: 'create',
-    myUserId: null
+    myUserId: null,
+    listenersBound: false
   };
 
   function byId(id) { return document.getElementById(id); }
@@ -19,7 +17,6 @@
     return {
       modal: byId('multiplayer-modal'),
       closeBtn: byId('multiplayer-close'),
-      title: byId('multiplayer-title'),
       status: byId('multiplayer-status'),
       tabCreate: byId('multiplayer-tab-create'),
       tabJoin: byId('multiplayer-tab-join'),
@@ -39,7 +36,7 @@
       players: byId('multiplayer-players'),
       readyBtn: byId('multiplayer-ready'),
       startBtn: byId('multiplayer-start'),
-      leaveLobbyBtn: byId('multiplayer-leave'),
+      leaveBtn: byId('multiplayer-leave'),
       startHint: byId('multiplayer-start-hint'),
       gameView: byId('multiplayer-game'),
       answerForm: byId('multiplayer-answer-form'),
@@ -57,316 +54,279 @@
     };
   }
 
-  function totalAnswers(categoryId) {
-    const mapping = window.categoryMapping?.[categoryId];
-    if (mapping?.data) return mapping.data.length;
-    const data = window.quizData?.[categoryId];
-    return data?.length || 0;
+  function totalAnswers(cid) {
+    const m = window.categoryMapping?.[cid];
+    if (m?.data) return m.data.length;
+    return window.quizData?.[cid]?.length || 0;
   }
-
-  function categoryLabel(categoryId) {
-    const mapping = window.categoryMapping?.[categoryId];
-    if (mapping?.title) return mapping.title;
-    return categoryId || 'Inconnu';
+  function catLabel(cid) {
+    return window.categoryMapping?.[cid]?.title || cid || 'Inconnu';
   }
 
   const CACHE_KEY = 'memoriz_multiplayer_game';
-
-  function cacheGame(gameCode) {
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ gameCode, ts: Date.now() })); }
-    catch (e) {}
+  function cacheGame(code) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ gameCode: code, ts: Date.now() })); } catch(e){}
   }
   function getCachedGame() {
     try {
       const raw = localStorage.getItem(CACHE_KEY);
       if (!raw) return null;
-      const parsed = JSON.parse(raw);
-      if (Date.now() - parsed.ts > 2 * 60 * 60 * 1000) {
-        localStorage.removeItem(CACHE_KEY); return null;
-      }
-      return parsed.gameCode;
-    } catch (e) { return null; }
+      const p = JSON.parse(raw);
+      if (Date.now() - p.ts > 7200000) { localStorage.removeItem(CACHE_KEY); return null; }
+      return p.gameCode;
+    } catch(e){ return null; }
   }
   function clearCache() {
-    try { localStorage.removeItem(CACHE_KEY); } catch (e) {}
+    try { localStorage.removeItem(CACHE_KEY); } catch(e){}
   }
 
-  function showView(viewName) {
-    const nodes = els();
-    ['lobbyView','gameView','finalView'].forEach(v => {
-      if (nodes[v]) nodes[v].hidden = true;
-    });
-    if (nodes.panelCreate) nodes.panelCreate.hidden = true;
-    if (nodes.panelJoin) nodes.panelJoin.hidden = true;
-
-    const target = viewName === 'lobby' ? nodes.lobbyView
-                 : viewName === 'game' ? nodes.gameView
-                 : viewName === 'final' ? nodes.finalView
-                 : null;
+  function showView(name) {
+    const n = els();
+    [n.lobbyView, n.gameView, n.finalView].forEach(el => { if(el) el.hidden = true; });
+    if (n.panelCreate) n.panelCreate.hidden = true;
+    if (n.panelJoin) n.panelJoin.hidden = true;
+    const target = name==='lobby'?n.lobbyView : name==='game'?n.gameView : name==='final'?n.finalView : null;
     if (target) target.hidden = false;
-    else if (viewName === 'portal') switchTab(state.activeTab);
+    else if (name==='portal') switchTab(state.activeTab);
   }
 
   function setStatus(msg) {
-    const nodes = els();
-    if (nodes.status) nodes.status.textContent = msg || '';
+    const n = els();
+    if (n.status) n.status.textContent = msg || '';
+    console.log('[MP] status:', msg);
   }
 
-  // ===================== USER ID =====================
   async function resolveUserId() {
     if (state.myUserId) return state.myUserId;
     try {
-      const api = window.MemorizProfileApi?.init(window.MEMORIZ_SUPABASE_CONFIG || {});
+      const api = window.MemorizProfileApi?.init(window.MEMORIZ_SUPABASE_CONFIG||{});
       const res = await api?.client?.auth?.getSession?.();
       const uid = res?.data?.session?.user?.id;
       if (uid) state.myUserId = uid;
+      console.log('[MP] userId:', uid);
       return uid;
-    } catch (e) {
-      return null;
-    }
+    } catch(e) { console.error('[MP] resolveUserId error:', e); return null; }
   }
 
-  function currentPlayer(snapshot) {
-    if (!snapshot?.players) return null;
-    const uid = state.myUserId;
-    if (!uid) return null;
-    return snapshot.players.find(p => p.userId === uid || p.id === uid) || null;
+  function currentPlayer(snap) {
+    if (!snap?.players || !state.myUserId) return null;
+    return snap.players.find(p => p.userId===state.myUserId || p.id===state.myUserId) || null;
   }
 
-  function playerItem(player) {
+  function playerItem(p) {
     const li = document.createElement('li');
     li.className = 'multiplayer-player-item';
-    const readyIcon = player.isReady ? '✅' : '⏳';
-    const hostIcon = player.isHost ? '👑 ' : '';
-    li.textContent = `${hostIcon}${player.pseudo || 'Anonyme'} ${readyIcon}`;
-    if (player.isHost) li.classList.add('is-host');
-    if (player.isReady) li.classList.add('is-ready');
+    li.textContent = (p.isHost?'👑 ':'') + (p.pseudo||'Anonyme') + (p.isReady?' ✅':' ⏳');
+    if(p.isHost) li.classList.add('is-host');
+    if(p.isReady) li.classList.add('is-ready');
     return li;
   }
-
-  function scoreItem(player) {
+  function scoreItem(p) {
     const li = document.createElement('li');
     li.className = 'multiplayer-score-item';
-    const rank = player.rank ? `#${player.rank} ` : '';
-    li.textContent = `${rank}${player.pseudo || 'Anonyme'} — ${player.score || 0} pts (${player.correctAnswers || 0} bonnes)`;
-    if (player.isHost) li.classList.add('is-host');
+    li.textContent = (p.rank?`#${p.rank} `:'') + (p.pseudo||'Anonyme') + ` — ${p.score||0} pts (${p.correctAnswers||0} bonnes)`;
+    if(p.isHost) li.classList.add('is-host');
     return li;
   }
-
-  function foundItem(answer) {
+  function foundItem(a) {
     const li = document.createElement('li');
     li.className = 'multiplayer-found-item';
-    li.textContent = answer.display || answer.answer || '???';
+    li.textContent = a.display || a.answer || '???';
     return li;
   }
 
-  // ===================== BOUTON LANCER =====================
-  function updateStartButton(snapshot, current) {
-    const nodes = els();
-    if (!nodes.startBtn) return;
-
-    const isHost = current?.isHost === true;
-    const enoughPlayers = (snapshot.currentPlayers || 0) >= 2;
-    const allReady = snapshot.players?.every(p => p.isReady || p.isHost) || false;
-
-    // CORRECTION: toujours montrer le bouton à l'hôte, jamais hidden
-    // Seul l'hôte voit le bouton; les autres ne le voient pas
-    nodes.startBtn.hidden = !isHost;
-
-    const canStart = snapshot.status === 'waiting' && isHost && enoughPlayers && allReady;
-    nodes.startBtn.disabled = !canStart || state.startGamePending;
-    nodes.startBtn.textContent = state.startGamePending ? 'Lancement…' : 'Lancer la partie';
-
-    if (nodes.startHint) {
-      if (!isHost) {
-        nodes.startHint.textContent = 'Seul l'hôte peut lancer la partie.';
-      } else if (!enoughPlayers) {
-        nodes.startHint.textContent = `Attends au moins un autre joueur (${snapshot.currentPlayers || 0}/${snapshot.maxPlayers || 4}).`;
-      } else if (!allReady) {
-        nodes.startHint.textContent = 'Tous les joueurs doivent être prêts.';
-      } else {
-        nodes.startHint.textContent = '';
-      }
+  function updateStartButton(snap, cur) {
+    const n = els();
+    if (!n.startBtn) return;
+    const isHost = cur?.isHost===true;
+    const enough = (snap.currentPlayers||0) >= 2;
+    const allReady = snap.players?.every(p=>p.isReady||p.isHost) || false;
+    n.startBtn.hidden = !isHost;
+    n.startBtn.disabled = !(snap.status==='waiting' && isHost && enough && allReady) || state.startGamePending;
+    n.startBtn.textContent = state.startGamePending ? 'Lancement…' : 'Lancer la partie';
+    if (n.startHint) {
+      if (!isHost) n.startHint.textContent = "Seul l'hôte peut lancer.";
+      else if (!enough) n.startHint.textContent = `Attends un autre joueur (${snap.currentPlayers||0}/${snap.maxPlayers||4}).`;
+      else if (!allReady) n.startHint.textContent = 'Tous les joueurs doivent être prêts.';
+      else n.startHint.textContent = '';
     }
   }
 
   function resetStartGamePending() {
     state.startGamePending = false;
-    const nodes = els();
-    if (nodes.startBtn) nodes.startBtn.textContent = 'Lancer la partie';
+    const n = els();
+    if (n.startBtn) n.startBtn.textContent = 'Lancer la partie';
   }
 
-  function renderTimer(snapshot) {
-    const nodes = els();
-    if (!nodes.timer) return;
-    if (snapshot.status === 'playing' && snapshot.endsAt) {
-      const remaining = Math.max(0, Math.ceil((new Date(snapshot.endsAt).getTime() - Date.now()) / 1000));
-      const m = Math.floor(remaining / 60);
-      const s = remaining % 60;
-      nodes.timer.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+  function renderTimer(snap) {
+    const n = els();
+    if (!n.timer) return;
+    if (snap.status==='playing' && snap.endsAt) {
+      const rem = Math.max(0, Math.ceil((new Date(snap.endsAt).getTime()-Date.now())/1000));
+      n.timer.textContent = `${Math.floor(rem/60)}:${(rem%60).toString().padStart(2,'0')}`;
     } else {
-      nodes.timer.textContent = '--:--';
+      n.timer.textContent = '--:--';
     }
   }
 
-  function showFinal(snapshot) {
+  function showFinal(snap) {
     showView('final');
     setStatus('Partie terminée !');
-    const nodes = els();
-    if (nodes.finalRanking) nodes.finalRanking.replaceChildren(...(snapshot.players || []).map(scoreItem));
+    const n = els();
+    if (n.finalRanking) n.finalRanking.replaceChildren(...(snap.players||[]).map(scoreItem));
   }
 
-  function renderAnswerGrid(snapshot) {
-    const nodes = els();
-    if (!nodes.answerGrid) return;
-    const total = totalAnswers(snapshot.categoryId);
-    const found = new Map((snapshot.allFoundAnswers || []).map(a => [Number(a.displayOrder), a]));
-    nodes.answerGrid.replaceChildren();
-    for (let i = 1; i <= total; i++) {
-      const answer = found.get(i);
-      const row = document.createElement('tr');
-      row.className = answer ? 'multiplayer-answer-row is-found' : 'multiplayer-answer-row';
-      const rank = document.createElement('td'); rank.textContent = String(i);
-      const display = document.createElement('td'); display.textContent = answer?.display || '???';
-      const status = document.createElement('td'); status.textContent = answer ? '✓' : '⏳';
-      row.append(rank, display, status);
-      nodes.answerGrid.append(row);
+  function renderAnswerGrid(snap) {
+    const n = els();
+    if (!n.answerGrid) return;
+    const total = totalAnswers(snap.categoryId);
+    const found = new Map((snap.allFoundAnswers||[]).map(a=>[Number(a.displayOrder),a]));
+    n.answerGrid.replaceChildren();
+    for (let i=1; i<=total; i++) {
+      const a = found.get(i);
+      const tr = document.createElement('tr');
+      tr.className = a ? 'multiplayer-answer-row is-found' : 'multiplayer-answer-row';
+      const td1 = document.createElement('td'); td1.textContent = String(i);
+      const td2 = document.createElement('td'); td2.textContent = a?.display || '???';
+      const td3 = document.createElement('td'); td3.textContent = a ? '✓' : '⏳';
+      tr.append(td1, td2, td3);
+      n.answerGrid.append(tr);
     }
   }
 
-  function renderState(snapshot) {
-    if (!snapshot) return;
-    console.log('[MP] renderState', snapshot);
-
-    if (!snapshot.gameCode && state.current?.gameCode) {
-      snapshot = { ...snapshot, gameCode: state.current.gameCode };
-    }
-    if (!snapshot?.gameCode) return;
+  function renderState(snap) {
+    if (!snap) { console.log('[MP] renderState: snap null'); return; }
+    console.log('[MP] renderState:', snap);
+    if (!snap.gameCode && state.current?.gameCode) snap = {...snap, gameCode: state.current.gameCode};
+    if (!snap?.gameCode) { console.log('[MP] renderState: no gameCode'); return; }
 
     const prev = state.current?.gameCode;
-    if ((prev && prev !== snapshot.gameCode) || snapshot.status !== 'waiting') {
-      resetStartGamePending();
+    if ((prev && prev!==snap.gameCode) || snap.status!=='waiting') resetStartGamePending();
+    state.current = snap;
+    cacheGame(snap.gameCode);
+
+    const n = els();
+    const cur = currentPlayer(snap);
+    const host = snap.players?.find(p=>p.isHost) || null;
+
+    if (n.codeDisplay) n.codeDisplay.textContent = snap.gameCode;
+    if (n.categoryLabel) n.categoryLabel.textContent = catLabel(snap.categoryId);
+    if (n.countLabel) n.countLabel.textContent = `${snap.currentPlayers||0}/${snap.maxPlayers||4} joueurs`;
+    if (n.hostLabel) n.hostLabel.textContent = host ? `Hôte: ${host.pseudo}` : 'Hôte indisponible';
+    if (n.players) n.players.replaceChildren(...(snap.players||[]).map(playerItem));
+    if (n.scoreboard) n.scoreboard.replaceChildren(...(snap.players||[]).map(scoreItem));
+    if (n.foundList) n.foundList.replaceChildren(...(snap.allFoundAnswers||[]).map(foundItem));
+
+    renderAnswerGrid(snap);
+    updateStartButton(snap, cur);
+
+    if (n.readyBtn) n.readyBtn.textContent = cur?.isReady ? 'Annuler prêt' : 'Prêt';
+    if (n.scoreLive) n.scoreLive.textContent = cur ? `Ton score: ${cur.score||0} pts` : '';
+    if (n.progressLive) {
+      const total = totalAnswers(snap.categoryId);
+      const found = Number(cur?.correctAnswers||0);
+      const pct = total ? Math.round((found/total)*100) : 0;
+      n.progressLive.textContent = total ? `Ta progression: ${found}/${total} (${pct}%)` : '';
     }
-
-    state.current = snapshot;
-    cacheGame(snapshot.gameCode);
-
-    const nodes = els();
-    const current = currentPlayer(snapshot);
-    const host = snapshot.players?.find(p => p.isHost) || null;
-
-    if (nodes.codeDisplay) nodes.codeDisplay.textContent = snapshot.gameCode;
-    if (nodes.categoryLabel) nodes.categoryLabel.textContent = categoryLabel(snapshot.categoryId);
-    if (nodes.countLabel) nodes.countLabel.textContent = `${snapshot.currentPlayers || 0}/${snapshot.maxPlayers || 4} joueurs`;
-    if (nodes.hostLabel) nodes.hostLabel.textContent = host ? `Hôte: ${host.pseudo}` : 'Hôte indisponible';
-    if (nodes.players) nodes.players.replaceChildren(...(snapshot.players || []).map(playerItem));
-    if (nodes.scoreboard) nodes.scoreboard.replaceChildren(...(snapshot.players || []).map(scoreItem));
-    if (nodes.foundList) nodes.foundList.replaceChildren(...(snapshot.allFoundAnswers || []).map(foundItem));
-
-    renderAnswerGrid(snapshot);
-    updateStartButton(snapshot, current);
-
-    if (nodes.readyBtn) nodes.readyBtn.textContent = current?.isReady ? 'Annuler prêt' : 'Prêt';
-    if (nodes.scoreLive) nodes.scoreLive.textContent = current ? `Ton score: ${current.score || 0} pts` : '';
-    if (nodes.progressLive) {
-      const total = totalAnswers(snapshot.categoryId);
-      const found = Number(current?.correctAnswers || 0);
-      const percent = total ? Math.round((found / total) * 100) : 0;
-      nodes.progressLive.textContent = total ? `Ta progression: ${found}/${total} (${percent}%)` : '';
-    }
-
     if (window.MemorizReactions?.setDisabled) {
-      window.MemorizReactions.setDisabled(nodes.reactions, snapshot.status !== 'waiting' && snapshot.status !== 'playing');
+      window.MemorizReactions.setDisabled(n.reactions, snap.status!=='waiting' && snap.status!=='playing');
     }
+    renderTimer(snap);
 
-    renderTimer(snapshot);
-
-    if (snapshot.status === 'playing') {
-      showView('game');
-      setStatus('Partie en cours.');
-    } else if (['finished','expired','cancelled'].includes(snapshot.status)) {
-      showFinal(snapshot);
-    } else {
-      showView('lobby');
-      setStatus('Lobby synchronisé.');
-    }
-  }
-
-  function getApi() {
-    try { return window.MemorizProfileApi?.init(window.MEMORIZ_SUPABASE_CONFIG || {}); }
-    catch (e) { return null; }
+    if (snap.status==='playing') { showView('game'); setStatus('Partie en cours.'); }
+    else if (['finished','expired','cancelled'].includes(snap.status)) { showFinal(snap); }
+    else { showView('lobby'); setStatus('Lobby synchronisé.'); }
   }
 
   function bindSocketEvents() {
-    const socket = window.MemorizMultiplayerSocket;
-    if (!socket) return;
+    const s = window.MemorizMultiplayerSocket;
+    if (!s) { console.error('[MP] bindSocketEvents: no socket object'); return; }
     const events = ['gameState','gameCreated','playerJoined','playerUpdated','gameStarted','scoreUpdate','gameFinished','playerLeft','playerDisconnected'];
     events.forEach(ev => {
-      socket.on(ev, (snapshot) => {
-        console.log('[MP] event:', ev, snapshot);
-        if (ev === 'gameStarted') state.startGamePending = false;
-        renderState(snapshot);
+      s.on(ev, (snap) => {
+        console.log('[MP] socket event:', ev, snap);
+        if (ev==='gameStarted') state.startGamePending = false;
+        renderState(snap);
       });
     });
+    console.log('[MP] socket events bound');
+  }
+
+  async function ensureConnected() {
+    const st = window.MemorizMultiplayerSocket?.getState?.();
+    if (st?.connected) { console.log('[MP] already connected'); return window.MemorizMultiplayerSocket; }
+    try {
+      console.log('[MP] connecting...');
+      const s = await window.MemorizMultiplayerSocket.connect();
+      await resolveUserId();
+      console.log('[MP] connected');
+      return s;
+    } catch(err) {
+      console.error('[MP] connection failed:', err);
+      throw new Error('multiplayer_unavailable');
+    }
   }
 
   // ===================== ACTIONS =====================
   async function createGame() {
-    const nodes = els();
-    const categoryId = nodes.createCategory?.value;
-    const maxPlayers = parseInt(nodes.createMaxPlayers?.value || '4', 10);
-    if (!categoryId) { setStatus('Veuillez choisir une catégorie.'); return; }
+    console.log('[MP] createGame clicked');
+    const n = els();
+    const categoryId = n.createCategory?.value;
+    const maxPlayers = parseInt(n.createMaxPlayers?.value||'4', 10);
+    if (!categoryId) { setStatus('Choisis une catégorie.'); return; }
     try {
-      setStatus('Création du salon…');
+      setStatus('Création…');
       await ensureConnected();
       await resolveUserId();
-      const result = await window.MemorizMultiplayerSocket.emitWithAck('createGame', {
-        categoryId,
-        maxPlayers
-      });
+      console.log('[MP] emitting createGame:', {categoryId, maxPlayers});
+      const result = await window.MemorizMultiplayerSocket.emitWithAck('createGame', { categoryId, maxPlayers });
       console.log('[MP] createGame result:', result);
       if (result?.created?.game_code) {
         state.current = { gameCode: result.created.game_code };
         renderState(result.snapshot);
+      } else {
+        setStatus('Réponse inattendue du serveur.');
       }
-    } catch (err) {
+    } catch(err) {
       console.error('[MP] createGame error:', err);
-      setStatus(`Erreur: ${err.message || 'Impossible de créer le salon'}`);
+      setStatus(`Erreur: ${err.message||'Création impossible'}`);
     }
   }
 
   async function joinGame() {
-    const nodes = els();
-    const code = nodes.joinCode?.value?.trim().toUpperCase();
-    if (!code) { setStatus('Veuillez saisir un code de partie.'); return; }
+    console.log('[MP] joinGame clicked');
+    const n = els();
+    const code = n.joinCode?.value?.trim().toUpperCase();
+    if (!code) { setStatus('Saisis un code.'); return; }
     try {
-      setStatus('Connexion au salon…');
+      setStatus('Connexion…');
       await ensureConnected();
       await resolveUserId();
+      console.log('[MP] emitting joinGame:', code);
       const result = await window.MemorizMultiplayerSocket.emitWithAck('joinGame', { gameCode: code });
       console.log('[MP] joinGame result:', result);
       if (result?.joined) {
         state.current = { gameCode: code };
         renderState(result.snapshot);
+      } else {
+        setStatus('Réponse inattendue du serveur.');
       }
-    } catch (err) {
+    } catch(err) {
       console.error('[MP] joinGame error:', err);
-      setStatus(`Erreur: ${err.message || 'Impossible de rejoindre'}`);
+      setStatus(`Erreur: ${err.message||'Connexion impossible'}`);
     }
   }
 
   async function setReady() {
     if (!state.current?.gameCode) return;
     try {
-      const current = currentPlayer(state.current);
+      const cur = currentPlayer(state.current);
       const result = await window.MemorizMultiplayerSocket.emitWithAck('setReady', {
         gameCode: state.current.gameCode,
-        ready: !current?.isReady
+        ready: !cur?.isReady
       });
       if (result?.snapshot) renderState(result.snapshot);
-    } catch (err) {
-      setStatus(`Erreur: ${err.message || 'Action impossible'}`);
-    }
+    } catch(err) { setStatus(`Erreur: ${err.message||'Action impossible'}`); }
   }
 
   async function startGame() {
@@ -378,27 +338,24 @@
         gameCode: state.current.gameCode
       });
       if (result?.snapshot) renderState(result.snapshot);
-    } catch (err) {
+    } catch(err) {
       state.startGamePending = false;
-      setStatus(`Erreur: ${err.message || 'Lancement impossible'}`);
+      setStatus(`Erreur: ${err.message||'Lancement impossible'}`);
     }
   }
 
   async function submitAnswer() {
-    const nodes = els();
-    const input = nodes.answerInput;
+    const n = els();
+    const input = n.answerInput;
     if (!input || !state.current?.gameCode) return;
     const answer = input.value.trim();
     if (!answer) return;
     input.value = '';
     try {
       await window.MemorizMultiplayerSocket.emitWithAck('submitAnswer', {
-        gameCode: state.current.gameCode,
-        answer
+        gameCode: state.current.gameCode, answer
       });
-    } catch (err) {
-      setStatus(`Erreur: ${err.message || 'Réponse refusée'}`);
-    }
+    } catch(err) { setStatus(`Erreur: ${err.message||'Réponse refusée'}`); }
   }
 
   async function leaveGame() {
@@ -407,7 +364,7 @@
       await window.MemorizMultiplayerSocket.emitWithAck('leaveGame', {
         gameCode: state.current.gameCode
       });
-    } catch (err) {}
+    } catch(err) {}
     clearCache();
     state.current = null;
     close();
@@ -420,77 +377,54 @@
       setStatus('Reconnexion…');
       await ensureConnected();
       await resolveUserId();
-      const result = await window.MemorizMultiplayerSocket.emitWithAck('requestGameState', {
-        gameCode: code
-      });
-      if (result) {
-        state.current = { gameCode: code };
-        renderState(result);
-      }
-    } catch (err) { clearCache(); }
-  }
-
-  async function ensureConnected() {
-    const socketState = window.MemorizMultiplayerSocket?.getState?.();
-    if (socketState?.connected) return window.MemorizMultiplayerSocket;
-    try {
-      const s = await window.MemorizMultiplayerSocket.connect();
-      await resolveUserId();
-      return s;
-    } catch (err) {
-      throw new Error('multiplayer_unavailable');
-    }
+      const result = await window.MemorizMultiplayerSocket.emitWithAck('requestGameState', { gameCode: code });
+      if (result) { state.current = { gameCode: code }; renderState(result); }
+    } catch(err) { clearCache(); }
   }
 
   function populateCategories() {
-    const nodes = els();
-    if (!nodes.createCategory) return;
-    const currentVal = nodes.createCategory.value;
-    nodes.createCategory.replaceChildren();
+    const n = els();
+    if (!n.createCategory) return;
+    const val = n.createCategory.value;
+    n.createCategory.replaceChildren();
     const mapping = window.categoryMapping || {};
-    Object.entries(mapping).forEach(([key, info]) => {
+    Object.entries(mapping).forEach(([k, info]) => {
       const opt = document.createElement('option');
-      opt.value = key;
-      opt.textContent = info.title || key;
-      nodes.createCategory.append(opt);
+      opt.value = k; opt.textContent = info.title || k;
+      n.createCategory.append(opt);
     });
-    if (currentVal && mapping[currentVal]) nodes.createCategory.value = currentVal;
+    if (val && mapping[val]) n.createCategory.value = val;
   }
 
   function switchTab(tab) {
     state.activeTab = tab;
-    const nodes = els();
-    if (nodes.tabCreate) {
-      nodes.tabCreate.classList.toggle('is-active', tab === 'create');
-      nodes.tabCreate.setAttribute('aria-selected', tab === 'create' ? 'true' : 'false');
-    }
-    if (nodes.tabJoin) {
-      nodes.tabJoin.classList.toggle('is-active', tab === 'join');
-      nodes.tabJoin.setAttribute('aria-selected', tab === 'join' ? 'true' : 'false');
-    }
-    if (nodes.panelCreate) nodes.panelCreate.hidden = tab !== 'create';
-    if (nodes.panelJoin) nodes.panelJoin.hidden = tab !== 'join';
+    const n = els();
+    if (n.tabCreate) { n.tabCreate.classList.toggle('is-active', tab==='create'); n.tabCreate.setAttribute('aria-selected', tab==='create'?'true':'false'); }
+    if (n.tabJoin) { n.tabJoin.classList.toggle('is-active', tab==='join'); n.tabJoin.setAttribute('aria-selected', tab==='join'?'true':'false'); }
+    if (n.panelCreate) n.panelCreate.hidden = tab !== 'create';
+    if (n.panelJoin) n.panelJoin.hidden = tab !== 'join';
   }
 
   function open() {
-    const nodes = els();
-    if (!nodes.modal) return;
+    console.log('[MP] open called');
+    const n = els();
+    if (!n.modal) { console.error('[MP] modal not found'); return; }
     populateCategories();
-    nodes.modal.hidden = false;
-    nodes.modal.setAttribute('aria-hidden', 'false');
-    nodes.modal.classList.add('is-open');
+    n.modal.hidden = false;
+    n.modal.setAttribute('aria-hidden','false');
+    n.modal.classList.add('is-open');
     state.modalOpen = true;
     switchTab(state.activeTab);
     bindSocketEvents();
-    reconnect().catch(() => {});
+    reconnect().catch(()=>{});
   }
 
   function close() {
-    const nodes = els();
-    if (!nodes.modal) return;
-    nodes.modal.hidden = true;
-    nodes.modal.setAttribute('aria-hidden', 'true');
-    nodes.modal.classList.remove('is-open');
+    const n = els();
+    if (!n.modal) return;
+    n.modal.hidden = true;
+    n.modal.setAttribute('aria-hidden','true');
+    n.modal.classList.remove('is-open');
     state.modalOpen = false;
     state.current = null;
     showView('portal');
@@ -498,57 +432,77 @@
   }
 
   function bindEvents() {
-    const nodes = els();
+    if (state.listenersBound) { console.log('[MP] listeners already bound'); return; }
+    state.listenersBound = true;
+    const n = els();
+    console.log('[MP] binding events. createBtn=', n.createBtn, 'joinBtn=', n.joinBtn);
 
-    nodes.closeBtn?.addEventListener('click', () => {
-      if (!state.current?.gameCode) close();
-      else leaveGame();
+    n.closeBtn?.addEventListener('click', () => {
+      if (!state.current?.gameCode) close(); else leaveGame();
     });
 
-    nodes.tabCreate?.addEventListener('click', () => switchTab('create'));
-    nodes.tabJoin?.addEventListener('click', () => switchTab('join'));
-    nodes.createBtn?.addEventListener('click', createGame);
-    nodes.joinBtn?.addEventListener('click', joinGame);
-    nodes.joinCode?.addEventListener('keydown', (e) => { if (e.key === 'Enter') joinGame(); });
+    n.tabCreate?.addEventListener('click', () => switchTab('create'));
+    n.tabJoin?.addEventListener('click', () => switchTab('join'));
 
-    nodes.copyCodeBtn?.addEventListener('click', () => {
-      const code = nodes.codeDisplay?.textContent;
-      if (code) {
-        navigator.clipboard?.writeText(code).then(() => {
-          setStatus('Code copié !');
-          setTimeout(() => setStatus('Lobby synchronisé.'), 1500);
-        }).catch(() => {});
-      }
+    if (n.createBtn) {
+      n.createBtn.addEventListener('click', createGame);
+      console.log('[MP] createGame listener attached');
+    } else {
+      console.error('[MP] createBtn not found!');
+    }
+
+    if (n.joinBtn) {
+      n.joinBtn.addEventListener('click', joinGame);
+      console.log('[MP] joinGame listener attached');
+    } else {
+      console.error('[MP] joinBtn not found!');
+    }
+
+    n.joinCode?.addEventListener('keydown', (e) => { if(e.key==='Enter') joinGame(); });
+
+    n.copyCodeBtn?.addEventListener('click', () => {
+      const code = n.codeDisplay?.textContent;
+      if (code) navigator.clipboard?.writeText(code).then(()=>{
+        setStatus('Code copié !'); setTimeout(()=>setStatus('Lobby synchronisé.'),1500);
+      }).catch(()=>{});
     });
 
-    nodes.readyBtn?.addEventListener('click', setReady);
-    nodes.startBtn?.addEventListener('click', startGame);
-    nodes.leaveLobbyBtn?.addEventListener('click', leaveGame);
+    n.readyBtn?.addEventListener('click', setReady);
+    n.startBtn?.addEventListener('click', startGame);
+    n.leaveBtn?.addEventListener('click', leaveGame);
 
-    nodes.answerForm?.addEventListener('submit', (e) => { e.preventDefault(); submitAnswer(); });
+    n.answerForm?.addEventListener('submit', (e) => { e.preventDefault(); submitAnswer(); });
+    n.closeFinalBtn?.addEventListener('click', close);
 
-    nodes.closeFinalBtn?.addEventListener('click', close);
-
-    nodes.modal?.addEventListener('click', (e) => {
-      if (e.target === nodes.modal && !state.current?.gameCode) close();
+    n.modal?.addEventListener('click', (e) => {
+      if (e.target===n.modal && !state.current?.gameCode) close();
     });
 
-    document.addEventListener('memoriz:multiplayer-error', (e) => {
-      setStatus(`Réseau: ${e.detail?.error || 'déconnecté'}`);
+    document.addEventListener('memoriz:multiplayer-error', (e)=>{
+      setStatus(`Réseau: ${e.detail?.error||'déconnecté'}`);
     });
-    document.addEventListener('memoriz:multiplayer-network', (e) => {
-      if (e.detail?.connected) setStatus('Connecté au serveur multijoueur.');
+    document.addEventListener('memoriz:multiplayer-network', (e)=>{
+      if(e.detail?.connected) setStatus('Connecté au serveur.');
     });
+
+    console.log('[MP] all events bound');
   }
 
-  function init() { bindEvents(); }
+  function init() {
+    console.log('[MP] init called, readyState=', document.readyState);
+    bindEvents();
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
-  } else { init(); }
+  } else {
+    init();
+  }
 
   window.MemorizMultiplayer = {
     open, close,
-    getState: () => ({ ...state }),
+    getState: () => ({...state}),
     createGame, joinGame, setReady, startGame, submitAnswer, leaveGame
   };
+  console.log('[MP] MemorizMultiplayer exposed');
 })();
