@@ -111,7 +111,15 @@
   // On n'a PAS besoin de matcher un userId côté client.
   function currentPlayer(snap) {
     if (!snap?.players) return null;
-    return snap.players.find(p => p.isCurrent === true) || null;
+    const profileId = window.memorizAuth?.getState?.()?.profile?.id || null;
+    const player = snap.players.find(p => p.isCurrent === true)
+      || snap.players.find(p => profileId && p.userId === profileId)
+      || null;
+    if (!player) return null;
+    if (profileId && snap.hostId === profileId && player.isHost !== true) {
+      return { ...player, isHost: true };
+    }
+    return player;
   }
 
   function playerItem(p) {
@@ -141,8 +149,9 @@
     const n = els();
     if (!n.startBtn) return;
     const isHost = cur?.isHost === true;
-    const enough = (snap.currentPlayers||0) >= 2;
-    const allReady = snap.players?.every(p=>p.isReady||p.isHost) || false;
+    const connectedPlayers = (snap.players || []).filter(p=>p.isConnected !== false);
+    const enough = connectedPlayers.length >= 2;
+    const allReady = connectedPlayers.every(p=>p.isReady||p.isHost);
 
     // Toujours visible pour l'hôte, hidden pour les autres
     n.startBtn.hidden = !isHost;
@@ -151,10 +160,28 @@
 
     if (n.startHint) {
       if (!isHost) n.startHint.textContent = "Seul l'hôte peut lancer.";
-      else if (!enough) n.startHint.textContent = `Attends un autre joueur (${snap.currentPlayers||0}/${snap.maxPlayers||4}).`;
+      else if (!enough) n.startHint.textContent = `Attends un autre joueur connecté (${connectedPlayers.length}/${snap.maxPlayers||4}).`;
       else if (!allReady) n.startHint.textContent = 'Tous les joueurs doivent être prêts.';
       else n.startHint.textContent = '';
     }
+  }
+
+  function canStartGame(snap, cur) {
+    if (!snap || !cur?.isHost || snap.status !== 'waiting') return false;
+    const connectedPlayers = (snap.players || []).filter(p=>p.isConnected !== false);
+    return connectedPlayers.length >= 2 && connectedPlayers.every(p=>p.isReady||p.isHost);
+  }
+
+  function startGameErrorMessage(error) {
+    const key = error?.message || error?.code || 'Lancement impossible';
+    const messages = {
+      host_required: "Démarrage refusé : seul l'hôte peut lancer.",
+      players_not_ready: 'Démarrage refusé : tous les joueurs doivent être prêts.',
+      not_enough_players: 'Démarrage refusé : il faut au moins 2 joueurs connectés.',
+      game_already_started: 'La partie est déjà lancée.',
+      game_expired: 'Cette salle a expiré.'
+    };
+    return messages[key] || `Démarrage refusé : ${key}`;
   }
 
   function resetStartGamePending() {
@@ -310,8 +337,13 @@
 
   async function startGame() {
     if (!state.current?.gameCode) return;
+    const cur = currentPlayer(state.current);
+    if (state.startGamePending || !canStartGame(state.current, cur)) {
+      updateStartButton(state.current, cur);
+      return;
+    }
     state.startGamePending = true;
-    updateStartButton(state.current, currentPlayer(state.current));
+    updateStartButton(state.current, cur);
     try {
       const result = await window.MemorizMultiplayerSocket.emitWithAck('startGame', {
         gameCode: state.current.gameCode
@@ -319,7 +351,8 @@
       if (result?.snapshot) renderState(result.snapshot);
     } catch(err) {
       state.startGamePending = false;
-      setStatus(`Erreur: ${err.message||'Lancement impossible'}`);
+      setStatus(startGameErrorMessage(err));
+      updateStartButton(state.current, currentPlayer(state.current));
     }
   }
 
@@ -460,6 +493,7 @@
   window.MemorizMultiplayer = {
     open, close,
     getState: () => ({...state}),
+    renderState,
     createGame, joinGame, setReady, startGame, submitAnswer, leaveGame
   };
 })();
