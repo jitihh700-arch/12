@@ -151,17 +151,15 @@
     const isHost = cur?.isHost === true;
     const connectedPlayers = (snap.players || []).filter(p=>p.isConnected !== false);
     const enough = connectedPlayers.length >= 2;
-    const allReady = connectedPlayers.every(p=>p.isReady||p.isHost);
 
     // Toujours visible pour l'hôte, hidden pour les autres
     n.startBtn.hidden = !isHost;
-    n.startBtn.disabled = !(snap.status==='waiting' && enough && allReady) || state.startGamePending;
+    n.startBtn.disabled = !(snap.status==='waiting' && enough) || state.startGamePending;
     n.startBtn.textContent = state.startGamePending ? 'Lancement…' : 'Lancer la partie';
 
     if (n.startHint) {
       if (!isHost) n.startHint.textContent = "Seul l'hôte peut lancer.";
       else if (!enough) n.startHint.textContent = `Attends un autre joueur connecté (${connectedPlayers.length}/${snap.maxPlayers||4}).`;
-      else if (!allReady) n.startHint.textContent = 'Tous les joueurs doivent être prêts.';
       else n.startHint.textContent = '';
     }
   }
@@ -169,14 +167,13 @@
   function canStartGame(snap, cur) {
     if (!snap || !cur?.isHost || snap.status !== 'waiting') return false;
     const connectedPlayers = (snap.players || []).filter(p=>p.isConnected !== false);
-    return connectedPlayers.length >= 2 && connectedPlayers.every(p=>p.isReady||p.isHost);
+    return connectedPlayers.length >= 2;
   }
 
   function startGameErrorMessage(error) {
     const key = error?.message || error?.code || 'Lancement impossible';
     const messages = {
       host_required: "Démarrage refusé : seul l'hôte peut lancer.",
-      players_not_ready: 'Démarrage refusé : tous les joueurs doivent être prêts.',
       not_enough_players: 'Démarrage refusé : il faut au moins 2 joueurs connectés.',
       game_already_started: 'La partie est déjà lancée.',
       game_expired: 'Cette salle a expiré.'
@@ -251,7 +248,7 @@
     renderAnswerGrid(snap);
     updateStartButton(snap, cur);
 
-    if (n.readyBtn) n.readyBtn.textContent = cur?.isReady ? 'Annuler prêt' : 'Prêt';
+    if (n.readyBtn) n.readyBtn.hidden = true;
     if (n.scoreLive) n.scoreLive.textContent = cur ? `Ton score: ${cur.score||0} pts` : '';
     if (n.progressLive) {
       const total = totalAnswers(snap.categoryId);

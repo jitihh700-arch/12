@@ -4,7 +4,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(143);
+select plan(139);
 
 create temp table test_multiplayer_codes (
   name text primary key,
@@ -100,16 +100,7 @@ select throws_ok($$ select public.join_multiplayer_game((select code from test_m
 select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000002', true);
 select throws_ok($$ select public.start_multiplayer_game((select code from test_multiplayer_codes where name = 'main')) $$, '42501', 'host_required', 'non hote ne demarre pas');
 select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000001', true);
-select throws_ok($$ select public.start_multiplayer_game((select code from test_multiplayer_codes where name = 'main')) $$, 'P0001', 'players_not_ready', 'joueurs non prets refusent start');
-
-select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000002', true);
-select is((select result from public.set_multiplayer_ready((select code from test_multiplayer_codes where name = 'main'), true)), 'ready_updated', 'B pret');
-select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000003', true);
-select is((select result from public.set_multiplayer_ready((select code from test_multiplayer_codes where name = 'main'), true)), 'ready_updated', 'C pret');
-select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000004', true);
-select is((select result from public.set_multiplayer_ready((select code from test_multiplayer_codes where name = 'main'), true)), 'ready_updated', 'D pret');
-select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000001', true);
-select is((select result from public.start_multiplayer_game((select code from test_multiplayer_codes where name = 'main'))), 'started', 'hote demarre');
+select is((select result from public.start_multiplayer_game((select code from test_multiplayer_codes where name = 'main'))), 'started', 'hote demarre sans confirmation pret');
 reset role;
 select is((select status from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'main')), 'playing', 'statut playing');
 select ok((select expires_at > started_at from public.multiplayer_games where game_code = (select code from test_multiplayer_codes where name = 'main')), 'expires_at serveur apres start');

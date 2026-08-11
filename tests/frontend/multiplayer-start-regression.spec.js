@@ -93,9 +93,9 @@ async function installRuntime(page, profileId, snapshot) {
                     const snapshot = window.__snapshot;
                     const connected = snapshot.players.filter(player => player.isConnected);
                     const isHost = snapshot.hostId === id;
-                    if (!isHost || snapshot.status !== 'waiting' || connected.length < 2 || connected.some(player => !player.isReady)) {
+                    if (!isHost || snapshot.status !== 'waiting' || connected.length < 2) {
                         window.__startBlocked = true;
-                        throw new Error(isHost ? 'players_not_ready' : 'host_required');
+                        throw new Error(isHost ? 'not_enough_players' : 'host_required');
                     }
                     snapshot.status = 'playing';
                     snapshot.startedAt = new Date().toISOString();
@@ -245,7 +245,7 @@ test('ACK en erreur: le pending est nettoye et une tentative controlee reste pos
     await page.evaluate(() => window.MemorizMultiplayer.startGame());
     expect(await page.evaluate(() => window.__startCalls)).toBe(1);
 
-    await rejectDeferredStart(page, 'players_not_ready');
+    await rejectDeferredStart(page, 'not_enough_players');
     await expect(page.locator('#multiplayer-status')).toContainText('Démarrage refusé');
     await expect(page.locator('#multiplayer-start')).toBeEnabled();
     expect(await page.evaluate(() => window.MemorizMultiplayer.getState().startGamePending)).toBe(false);
@@ -288,7 +288,7 @@ test('changement de salle: un pending ancien ne bloque pas le nouveau lobby', as
     expect(await page.evaluate(() => window.__startCalls)).toBe(2);
 });
 
-test('conditions de lancement: joueur seul, pret incomplet, deconnexion et invite', async ({ page }) => {
+test('conditions de lancement: joueur seul, pret ignore, deconnexion et invite', async ({ page }) => {
     const snapshots = {
         alone: baseSnapshot({ currentPlayers: 1, players: [baseSnapshot().players[0]] }),
         oneReady: baseSnapshot({ players: [baseSnapshot().players[0], { ...baseSnapshot().players[1], isReady: false }] }),
@@ -307,17 +307,9 @@ test('conditions de lancement: joueur seul, pret incomplet, deconnexion et invit
 
     await page.evaluate(snapshot => window.MemorizMultiplayer.renderState(snapshot), snapshots.oneReady);
     await expect(page.locator('#multiplayer-start')).toBeVisible();
-    await expect(page.locator('#multiplayer-start')).toBeDisabled();
-    await page.locator('#multiplayer-start').click({ force: true });
-    expect(await page.evaluate(() => window.__startCalls)).toBe(0);
-    await page.evaluate(async () => {
-        try {
-            await window.MemorizMultiplayerSocket.emitWithAck('startGame', { gameCode: 'AB234C' });
-        } catch (error) {
-            window.__startBlocked = true;
-        }
-    });
-    expect(await page.evaluate(() => window.__startBlocked)).toBe(true);
+    await expect(page.locator('#multiplayer-start')).toBeEnabled();
+    await page.locator('#multiplayer-start').click();
+    expect(await page.evaluate(() => window.__startCalls)).toBe(1);
 
     await page.evaluate(snapshot => {
         window.__startBlocked = false;

@@ -767,7 +767,6 @@ declare
   v_game public.multiplayer_games;
   v_now timestamptz := clock_timestamp();
   v_connected_players integer;
-  v_unready_players integer;
 begin
   v_user_id := private.assert_multiplayer_profile();
   v_code := upper(btrim(coalesce(p_game_code, '')));
@@ -804,18 +803,6 @@ begin
 
   if v_connected_players < 2 then
     raise exception 'not_enough_players' using errcode = 'P0001';
-  end if;
-
-  select count(*)::integer
-  into v_unready_players
-  from public.multiplayer_players as mp
-  where mp.game_id = v_game.id
-    and mp.left_at is null
-    and mp.is_connected
-    and not mp.is_ready;
-
-  if v_unready_players > 0 then
-    raise exception 'players_not_ready' using errcode = 'P0001';
   end if;
 
   update public.multiplayer_players as mp
