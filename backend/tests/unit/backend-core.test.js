@@ -200,6 +200,54 @@ describe('multiplayer service', () => {
             'create_multiplayer_game'
         ]);
     });
+
+    it('marque les joueurs connectes prets puis retente le lancement', async () => {
+        const userCalls = [];
+        const adminCalls = [];
+        const service = new MultiplayerService(
+            {},
+            () => ({
+                async rpc(name, payload) {
+                    userCalls.push({ name, payload });
+                    if (name === 'start_multiplayer_game' && userCalls.length === 1) {
+                        return { data: null, error: { message: 'players_not_ready' } };
+                    }
+                    return { data: [{ result: 'started', game_code: payload.p_game_code, status: 'playing' }], error: null };
+                }
+            }),
+            () => ({
+                from(table) {
+                    adminCalls.push({ table });
+                    if (table === 'multiplayer_games') {
+                        return {
+                            select() { return this; },
+                            eq() { return this; },
+                            async maybeSingle() {
+                                return { data: { id: 'game-1' }, error: null };
+                            }
+                        };
+                    }
+                    return {
+                        update(values) {
+                            adminCalls.push({ table, values });
+                            return this;
+                        },
+                        eq() { return this; },
+                        is() { return this; },
+                        then(resolve) {
+                            resolve({ error: null });
+                        }
+                    };
+                }
+            })
+        );
+
+        const started = await service.startGame({ accessToken: 'token' }, { gameCode: 'AB234C' });
+
+        expect(started.status).toBe('playing');
+        expect(userCalls.map(call => call.name)).toEqual(['start_multiplayer_game', 'start_multiplayer_game']);
+        expect(adminCalls).toContainEqual({ table: 'multiplayer_players', values: { is_ready: true } });
+    });
 });
 
 describe('logger', () => {

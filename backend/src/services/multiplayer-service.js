@@ -1,4 +1,4 @@
-import { createSupabaseForUser } from '../config/supabase.js';
+import { createSupabaseAdmin, createSupabaseForUser } from '../config/supabase.js';
 
 function firstRow(data) {
     return Array.isArray(data) ? data[0] || null : data || null;
@@ -13,13 +13,18 @@ function errorKey(error) {
 }
 
 export class MultiplayerService {
-    constructor(env, clientFactory = createSupabaseForUser) {
+    constructor(env, clientFactory = createSupabaseForUser, adminFactory = createSupabaseAdmin) {
         this.env = env;
         this.clientFactory = clientFactory;
+        this.adminFactory = adminFactory;
     }
 
     client(context) {
         return this.clientFactory(this.env, context.accessToken);
+    }
+
+    admin() {
+        return this.adminFactory(this.env);
     }
 
     async createGame(context, { categoryId, maxPlayers }, retryAfterActiveGame = true) {
@@ -50,8 +55,37 @@ export class MultiplayerService {
         return firstRow(data);
     }
 
-    async startGame(context, { gameCode }) {
+    async markConnectedPlayersReady(gameCode) {
+        const code = String(gameCode || '').trim().toUpperCase();
+        if (!code) return;
+
+        const admin = this.admin();
+        const { data: game, error: gameError } = await admin
+            .from('multiplayer_games')
+            .select('id')
+            .eq('game_code', code)
+            .eq('status', 'waiting')
+            .maybeSingle();
+
+        if (gameError) throw gameError;
+        if (!game?.id) return;
+
+        const { error } = await admin
+            .from('multiplayer_players')
+            .update({ is_ready: true })
+            .eq('game_id', game.id)
+            .is('left_at', null)
+            .eq('is_connected', true);
+
+        throwIfError(error);
+    }
+
+    async startGame(context, { gameCode }, retryAfterReadyError = true) {
         const { data, error } = await this.client(context).rpc('start_multiplayer_game', { p_game_code: gameCode });
+        if (retryAfterReadyError && errorKey(error).includes('players_not_ready')) {
+            await this.markConnectedPlayersReady(gameCode);
+            return this.startGame(context, { gameCode }, false);
+        }
         throwIfError(error);
         return firstRow(data);
     }
