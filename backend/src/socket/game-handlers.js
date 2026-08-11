@@ -14,27 +14,26 @@ function roomName(gameCode) {
 }
 
 async function emitState(io, service, socket, gameCode, eventName = 'gameState') {
-    const rows = await service.getState(socket.user, { gameCode });
-    const publicSnapshot = buildGameSnapshot(rows, null);
-    io.to(roomName(gameCode)).emit(eventName, publicSnapshot);
-    
     const room = io.sockets.adapter.rooms.get(roomName(gameCode));
-    if (room) {
-        for (const socketId of room) {
-            const clientSocket = io.sockets.sockets.get(socketId);
-            if (clientSocket && clientSocket.user) {
-                try {
-                    const privateRows = await service.getState(clientSocket.user, { gameCode });
-                    const privateSnapshot = buildGameSnapshot(privateRows, clientSocket.user.userId);
-                    clientSocket.emit(eventName, privateSnapshot);
-                } catch (err) {
-                    // ignore
-                }
+    if (!room) return null;
+
+    // On envoie UNIQUEMENT des snapshots privés à chaque joueur
+    for (const socketId of room) {
+        const clientSocket = io.sockets.sockets.get(socketId);
+        if (clientSocket && clientSocket.user) {
+            try {
+                const privateRows = await service.getState(clientSocket.user, { gameCode });
+                const privateSnapshot = buildGameSnapshot(privateRows, clientSocket.user.userId);
+                clientSocket.emit(eventName, privateSnapshot);
+            } catch (err) {
+                // ignore
             }
         }
     }
-    
-    return buildGameSnapshot(rows, socket.user.userId);
+
+    // Retourne le snapshot de l'appelant pour l'ACK
+    const callerRows = await service.getState(socket.user, { gameCode });
+    return buildGameSnapshot(callerRows, socket.user.userId);
 }
 
 function withAck(socket, limiter, key, limits, handler) {
@@ -103,7 +102,6 @@ export function registerGameHandlers(io, socket, { multiplayerService, limiter }
         const input = parsePayload(submitAnswerSchema, payload);
         const result = await multiplayerService.submitAnswer(socket.user, input);
         const snapshot = await emitState(io, multiplayerService, socket, input.gameCode, 'scoreUpdate');
-        socket.emit('answerResult', result);
         return { result, snapshot };
     }));
 
