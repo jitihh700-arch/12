@@ -6,7 +6,8 @@
         connected: false,
         connecting: false,
         connectPromise: null,
-        lastError: null
+        lastError: null,
+        listeners: new Map()
     };
 
     function getBackendUrl() {
@@ -31,6 +32,12 @@
     function requestId() {
         if (window.crypto?.randomUUID) return window.crypto.randomUUID();
         return 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx'.replace(/[x]/g, () => Math.floor(Math.random() * 16).toString(16));
+    }
+
+    function attachRegisteredListeners(socket) {
+        state.listeners.forEach((handlers, eventName) => {
+            handlers.forEach(handler => socket.on(eventName, handler));
+        });
     }
 
     function emitWithAck(eventName, payload = {}, timeoutMs = DEFAULT_TIMEOUT) {
@@ -80,6 +87,7 @@
             reconnection: true,
             reconnectionAttempts: 8
         });
+        attachRegisteredListeners(state.socket);
 
         state.socket.on('connect', () => {
             state.connected = true;
@@ -119,6 +127,12 @@
     }
 
     function on(eventName, handler) {
+        if (!state.listeners.has(eventName)) {
+            state.listeners.set(eventName, new Set());
+        }
+        const handlers = state.listeners.get(eventName);
+        if (handlers.has(handler)) return;
+        handlers.add(handler);
         state.socket?.on(eventName, handler);
     }
 

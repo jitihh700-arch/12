@@ -98,6 +98,9 @@ async function installControlledRuntime(page, options = {}) {
                 (handlers[event] || []).forEach(handler => handler(payload));
             }
 
+            window.__lastSocketHandlers = handlers;
+            window.__emitLastSocket = emitLocal;
+
             return {
                 connected: false,
                 on(event, handler) {
@@ -152,6 +155,48 @@ test('profil disponible: le socket demarre avec session et profil valides', asyn
     await expect.poll(() => page.evaluate(() => window.__connectCalls)).toBe(1);
     await expect(page.locator('#multiplayer-status')).toHaveText('Choisis une catégorie ou rejoins un code.');
     await expect.poll(() => page.evaluate(() => window.MemorizMultiplayerSocket.getState().lastError)).toBe(null);
+});
+
+test('lobby: les evenements recus apres connexion mettent a jour l hote', async ({ page }) => {
+    await routeBrowserDependencies(page);
+    await installControlledRuntime(page, { profileMode: 'ready', socketMode: 'success' });
+    await gotoHome(page);
+
+    await openMultiplayerFlow(page);
+    await expect.poll(() => page.evaluate(() => window.__connectCalls)).toBe(1);
+
+    await page.evaluate(() => {
+        window.__emitLastSocket('gameCreated', {
+            gameCode: 'AB234C',
+            categoryId: 'series',
+            status: 'waiting',
+            maxPlayers: 4,
+            currentPlayers: 1,
+            hostId: 'profile-test',
+            players: [
+                { pseudo: 'Host', isHost: true, isCurrent: true, isConnected: true, isReady: true }
+            ]
+        });
+    });
+    await expect(page.locator('#multiplayer-count-label')).toHaveText('1/4 joueurs');
+
+    await page.evaluate(() => {
+        window.__emitLastSocket('playerJoined', {
+            gameCode: 'AB234C',
+            categoryId: 'series',
+            status: 'waiting',
+            maxPlayers: 4,
+            currentPlayers: 2,
+            hostId: 'profile-test',
+            players: [
+                { pseudo: 'Host', isHost: true, isCurrent: true, isConnected: true, isReady: true },
+                { pseudo: 'Rosey', isHost: false, isCurrent: false, isConnected: true, isReady: false }
+            ]
+        });
+    });
+
+    await expect(page.locator('#multiplayer-count-label')).toHaveText('2/4 joueurs');
+    await expect(page.locator('#multiplayer-start')).toBeEnabled();
 });
 
 test('profil retarde: openModal attend profile-ready avant de connecter le socket', async ({ page }) => {
