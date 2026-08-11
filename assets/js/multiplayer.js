@@ -1,4 +1,4 @@
-/* Memoriz - Module Multijoueur (debug version) */
+/* Memoriz - Module Multijoueur (corrigé v3) */
 (function() {
   'use strict';
 
@@ -7,7 +7,6 @@
     startGamePending: false,
     modalOpen: false,
     activeTab: 'create',
-    myUserId: null,
     listenersBound: false
   };
 
@@ -93,24 +92,14 @@
   function setStatus(msg) {
     const n = els();
     if (n.status) n.status.textContent = msg || '';
-    console.log('[MP] status:', msg);
   }
 
-  async function resolveUserId() {
-    if (state.myUserId) return state.myUserId;
-    try {
-      const api = window.MemorizProfileApi?.init(window.MEMORIZ_SUPABASE_CONFIG||{});
-      const res = await api?.client?.auth?.getSession?.();
-      const uid = res?.data?.session?.user?.id;
-      if (uid) state.myUserId = uid;
-      console.log('[MP] userId:', uid);
-      return uid;
-    } catch(e) { console.error('[MP] resolveUserId error:', e); return null; }
-  }
-
+  // ===================== CORRECTION CLÉ : isCurrent =====================
+  // Le backend calcule déjà isCurrent dans buildGameSnapshot.
+  // On n'a PAS besoin de matcher un userId côté client.
   function currentPlayer(snap) {
-    if (!snap?.players || !state.myUserId) return null;
-    return snap.players.find(p => p.userId===state.myUserId || p.id===state.myUserId) || null;
+    if (!snap?.players) return null;
+    return snap.players.find(p => p.isCurrent === true) || null;
   }
 
   function playerItem(p) {
@@ -135,15 +124,19 @@
     return li;
   }
 
+  // ===================== BOUTON LANCER (CORRIGÉ) =====================
   function updateStartButton(snap, cur) {
     const n = els();
     if (!n.startBtn) return;
-    const isHost = cur?.isHost===true;
+    const isHost = cur?.isHost === true;
     const enough = (snap.currentPlayers||0) >= 2;
     const allReady = snap.players?.every(p=>p.isReady||p.isHost) || false;
+
+    // Toujours visible pour l'hôte, hidden pour les autres
     n.startBtn.hidden = !isHost;
-    n.startBtn.disabled = !(snap.status==='waiting' && isHost && enough && allReady) || state.startGamePending;
+    n.startBtn.disabled = !(snap.status==='waiting' && enough && allReady) || state.startGamePending;
     n.startBtn.textContent = state.startGamePending ? 'Lancement…' : 'Lancer la partie';
+
     if (n.startHint) {
       if (!isHost) n.startHint.textContent = "Seul l'hôte peut lancer.";
       else if (!enough) n.startHint.textContent = `Attends un autre joueur (${snap.currentPlayers||0}/${snap.maxPlayers||4}).`;
@@ -195,10 +188,9 @@
   }
 
   function renderState(snap) {
-    if (!snap) { console.log('[MP] renderState: snap null'); return; }
-    console.log('[MP] renderState:', snap);
+    if (!snap) return;
     if (!snap.gameCode && state.current?.gameCode) snap = {...snap, gameCode: state.current.gameCode};
-    if (!snap?.gameCode) { console.log('[MP] renderState: no gameCode'); return; }
+    if (!snap?.gameCode) return;
 
     const prev = state.current?.gameCode;
     if ((prev && prev!==snap.gameCode) || snap.status!=='waiting') resetStartGamePending();
@@ -240,36 +232,24 @@
 
   function bindSocketEvents() {
     const s = window.MemorizMultiplayerSocket;
-    if (!s) { console.error('[MP] bindSocketEvents: no socket object'); return; }
+    if (!s) return;
     const events = ['gameState','gameCreated','playerJoined','playerUpdated','gameStarted','scoreUpdate','gameFinished','playerLeft','playerDisconnected'];
     events.forEach(ev => {
       s.on(ev, (snap) => {
-        console.log('[MP] socket event:', ev, snap);
         if (ev==='gameStarted') state.startGamePending = false;
         renderState(snap);
       });
     });
-    console.log('[MP] socket events bound');
   }
 
   async function ensureConnected() {
     const st = window.MemorizMultiplayerSocket?.getState?.();
-    if (st?.connected) { console.log('[MP] already connected'); return window.MemorizMultiplayerSocket; }
-    try {
-      console.log('[MP] connecting...');
-      const s = await window.MemorizMultiplayerSocket.connect();
-      await resolveUserId();
-      console.log('[MP] connected');
-      return s;
-    } catch(err) {
-      console.error('[MP] connection failed:', err);
-      throw new Error('multiplayer_unavailable');
-    }
+    if (st?.connected) return window.MemorizMultiplayerSocket;
+    return await window.MemorizMultiplayerSocket.connect();
   }
 
   // ===================== ACTIONS =====================
   async function createGame() {
-    console.log('[MP] createGame clicked');
     const n = els();
     const categoryId = n.createCategory?.value;
     const maxPlayers = parseInt(n.createMaxPlayers?.value||'4', 10);
@@ -277,42 +257,29 @@
     try {
       setStatus('Création…');
       await ensureConnected();
-      await resolveUserId();
-      console.log('[MP] emitting createGame:', {categoryId, maxPlayers});
       const result = await window.MemorizMultiplayerSocket.emitWithAck('createGame', { categoryId, maxPlayers });
-      console.log('[MP] createGame result:', result);
       if (result?.created?.game_code) {
         state.current = { gameCode: result.created.game_code };
         renderState(result.snapshot);
-      } else {
-        setStatus('Réponse inattendue du serveur.');
       }
     } catch(err) {
-      console.error('[MP] createGame error:', err);
       setStatus(`Erreur: ${err.message||'Création impossible'}`);
     }
   }
 
   async function joinGame() {
-    console.log('[MP] joinGame clicked');
     const n = els();
     const code = n.joinCode?.value?.trim().toUpperCase();
     if (!code) { setStatus('Saisis un code.'); return; }
     try {
       setStatus('Connexion…');
       await ensureConnected();
-      await resolveUserId();
-      console.log('[MP] emitting joinGame:', code);
       const result = await window.MemorizMultiplayerSocket.emitWithAck('joinGame', { gameCode: code });
-      console.log('[MP] joinGame result:', result);
       if (result?.joined) {
         state.current = { gameCode: code };
         renderState(result.snapshot);
-      } else {
-        setStatus('Réponse inattendue du serveur.');
       }
     } catch(err) {
-      console.error('[MP] joinGame error:', err);
       setStatus(`Erreur: ${err.message||'Connexion impossible'}`);
     }
   }
@@ -376,7 +343,6 @@
     try {
       setStatus('Reconnexion…');
       await ensureConnected();
-      await resolveUserId();
       const result = await window.MemorizMultiplayerSocket.emitWithAck('requestGameState', { gameCode: code });
       if (result) { state.current = { gameCode: code }; renderState(result); }
     } catch(err) { clearCache(); }
@@ -406,9 +372,8 @@
   }
 
   function open() {
-    console.log('[MP] open called');
     const n = els();
-    if (!n.modal) { console.error('[MP] modal not found'); return; }
+    if (!n.modal) return;
     populateCategories();
     n.modal.hidden = false;
     n.modal.setAttribute('aria-hidden','false');
@@ -432,10 +397,9 @@
   }
 
   function bindEvents() {
-    if (state.listenersBound) { console.log('[MP] listeners already bound'); return; }
+    if (state.listenersBound) return;
     state.listenersBound = true;
     const n = els();
-    console.log('[MP] binding events. createBtn=', n.createBtn, 'joinBtn=', n.joinBtn);
 
     n.closeBtn?.addEventListener('click', () => {
       if (!state.current?.gameCode) close(); else leaveGame();
@@ -443,21 +407,8 @@
 
     n.tabCreate?.addEventListener('click', () => switchTab('create'));
     n.tabJoin?.addEventListener('click', () => switchTab('join'));
-
-    if (n.createBtn) {
-      n.createBtn.addEventListener('click', createGame);
-      console.log('[MP] createGame listener attached');
-    } else {
-      console.error('[MP] createBtn not found!');
-    }
-
-    if (n.joinBtn) {
-      n.joinBtn.addEventListener('click', joinGame);
-      console.log('[MP] joinGame listener attached');
-    } else {
-      console.error('[MP] joinBtn not found!');
-    }
-
+    n.createBtn?.addEventListener('click', createGame);
+    n.joinBtn?.addEventListener('click', joinGame);
     n.joinCode?.addEventListener('keydown', (e) => { if(e.key==='Enter') joinGame(); });
 
     n.copyCodeBtn?.addEventListener('click', () => {
@@ -484,25 +435,16 @@
     document.addEventListener('memoriz:multiplayer-network', (e)=>{
       if(e.detail?.connected) setStatus('Connecté au serveur.');
     });
-
-    console.log('[MP] all events bound');
   }
 
-  function init() {
-    console.log('[MP] init called, readyState=', document.readyState);
-    bindEvents();
-  }
-
+  function init() { bindEvents(); }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  } else { init(); }
 
   window.MemorizMultiplayer = {
     open, close,
     getState: () => ({...state}),
     createGame, joinGame, setReady, startGame, submitAnswer, leaveGame
   };
-  console.log('[MP] MemorizMultiplayer exposed');
 })();
