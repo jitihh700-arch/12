@@ -299,6 +299,28 @@
     return await window.MemorizMultiplayerSocket.connect();
   }
 
+  function hasReadyProfile() {
+    return Boolean(window.memorizAuth?.getState?.().profile || window.memorizProfile);
+  }
+
+  async function waitForProfile() {
+    if (hasReadyProfile()) return true;
+
+    const initPromise = window.memorizAuth?.initProfile?.();
+    if (initPromise && typeof initPromise.then === 'function') {
+      await Promise.race([
+        initPromise,
+        new Promise(resolve => {
+          document.addEventListener('memoriz:profile-ready', resolve, { once: true });
+          document.addEventListener('memoriz:profile-needed', resolve, { once: true });
+          document.addEventListener('memoriz:profile-unavailable', resolve, { once: true });
+        })
+      ]);
+    }
+
+    return hasReadyProfile();
+  }
+
   function isActiveGameError(err) {
     const text = [err?.code, err?.message, err?.details, err?.hint].filter(Boolean).join(' ');
     return text.includes('active_game_exists');
@@ -491,7 +513,7 @@
     if (n.panelJoin) n.panelJoin.hidden = tab !== 'join';
   }
 
-  function open() {
+  async function open() {
     const n = els();
     if (!n.modal) return;
     populateCategories();
@@ -506,6 +528,21 @@
     bindSocketEvents();
     setStatus('Choisis une catégorie ou rejoins un code.');
     n.closeBtn?.focus({ preventScroll: true });
+
+    if (!await waitForProfile()) {
+      setStatus('Ton profil doit être chargé avant d’utiliser le multijoueur.');
+      return;
+    }
+
+    try {
+      await ensureConnected();
+      setStatus('Choisis une catégorie ou rejoins un code.');
+    } catch(err) {
+      const message = err?.message === 'profile_required'
+        ? 'Ton profil doit être chargé avant d’utiliser le multijoueur.'
+        : `Réseau: ${err?.message || 'déconnecté'}`;
+      setStatus(message);
+    }
   }
 
   function close() {
@@ -563,9 +600,22 @@
     document.addEventListener('memoriz:multiplayer-network', (e)=>{
       if(e.detail?.connected) setStatus('Connecté au serveur.');
     });
+    document.addEventListener('memoriz:profile-ready', async () => {
+      if (!state.modalOpen) return;
+      if (window.MemorizMultiplayerSocket?.getState?.().lastError !== 'profile_required') return;
+      try {
+        await ensureConnected();
+        setStatus('Choisis une catégorie ou rejoins un code.');
+      } catch(err) {
+        setStatus(`Réseau: ${err?.message || 'déconnecté'}`);
+      }
+    });
   }
 
-  function init() { bindEvents(); }
+  function init() {
+    populateCategories();
+    bindEvents();
+  }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else { init(); }
