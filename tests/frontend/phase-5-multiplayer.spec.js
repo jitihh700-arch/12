@@ -237,15 +237,20 @@ test('partie: une reponse deja trouvee affiche un message sans ajouter de points
     await page.locator('#multiplayer-create').click();
     await page.evaluate(() => {
         window.__fakeSnapshot.status = 'playing';
+        window.__fakeSnapshot.allFoundAnswers = [{ display: 'Walter White', displayOrder: 1, answerYear: null, hint: null }];
         window.__submitAlreadyFound = true;
         window.MemorizMultiplayer.renderState(window.__fakeSnapshot);
+        window.__fakeSnapshot.allFoundAnswers = [];
+        window.__fakeSnapshot.myFoundAnswers = [];
     });
 
     await page.locator('#multiplayer-answer-input').fill('Walter White');
     await page.locator('#multiplayer-answer-form').evaluate(form => form.requestSubmit());
 
     await expect(page.locator('#multiplayer-status')).toHaveText('Cette réponse a déjà été trouvée par un autre joueur.');
+    await expect(page.locator('.multiplayer-toast')).toHaveText('Cette réponse a déjà été trouvée par un autre joueur.');
     await expect(page.locator('#multiplayer-score-live')).toContainText('0 pts');
+    await expect(page.locator('#multiplayer-answer-grid')).toContainText('Walter White');
 });
 
 test('rejoindre, quitter et cache minimal', async ({ page }) => {

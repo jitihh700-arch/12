@@ -25,7 +25,11 @@ function mergeFoundAnswer(snapshot, answer) {
 }
 
 function answerFromSubmitResult(result) {
-  if (result?.result !== 'correct' || !result?.matched_answer_display || result.matched_display_order == null) {
+  if (
+    !['correct', 'duplicate', 'already_found_by_other'].includes(result?.result)
+    || !result?.matched_answer_display
+    || result.matched_display_order == null
+  ) {
     return null;
   }
   return {

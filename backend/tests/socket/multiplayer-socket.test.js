@@ -275,6 +275,9 @@ describe('Socket.io multiplayer', () => {
         expect(alreadyFoundAck.ok).toBe(true);
         expect(alreadyFoundAck.data.result.result).toBe('already_found_by_other');
         expect(alreadyFoundAck.data.snapshot.players.find(player => player.pseudo === 'Alpha').score).toBe(0);
+        expect(alreadyFoundAck.data.snapshot.allFoundAnswers).toEqual([
+            expect.objectContaining({ display: 'Walter White' })
+        ]);
 
         const reactionEvent = waitEvent(a, 'reactionReceived');
         const reactionAck = await emitAck(b, 'sendReaction', {

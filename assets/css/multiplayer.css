@@ -94,6 +94,32 @@
     color: #cbd5e1;
 }
 
+.multiplayer-toast-region {
+    position: fixed;
+    z-index: 10003;
+    top: max(18px, env(safe-area-inset-top));
+    left: 50%;
+    width: min(460px, calc(100vw - 32px));
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.multiplayer-toast {
+    border: 1px solid rgba(255, 206, 92, 0.72);
+    border-radius: 14px;
+    padding: 14px 18px;
+    background: rgba(16, 24, 38, 0.96);
+    color: #fff7d6;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.42);
+    font-weight: 800;
+    text-align: center;
+}
+
+.multiplayer-toast[data-type="success"] {
+    border-color: rgba(78, 205, 196, 0.74);
+    color: #d9fffb;
+}
+
 .multiplayer-tabs,
 .multiplayer-actions,
 .multiplayer-game-topline,

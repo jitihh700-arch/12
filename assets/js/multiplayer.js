@@ -8,7 +8,9 @@
     modalOpen: false,
     activeTab: 'create',
     listenersBound: false,
-    socketListenersBound: false
+    socketListenersBound: false,
+    foundAnswersByGame: new Map(),
+    noticeTimer: null
   };
 
   function byId(id) { return document.getElementById(id); }
@@ -102,6 +104,34 @@
     if (n.status) n.status.textContent = msg || '';
   }
 
+  function noticeRegion() {
+    const n = els();
+    if (!n.modal) return null;
+    let region = n.modal.querySelector('.multiplayer-toast-region');
+    if (!region) {
+      region = document.createElement('div');
+      region.className = 'multiplayer-toast-region';
+      region.setAttribute('aria-live', 'assertive');
+      region.setAttribute('aria-atomic', 'true');
+      n.modal.append(region);
+    }
+    return region;
+  }
+
+  function showNotice(message, type = 'info') {
+    if (!message) return;
+    const region = noticeRegion();
+    if (!region) return;
+    region.replaceChildren();
+    const toast = document.createElement('div');
+    toast.className = 'multiplayer-toast';
+    toast.dataset.type = type;
+    toast.textContent = message;
+    region.append(toast);
+    window.clearTimeout(state.noticeTimer);
+    state.noticeTimer = window.setTimeout(() => toast.remove(), 3600);
+  }
+
   function answerResultMessage(result) {
     const key = typeof result === 'string' ? result : result?.result;
     return {
@@ -152,10 +182,41 @@
     return li;
   }
 
+  function normalizeFoundAnswer(answer) {
+    if (!answer || answer.displayOrder == null) return null;
+    return {
+      display: answer.display || answer.answer || '',
+      displayOrder: Number(answer.displayOrder),
+      answerYear: answer.answerYear || null,
+      hint: answer.hint || null,
+      answeredAt: answer.answeredAt || null
+    };
+  }
+
+  function mergeFoundAnswers(...lists) {
+    const merged = new Map();
+    lists.flat().forEach(answer => {
+      const normalized = normalizeFoundAnswer(answer);
+      if (!normalized || !normalized.display) return;
+      merged.set(normalized.displayOrder, {
+        ...merged.get(normalized.displayOrder),
+        ...normalized
+      });
+    });
+    return [...merged.values()].sort((a, b) => a.displayOrder - b.displayOrder);
+  }
+
+  function hydrateFoundAnswers(snap) {
+    if (!snap?.gameCode) return snap;
+    const known = state.foundAnswersByGame.get(snap.gameCode) || [];
+    const incoming = mergeFoundAnswers(snap.allFoundAnswers || [], snap.myFoundAnswers || []);
+    const merged = mergeFoundAnswers(known, incoming);
+    state.foundAnswersByGame.set(snap.gameCode, merged);
+    return { ...snap, allFoundAnswers: merged };
+  }
+
   function foundAnswersForRender(snap) {
-    const all = Array.isArray(snap?.allFoundAnswers) ? snap.allFoundAnswers : [];
-    if (all.length > 0) return all;
-    return Array.isArray(snap?.myFoundAnswers) ? snap.myFoundAnswers : [];
+    return Array.isArray(snap?.allFoundAnswers) ? snap.allFoundAnswers : [];
   }
 
   // ===================== BOUTON LANCER (CORRIGÉ) =====================
@@ -242,6 +303,7 @@
     if (!snap) return;
     if (!snap.gameCode && state.current?.gameCode) snap = {...snap, gameCode: state.current.gameCode};
     if (!snap?.gameCode) return;
+    snap = hydrateFoundAnswers(snap);
 
     const prev = state.current?.gameCode;
     if ((prev && prev!==snap.gameCode) || snap.status!=='waiting') resetStartGamePending();
@@ -449,7 +511,10 @@
       });
       const message = answerResultMessage(result?.result);
       if (result?.snapshot) renderState(result.snapshot);
-      if (message) setStatus(message);
+      if (message) {
+        setStatus(message);
+        showNotice(message, result?.result === 'correct' ? 'success' : 'warning');
+      }
     } catch(err) { setStatus(`Erreur: ${err.message||'Réponse refusée'}`); }
   }
 
