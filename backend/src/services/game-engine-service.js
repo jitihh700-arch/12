@@ -6,7 +6,6 @@ export function buildGameSnapshot(rows, currentUserId, fallbackGameCode = null) 
   for (const row of list) {
     if (!row?.player_id) continue;
 
-    // Construction du joueur
     if (!playerMap.has(row.player_id)) {
       playerMap.set(row.player_id, {
         playerId: row.player_id,
@@ -21,7 +20,6 @@ export function buildGameSnapshot(rows, currentUserId, fallbackGameCode = null) 
       });
     }
 
-    // Collecte des réponses trouvées pour l'utilisateur actuel
     if (row.user_id === currentUserId && row.my_found_display_order != null) {
       const order = Number(row.my_found_display_order);
       if (!foundMap.has(order)) {
@@ -38,9 +36,20 @@ export function buildGameSnapshot(rows, currentUserId, fallbackGameCode = null) 
 
   const first = list[0] || {};
 
+  // CORRECTION : parse les réponses trouvées par tout le monde (tableau partagé)
+  let allFoundAnswers = [];
+  try {
+    const raw = first.all_found_answers;
+    if (typeof raw === 'string') {
+      allFoundAnswers = JSON.parse(raw);
+    } else if (Array.isArray(raw)) {
+      allFoundAnswers = raw;
+    }
+  } catch (e) {
+    allFoundAnswers = [];
+  }
+
   return {
-    // CORRECTION : fallbackGameCode évite que gameCode soit null
-    // quand la requête SQL retourne 0 ligne pour un joueur
     gameCode: first.game_code || fallbackGameCode || null,
     categoryId: first.category_id || null,
     status: first.status || null,
@@ -52,6 +61,7 @@ export function buildGameSnapshot(rows, currentUserId, fallbackGameCode = null) 
     expiresAt: first.expires_at || null,
     finishedAt: first.finished_at || null,
     players: [...playerMap.values()],
+    allFoundAnswers: Array.isArray(allFoundAnswers) ? allFoundAnswers : [],
     myFoundAnswers: [...foundMap.values()]
       .sort((a, b) => a.displayOrder - b.displayOrder)
   };
