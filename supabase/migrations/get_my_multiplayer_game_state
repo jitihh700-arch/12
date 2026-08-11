@@ -1,0 +1,72 @@
+-- Fichier : supabase/migrations/20260811XXXXXX_multiplayer_state_function.sql
+-- (ou ajoute ça dans ta migration existante)
+
+create or replace function public.get_my_multiplayer_game_state(p_game_code text)
+returns table (
+  game_code text,
+  category_id text,
+  status text,
+  max_players integer,
+  current_players integer,
+  host_id uuid,
+  duration_seconds integer,
+  started_at timestamptz,
+  expires_at timestamptz,
+  finished_at timestamptz,
+  player_id uuid,
+  pseudo text,
+  score integer,
+  correct_answers integer,
+  is_ready boolean,
+  is_connected boolean,
+  is_host boolean,
+  user_id uuid,
+  rank integer,
+  my_found_display_order integer,
+  my_found_answer_display text,
+  my_found_answer_year text,
+  my_found_hint text,
+  my_answered_at timestamptz
+)
+language sql
+security definer
+set search_path = ''
+as $$
+  select
+    g.game_code,
+    g.category_id,
+    g.status,
+    g.max_players,
+    g.current_players,
+    g.host_id,
+    g.duration_seconds,
+    g.started_at,
+    g.expires_at,
+    g.finished_at,
+    p.id as player_id,
+    pr.pseudo,
+    p.score,
+    p.correct_answers,
+    p.is_ready,
+    p.is_connected,
+    p.is_host,
+    p.user_id,
+    p.rank,
+    -- CRITIQUE : ces colonnes ne doivent être remplies que pour l'utilisateur connecté
+    case when fa.user_id = auth.uid() then fa.display_order end as my_found_display_order,
+    case when fa.user_id = auth.uid() then a.display end as my_found_answer_display,
+    case when fa.user_id = auth.uid() then a.answer_year end as my_found_answer_year,
+    case when fa.user_id = auth.uid() then a.hint end as my_found_hint,
+    case when fa.user_id = auth.uid() then fa.answered_at end as my_answered_at
+  from public.multiplayer_games as g
+  join public.multiplayer_players as p on p.game_id = g.id
+  left join public.profiles as pr on pr.id = p.user_id
+  left join public.multiplayer_answers as fa on fa.game_id = g.id and fa.player_id = p.id
+  left join private.quiz_answers as a on a.id = fa.answer_id
+  where g.game_code = p_game_code
+    and p.left_at is null
+  order by p.is_host desc, p.joined_at, p.id;
+$$;
+
+revoke all on function public.get_my_multiplayer_game_state(text) from public;
+grant execute on function public.get_my_multiplayer_game_state(text) to authenticated;
