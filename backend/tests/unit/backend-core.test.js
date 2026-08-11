@@ -173,6 +173,31 @@ describe('snapshot', () => {
         expect(serialized).not.toContain('answer_normalized');
         expect(serialized).not.toContain('90000000-0000-4000-8000-000000000001');
     });
+
+    it('accepte les reponses globales renvoyees comme objet JSON', () => {
+        const snapshot = buildGameSnapshot([
+            {
+                game_code: 'ABC234',
+                category_id: 'sportsMusique',
+                status: 'playing',
+                max_players: 2,
+                current_players: 2,
+                player_id: 'p1',
+                user_id: 'u1',
+                pseudo: 'A',
+                score: 10,
+                correct_answers: 1,
+                is_ready: true,
+                is_connected: true,
+                is_host: true,
+                all_found_answers: {
+                    0: { display: 'Drake', displayOrder: 34, answerYear: null, hint: null }
+                }
+            }
+        ], 'u2');
+
+        expect(snapshot.allFoundAnswers).toEqual([expect.objectContaining({ display: 'Drake' })]);
+    });
 });
 
 describe('multiplayer service', () => {
@@ -247,6 +272,110 @@ describe('multiplayer service', () => {
         expect(started.status).toBe('playing');
         expect(userCalls.map(call => call.name)).toEqual(['start_multiplayer_game', 'start_multiplayer_game']);
         expect(adminCalls).toContainEqual({ table: 'multiplayer_players', values: { is_ready: true } });
+    });
+
+    it('annule les points quand une reponse est deja prise par un autre joueur', async () => {
+        const adminCalls = [];
+        let multiplayerAnswersRead = 0;
+        const service = new MultiplayerService(
+            {},
+            () => ({
+                async rpc(name, payload) {
+                    expect(name).toBe('submit_multiplayer_answer');
+                    expect(payload.p_answer).toBe('Drake');
+                    return {
+                        data: [{
+                            result: 'correct',
+                            matched_answer_display: 'Drake',
+                            matched_display_order: 34,
+                            points_current: 10,
+                            correct_answers: 1
+                        }],
+                        error: null
+                    };
+                }
+            }),
+            () => ({
+                from(table) {
+                    if (table === 'multiplayer_games') {
+                        return {
+                            select() { return this; },
+                            eq() { return this; },
+                            async maybeSingle() {
+                                return { data: { id: 'game-1' }, error: null };
+                            }
+                        };
+                    }
+
+                    if (table === 'multiplayer_players') {
+                        return {
+                            select() { return this; },
+                            eq() { return this; },
+                            async maybeSingle() {
+                                return { data: { id: 'player-b', score: 10, correct_answers: 1 }, error: null };
+                            },
+                            update(values) {
+                                adminCalls.push({ table, values });
+                                return this;
+                            },
+                            then(resolve) {
+                                resolve({ error: null });
+                            }
+                        };
+                    }
+
+                    return {
+                        select() { return this; },
+                        eq() { return this; },
+                        order() { return this; },
+                        async maybeSingle() {
+                            multiplayerAnswersRead += 1;
+                            expect(multiplayerAnswersRead).toBe(1);
+                            return {
+                                data: {
+                                    id: 'answer-row-b',
+                                    answer_id: 'answer-drake',
+                                    answered_at: '2026-08-11T22:00:02Z'
+                                },
+                                error: null
+                            };
+                        },
+                        delete() {
+                            adminCalls.push({ table, delete: true });
+                            return this;
+                        },
+                        then(resolve) {
+                            multiplayerAnswersRead += 1;
+                            if (multiplayerAnswersRead === 2) {
+                                resolve({
+                                    data: [
+                                        { id: 'answer-row-a', player_id: 'player-a', answered_at: '2026-08-11T22:00:01Z' },
+                                        { id: 'answer-row-b', player_id: 'player-b', answered_at: '2026-08-11T22:00:02Z' }
+                                    ],
+                                    error: null
+                                });
+                                return;
+                            }
+                            resolve({ error: null });
+                        }
+                    };
+                }
+            })
+        );
+
+        const result = await service.submitAnswer(
+            { accessToken: 'token-b', userId: 'user-b' },
+            { gameCode: 'AB234C', answer: 'Drake', requestId: '00000000-0000-4000-8000-000000000002' }
+        );
+
+        expect(result.result).toBe('already_found_by_other');
+        expect(result.points_current).toBe(0);
+        expect(result.correct_answers).toBe(0);
+        expect(adminCalls).toContainEqual({ table: 'multiplayer_answers', delete: true });
+        expect(adminCalls).toContainEqual({
+            table: 'multiplayer_players',
+            values: { score: 0, correct_answers: 0 }
+        });
     });
 });
 

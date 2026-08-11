@@ -44,6 +44,8 @@ export function buildGameSnapshot(rows, currentUserId, fallbackGameCode = null) 
       allFoundAnswers = JSON.parse(raw);
     } else if (Array.isArray(raw)) {
       allFoundAnswers = raw;
+    } else if (raw && typeof raw === 'object') {
+      allFoundAnswers = Object.values(raw);
     }
   } catch (e) {
     allFoundAnswers = [];
