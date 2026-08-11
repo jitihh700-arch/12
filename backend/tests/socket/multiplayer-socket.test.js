@@ -73,7 +73,8 @@ function fakeServices() {
                         result: 'already_found_by_other',
                         points_current: player.score,
                         correct_answers: player.score / 10,
-                        matched_answer_display: 'Walter White'
+                        matched_answer_display: 'Walter White',
+                        matched_display_order: 1
                     };
                 }
                 claimedAnswers.set(normalized, context.userId);
@@ -82,7 +83,8 @@ function fakeServices() {
                     result: 'correct',
                     points_current: player.score,
                     correct_answers: player.score / 10,
-                    matched_answer_display: 'Walter White'
+                    matched_answer_display: 'Walter White',
+                    matched_display_order: 1
                 };
             },
             async leaveGame(context) {
@@ -150,9 +152,7 @@ function fakeServices() {
                     rank: rank++,
                     my_found_answer_display: userId === context.userId && player.score ? 'Walter White' : null,
                     my_found_display_order: userId === context.userId && player.score ? 1 : null,
-                    all_found_answers: claimedAnswers.size
-                        ? [{ display: 'Walter White', displayOrder: 1 }]
-                        : []
+                    all_found_answers: []
                 }));
             }
         },

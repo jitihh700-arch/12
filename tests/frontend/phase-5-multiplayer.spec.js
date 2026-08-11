@@ -144,6 +144,9 @@ async function installFakeMultiplayer(page) {
                     return { started: { result: 'started' }, snapshot };
                 }
                 if (event === 'submitAnswer') {
+                    if (window.__submitAlreadyFound) {
+                        return { result: { result: 'already_found_by_other' }, snapshot };
+                    }
                     snapshot.players[0].score = 10;
                     snapshot.players[0].correctAnswers = 1;
                     snapshot.myFoundAnswers = [{ display: 'Walter White', displayOrder: 1, answerYear: null, hint: null }];
@@ -222,9 +225,27 @@ test('partie: start serveur, timer expiresAt, score serveur et reactions texte',
     await page.locator('#multiplayer-answer-form').evaluate(form => form.requestSubmit());
     await expect(page.locator('#multiplayer-score-live')).toContainText('10 pts');
     await expect(page.locator('#multiplayer-found-list')).toContainText('Walter White');
+    await expect(page.locator('#multiplayer-answer-grid')).toContainText('Walter White');
     await page.locator('.reaction-button[data-reaction-type="fire"]').click();
     await expect(page.locator('.reaction-toast')).toContainText('<b>Beta</b>');
     expect(await page.evaluate(() => window.__xssRan)).toBe(false);
+});
+
+test('partie: une reponse deja trouvee affiche un message sans ajouter de points', async ({ page }) => {
+    await installFakeMultiplayer(page);
+    await openMultiplayerFlow(page);
+    await page.locator('#multiplayer-create').click();
+    await page.evaluate(() => {
+        window.__fakeSnapshot.status = 'playing';
+        window.__submitAlreadyFound = true;
+        window.MemorizMultiplayer.renderState(window.__fakeSnapshot);
+    });
+
+    await page.locator('#multiplayer-answer-input').fill('Walter White');
+    await page.locator('#multiplayer-answer-form').evaluate(form => form.requestSubmit());
+
+    await expect(page.locator('#multiplayer-status')).toHaveText('Cette réponse a déjà été trouvée par un autre joueur.');
+    await expect(page.locator('#multiplayer-score-live')).toContainText('0 pts');
 });
 
 test('rejoindre, quitter et cache minimal', async ({ page }) => {

@@ -13,7 +13,30 @@ function roomName(gameCode) {
   return `game:${gameCode}`;
 }
 
-async function emitState(io, service, socket, gameCode, eventName = 'gameState') {
+function mergeFoundAnswer(snapshot, answer) {
+  if (!snapshot || !answer?.display || answer.displayOrder == null) return snapshot;
+  const allFoundAnswers = Array.isArray(snapshot.allFoundAnswers) ? [...snapshot.allFoundAnswers] : [];
+  const order = Number(answer.displayOrder);
+  if (!allFoundAnswers.some(item => Number(item.displayOrder) === order)) {
+    allFoundAnswers.push(answer);
+    allFoundAnswers.sort((a, b) => Number(a.displayOrder) - Number(b.displayOrder));
+  }
+  return { ...snapshot, allFoundAnswers };
+}
+
+function answerFromSubmitResult(result) {
+  if (result?.result !== 'correct' || !result?.matched_answer_display || result.matched_display_order == null) {
+    return null;
+  }
+  return {
+    display: result.matched_answer_display,
+    displayOrder: Number(result.matched_display_order),
+    answerYear: result.matched_answer_year || null,
+    hint: result.matched_hint || null
+  };
+}
+
+async function emitState(io, service, socket, gameCode, eventName = 'gameState', extraFoundAnswer = null) {
   const room = io.sockets.adapter.rooms.get(roomName(gameCode));
   if (!room) return null;
 
@@ -24,7 +47,10 @@ async function emitState(io, service, socket, gameCode, eventName = 'gameState')
       try {
         const privateRows = await service.getState(clientSocket.user, { gameCode });
         // CORRECTION : passe gameCode en fallback pour éviter null
-        const privateSnapshot = buildGameSnapshot(privateRows, clientSocket.user.userId, gameCode);
+        const privateSnapshot = mergeFoundAnswer(
+          buildGameSnapshot(privateRows, clientSocket.user.userId, gameCode),
+          extraFoundAnswer
+        );
         clientSocket.emit(eventName, privateSnapshot);
       } catch (err) {
         // ignore
@@ -35,7 +61,7 @@ async function emitState(io, service, socket, gameCode, eventName = 'gameState')
   // Retourne le snapshot de l'appelant pour l'ACK
   const callerRows = await service.getState(socket.user, { gameCode });
   // CORRECTION : passe gameCode en fallback ici aussi
-  return buildGameSnapshot(callerRows, socket.user.userId, gameCode);
+  return mergeFoundAnswer(buildGameSnapshot(callerRows, socket.user.userId, gameCode), extraFoundAnswer);
 }
 
 function withAck(socket, limiter, key, limits, handler) {
@@ -103,7 +129,14 @@ export function registerGameHandlers(io, socket, { multiplayerService, limiter }
   socket.on('submitAnswer', withAck(socket, limiter, 'submitAnswer', { max: 30, windowMs: 10_000 }, async payload => {
     const input = parsePayload(submitAnswerSchema, payload);
     const result = await multiplayerService.submitAnswer(socket.user, input);
-    const snapshot = await emitState(io, multiplayerService, socket, input.gameCode, 'scoreUpdate');
+    const snapshot = await emitState(
+      io,
+      multiplayerService,
+      socket,
+      input.gameCode,
+      'scoreUpdate',
+      answerFromSubmitResult(result)
+    );
     return { result, snapshot };
   }));
 

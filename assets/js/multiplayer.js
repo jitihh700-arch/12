@@ -152,6 +152,12 @@
     return li;
   }
 
+  function foundAnswersForRender(snap) {
+    const all = Array.isArray(snap?.allFoundAnswers) ? snap.allFoundAnswers : [];
+    if (all.length > 0) return all;
+    return Array.isArray(snap?.myFoundAnswers) ? snap.myFoundAnswers : [];
+  }
+
   // ===================== BOUTON LANCER (CORRIGÉ) =====================
   function updateStartButton(snap, cur) {
     const n = els();
@@ -218,7 +224,7 @@
     const n = els();
     if (!n.answerGrid) return;
     const total = totalAnswers(snap.categoryId);
-    const found = new Map((snap.allFoundAnswers||[]).map(a=>[Number(a.displayOrder),a]));
+    const found = new Map(foundAnswersForRender(snap).map(a=>[Number(a.displayOrder),a]));
     n.answerGrid.replaceChildren();
     for (let i=1; i<=total; i++) {
       const a = found.get(i);
@@ -252,7 +258,7 @@
     if (n.hostLabel) n.hostLabel.textContent = host ? `Hôte: ${host.pseudo}` : 'Hôte indisponible';
     if (n.players) n.players.replaceChildren(...(snap.players||[]).map(playerItem));
     if (n.scoreboard) n.scoreboard.replaceChildren(...(snap.players||[]).map(scoreItem));
-    const visibleFoundAnswers = snap.allFoundAnswers || snap.myFoundAnswers || [];
+    const visibleFoundAnswers = foundAnswersForRender(snap);
     if (n.foundList) n.foundList.replaceChildren(...visibleFoundAnswers.map(foundItem));
 
     renderAnswerGrid(snap);
@@ -442,8 +448,8 @@
         gameCode: state.current.gameCode, answer
       });
       const message = answerResultMessage(result?.result);
-      if (message) setStatus(message);
       if (result?.snapshot) renderState(result.snapshot);
+      if (message) setStatus(message);
     } catch(err) { setStatus(`Erreur: ${err.message||'Réponse refusée'}`); }
   }
 
