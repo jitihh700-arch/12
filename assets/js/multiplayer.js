@@ -1,46 +1,36 @@
 /**
  * Memoriz - Module Multijoueur
  * Remplace le fichier multiplayer.js incomplet du repo.
- * Gère l'interface de salon, la partie, le classement final et le fallback.
  */
 (function() {
   'use strict';
 
-  // ===================== ÉTAT =====================
   const state = {
     current: null,
     startGamePending: false,
     modalOpen: false,
-    activeTab: 'create'
+    activeTab: 'create',
+    myUserId: null
   };
 
-  // ===================== UTILITAIRES DOM =====================
-  function byId(id) {
-    return document.getElementById(id);
-  }
+  function byId(id) { return document.getElementById(id); }
 
   function els() {
     return {
-      // Modale
       modal: byId('multiplayer-modal'),
       closeBtn: byId('multiplayer-close'),
       title: byId('multiplayer-title'),
       status: byId('multiplayer-status'),
-      // Onglets
       tabCreate: byId('multiplayer-tab-create'),
       tabJoin: byId('multiplayer-tab-join'),
       panelCreate: byId('multiplayer-create-panel'),
       panelJoin: byId('multiplayer-join-panel'),
-      // Créer
       createCategory: byId('multiplayer-category'),
       createMaxPlayers: byId('multiplayer-max-players'),
       createBtn: byId('multiplayer-create'),
-      // Rejoindre
       joinCode: byId('multiplayer-code-input'),
       joinBtn: byId('multiplayer-join'),
-      // Lobby
       lobbyView: byId('multiplayer-lobby'),
-      lobbyTitle: byId('multiplayer-lobby-title'),
       codeDisplay: byId('multiplayer-code-display'),
       copyCodeBtn: byId('multiplayer-copy-code'),
       categoryLabel: byId('multiplayer-category-label'),
@@ -51,9 +41,7 @@
       startBtn: byId('multiplayer-start'),
       leaveLobbyBtn: byId('multiplayer-leave'),
       startHint: byId('multiplayer-start-hint'),
-      // Jeu
       gameView: byId('multiplayer-game'),
-      gameTitle: byId('multiplayer-game-title'),
       answerForm: byId('multiplayer-answer-form'),
       answerInput: byId('multiplayer-answer-input'),
       answerGrid: byId('multiplayer-answer-grid'),
@@ -63,15 +51,12 @@
       foundList: byId('multiplayer-found-list'),
       scoreboard: byId('multiplayer-scoreboard'),
       reactions: byId('multiplayer-reactions'),
-      // Final
       finalView: byId('multiplayer-final'),
-      finalTitle: byId('multiplayer-final-title'),
       finalRanking: byId('multiplayer-final-ranking'),
       closeFinalBtn: byId('multiplayer-final-close')
     };
   }
 
-  // ===================== DONNÉES QUIZ =====================
   function totalAnswers(categoryId) {
     const mapping = window.categoryMapping?.[categoryId];
     if (mapping?.data) return mapping.data.length;
@@ -85,39 +70,30 @@
     return categoryId || 'Inconnu';
   }
 
-  // ===================== CACHE =====================
   const CACHE_KEY = 'memoriz_multiplayer_game';
 
   function cacheGame(gameCode) {
-    try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify({ gameCode, ts: Date.now() }));
-    } catch (e) { /* ignore */ }
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ gameCode, ts: Date.now() })); }
+    catch (e) {}
   }
-
   function getCachedGame() {
     try {
       const raw = localStorage.getItem(CACHE_KEY);
       if (!raw) return null;
       const parsed = JSON.parse(raw);
       if (Date.now() - parsed.ts > 2 * 60 * 60 * 1000) {
-        localStorage.removeItem(CACHE_KEY);
-        return null;
+        localStorage.removeItem(CACHE_KEY); return null;
       }
       return parsed.gameCode;
-    } catch (e) {
-      return null;
-    }
+    } catch (e) { return null; }
   }
-
   function clearCache() {
-    try { localStorage.removeItem(CACHE_KEY); } catch (e) { /* ignore */ }
+    try { localStorage.removeItem(CACHE_KEY); } catch (e) {}
   }
 
-  // ===================== VUES =====================
   function showView(viewName) {
     const nodes = els();
-    const views = ['lobbyView', 'gameView', 'finalView'];
-    views.forEach(v => {
+    ['lobbyView','gameView','finalView'].forEach(v => {
       if (nodes[v]) nodes[v].hidden = true;
     });
     if (nodes.panelCreate) nodes.panelCreate.hidden = true;
@@ -127,11 +103,8 @@
                  : viewName === 'game' ? nodes.gameView
                  : viewName === 'final' ? nodes.finalView
                  : null;
-    if (target) {
-      target.hidden = false;
-    } else if (viewName === 'portal') {
-      switchTab(state.activeTab);
-    }
+    if (target) target.hidden = false;
+    else if (viewName === 'portal') switchTab(state.activeTab);
   }
 
   function setStatus(msg) {
@@ -139,14 +112,25 @@
     if (nodes.status) nodes.status.textContent = msg || '';
   }
 
-  // ===================== RENDU JOUEURS =====================
+  // ===================== USER ID =====================
+  async function resolveUserId() {
+    if (state.myUserId) return state.myUserId;
+    try {
+      const api = window.MemorizProfileApi?.init(window.MEMORIZ_SUPABASE_CONFIG || {});
+      const res = await api?.client?.auth?.getSession?.();
+      const uid = res?.data?.session?.user?.id;
+      if (uid) state.myUserId = uid;
+      return uid;
+    } catch (e) {
+      return null;
+    }
+  }
+
   function currentPlayer(snapshot) {
     if (!snapshot?.players) return null;
-    const api = getApi();
-    const session = api?.client?.auth?.getSession?.();
-    const userId = session?.data?.session?.user?.id
-                || api?.client?.auth?.currentSession?.user?.id;
-    return snapshot.players.find(p => p.userId === userId || p.id === userId) || null;
+    const uid = state.myUserId;
+    if (!uid) return null;
+    return snapshot.players.find(p => p.userId === uid || p.id === uid) || null;
   }
 
   function playerItem(player) {
@@ -164,7 +148,7 @@
     const li = document.createElement('li');
     li.className = 'multiplayer-score-item';
     const rank = player.rank ? `#${player.rank} ` : '';
-    li.textContent = `${rank}${player.pseudo || 'Anonyme'} — ${player.score || 0} pts (${player.correctAnswers || 0} bonnes réponses)`;
+    li.textContent = `${rank}${player.pseudo || 'Anonyme'} — ${player.score || 0} pts (${player.correctAnswers || 0} bonnes)`;
     if (player.isHost) li.classList.add('is-host');
     return li;
   }
@@ -176,24 +160,29 @@
     return li;
   }
 
-  // ===================== BOUTONS =====================
+  // ===================== BOUTON LANCER =====================
   function updateStartButton(snapshot, current) {
     const nodes = els();
     if (!nodes.startBtn) return;
-    const canStart = snapshot.status === 'waiting'
-      && current?.isHost
-      && snapshot.currentPlayers >= 2
-      && snapshot.players?.every(p => p.isReady || p.isHost);
-    nodes.startBtn.hidden = !canStart;
-    nodes.startBtn.disabled = state.startGamePending;
+
+    const isHost = current?.isHost === true;
+    const enoughPlayers = (snapshot.currentPlayers || 0) >= 2;
+    const allReady = snapshot.players?.every(p => p.isReady || p.isHost) || false;
+
+    // CORRECTION: toujours montrer le bouton à l'hôte, jamais hidden
+    // Seul l'hôte voit le bouton; les autres ne le voient pas
+    nodes.startBtn.hidden = !isHost;
+
+    const canStart = snapshot.status === 'waiting' && isHost && enoughPlayers && allReady;
+    nodes.startBtn.disabled = !canStart || state.startGamePending;
     nodes.startBtn.textContent = state.startGamePending ? 'Lancement…' : 'Lancer la partie';
 
     if (nodes.startHint) {
-      if (canStart) {
-        nodes.startHint.textContent = '';
-      } else if (snapshot.currentPlayers < 2) {
-        nodes.startHint.textContent = 'Attends au moins un autre joueur.';
-      } else if (!snapshot.players?.every(p => p.isReady || p.isHost)) {
+      if (!isHost) {
+        nodes.startHint.textContent = 'Seul l'hôte peut lancer la partie.';
+      } else if (!enoughPlayers) {
+        nodes.startHint.textContent = `Attends au moins un autre joueur (${snapshot.currentPlayers || 0}/${snapshot.maxPlayers || 4}).`;
+      } else if (!allReady) {
         nodes.startHint.textContent = 'Tous les joueurs doivent être prêts.';
       } else {
         nodes.startHint.textContent = '';
@@ -215,8 +204,6 @@
       const m = Math.floor(remaining / 60);
       const s = remaining % 60;
       nodes.timer.textContent = `${m}:${s.toString().padStart(2, '0')}`;
-    } else if (snapshot.status === 'waiting') {
-      nodes.timer.textContent = '--:--';
     } else {
       nodes.timer.textContent = '--:--';
     }
@@ -226,10 +213,9 @@
     showView('final');
     setStatus('Partie terminée !');
     const nodes = els();
-    if (nodes.finalTitle) nodes.finalTitle.textContent = 'Classement final — ' + (snapshot.gameCode || '');
+    if (nodes.finalRanking) nodes.finalRanking.replaceChildren(...(snapshot.players || []).map(scoreItem));
   }
 
-  // ===================== RENDU GRILLE RÉPONSES =====================
   function renderAnswerGrid(snapshot) {
     const nodes = els();
     if (!nodes.answerGrid) return;
@@ -240,28 +226,25 @@
       const answer = found.get(i);
       const row = document.createElement('tr');
       row.className = answer ? 'multiplayer-answer-row is-found' : 'multiplayer-answer-row';
-      const rank = document.createElement('td');
-      rank.textContent = String(i);
-      const display = document.createElement('td');
-      display.textContent = answer?.display || '???';
-      const status = document.createElement('td');
-      status.textContent = answer ? '✓' : '⏳';
+      const rank = document.createElement('td'); rank.textContent = String(i);
+      const display = document.createElement('td'); display.textContent = answer?.display || '???';
+      const status = document.createElement('td'); status.textContent = answer ? '✓' : '⏳';
       row.append(rank, display, status);
       nodes.answerGrid.append(row);
     }
   }
 
-  // ===================== RENDU ÉTAT GLOBAL =====================
   function renderState(snapshot) {
     if (!snapshot) return;
+    console.log('[MP] renderState', snapshot);
 
     if (!snapshot.gameCode && state.current?.gameCode) {
       snapshot = { ...snapshot, gameCode: state.current.gameCode };
     }
     if (!snapshot?.gameCode) return;
 
-    const previousGameCode = state.current?.gameCode;
-    if ((previousGameCode && previousGameCode !== snapshot.gameCode) || snapshot.status !== 'waiting') {
+    const prev = state.current?.gameCode;
+    if ((prev && prev !== snapshot.gameCode) || snapshot.status !== 'waiting') {
       resetStartGamePending();
     }
 
@@ -278,7 +261,6 @@
     if (nodes.hostLabel) nodes.hostLabel.textContent = host ? `Hôte: ${host.pseudo}` : 'Hôte indisponible';
     if (nodes.players) nodes.players.replaceChildren(...(snapshot.players || []).map(playerItem));
     if (nodes.scoreboard) nodes.scoreboard.replaceChildren(...(snapshot.players || []).map(scoreItem));
-    if (nodes.finalRanking) nodes.finalRanking.replaceChildren(...(snapshot.players || []).map(scoreItem));
     if (nodes.foundList) nodes.foundList.replaceChildren(...(snapshot.allFoundAnswers || []).map(foundItem));
 
     renderAnswerGrid(snapshot);
@@ -302,7 +284,7 @@
     if (snapshot.status === 'playing') {
       showView('game');
       setStatus('Partie en cours.');
-    } else if (['finished', 'expired', 'cancelled'].includes(snapshot.status)) {
+    } else if (['finished','expired','cancelled'].includes(snapshot.status)) {
       showFinal(snapshot);
     } else {
       showView('lobby');
@@ -310,32 +292,22 @@
     }
   }
 
-  // ===================== API SUPABASE =====================
   function getApi() {
-    try {
-      return window.MemorizProfileApi?.init(window.MEMORIZ_SUPABASE_CONFIG || {});
-    } catch (e) {
-      return null;
-    }
+    try { return window.MemorizProfileApi?.init(window.MEMORIZ_SUPABASE_CONFIG || {}); }
+    catch (e) { return null; }
   }
 
-  // ===================== SOCKET EVENTS =====================
   function bindSocketEvents() {
     const socket = window.MemorizMultiplayerSocket;
     if (!socket) return;
-
-    socket.on('gameState', (snapshot) => renderState(snapshot));
-    socket.on('gameCreated', (snapshot) => renderState(snapshot));
-    socket.on('playerJoined', (snapshot) => renderState(snapshot));
-    socket.on('playerUpdated', (snapshot) => renderState(snapshot));
-    socket.on('gameStarted', (snapshot) => {
-      state.startGamePending = false;
-      renderState(snapshot);
+    const events = ['gameState','gameCreated','playerJoined','playerUpdated','gameStarted','scoreUpdate','gameFinished','playerLeft','playerDisconnected'];
+    events.forEach(ev => {
+      socket.on(ev, (snapshot) => {
+        console.log('[MP] event:', ev, snapshot);
+        if (ev === 'gameStarted') state.startGamePending = false;
+        renderState(snapshot);
+      });
     });
-    socket.on('scoreUpdate', (snapshot) => renderState(snapshot));
-    socket.on('gameFinished', (snapshot) => renderState(snapshot));
-    socket.on('playerLeft', (snapshot) => renderState(snapshot));
-    socket.on('playerDisconnected', (snapshot) => renderState(snapshot));
   }
 
   // ===================== ACTIONS =====================
@@ -343,23 +315,22 @@
     const nodes = els();
     const categoryId = nodes.createCategory?.value;
     const maxPlayers = parseInt(nodes.createMaxPlayers?.value || '4', 10);
-    if (!categoryId) {
-      setStatus('Veuillez choisir une catégorie.');
-      return;
-    }
+    if (!categoryId) { setStatus('Veuillez choisir une catégorie.'); return; }
     try {
       setStatus('Création du salon…');
       await ensureConnected();
-      // CORRECTION: maxPlayers doit être un number (pas string), pas de timeLimitSeconds (strict schema)
+      await resolveUserId();
       const result = await window.MemorizMultiplayerSocket.emitWithAck('createGame', {
         categoryId,
         maxPlayers
       });
+      console.log('[MP] createGame result:', result);
       if (result?.created?.game_code) {
         state.current = { gameCode: result.created.game_code };
         renderState(result.snapshot);
       }
     } catch (err) {
+      console.error('[MP] createGame error:', err);
       setStatus(`Erreur: ${err.message || 'Impossible de créer le salon'}`);
     }
   }
@@ -367,20 +338,20 @@
   async function joinGame() {
     const nodes = els();
     const code = nodes.joinCode?.value?.trim().toUpperCase();
-    if (!code) {
-      setStatus('Veuillez saisir un code de partie.');
-      return;
-    }
+    if (!code) { setStatus('Veuillez saisir un code de partie.'); return; }
     try {
       setStatus('Connexion au salon…');
       await ensureConnected();
+      await resolveUserId();
       const result = await window.MemorizMultiplayerSocket.emitWithAck('joinGame', { gameCode: code });
+      console.log('[MP] joinGame result:', result);
       if (result?.joined) {
         state.current = { gameCode: code };
         renderState(result.snapshot);
       }
     } catch (err) {
-      setStatus(`Erreur: ${err.message || 'Impossible de rejoindre le salon'}`);
+      console.error('[MP] joinGame error:', err);
+      setStatus(`Erreur: ${err.message || 'Impossible de rejoindre'}`);
     }
   }
 
@@ -388,7 +359,6 @@
     if (!state.current?.gameCode) return;
     try {
       const current = currentPlayer(state.current);
-      // CORRECTION: le backend attend 'ready' (boolean), pas 'isReady'
       const result = await window.MemorizMultiplayerSocket.emitWithAck('setReady', {
         gameCode: state.current.gameCode,
         ready: !current?.isReady
@@ -432,17 +402,12 @@
   }
 
   async function leaveGame() {
-    if (!state.current?.gameCode) {
-      close();
-      return;
-    }
+    if (!state.current?.gameCode) { close(); return; }
     try {
       await window.MemorizMultiplayerSocket.emitWithAck('leaveGame', {
         gameCode: state.current.gameCode
       });
-    } catch (err) {
-      // ignore
-    }
+    } catch (err) {}
     clearCache();
     state.current = null;
     close();
@@ -454,6 +419,7 @@
     try {
       setStatus('Reconnexion…');
       await ensureConnected();
+      await resolveUserId();
       const result = await window.MemorizMultiplayerSocket.emitWithAck('requestGameState', {
         gameCode: code
       });
@@ -461,23 +427,21 @@
         state.current = { gameCode: code };
         renderState(result);
       }
-    } catch (err) {
-      clearCache();
-    }
+    } catch (err) { clearCache(); }
   }
 
-  // ===================== CONNEXION =====================
   async function ensureConnected() {
     const socketState = window.MemorizMultiplayerSocket?.getState?.();
     if (socketState?.connected) return window.MemorizMultiplayerSocket;
     try {
-      return await window.MemorizMultiplayerSocket.connect();
+      const s = await window.MemorizMultiplayerSocket.connect();
+      await resolveUserId();
+      return s;
     } catch (err) {
       throw new Error('multiplayer_unavailable');
     }
   }
 
-  // ===================== MODALE =====================
   function populateCategories() {
     const nodes = els();
     if (!nodes.createCategory) return;
@@ -490,9 +454,7 @@
       opt.textContent = info.title || key;
       nodes.createCategory.append(opt);
     });
-    if (currentVal && mapping[currentVal]) {
-      nodes.createCategory.value = currentVal;
-    }
+    if (currentVal && mapping[currentVal]) nodes.createCategory.value = currentVal;
   }
 
   function switchTab(tab) {
@@ -535,30 +497,20 @@
     setStatus('Connecte ton profil pour jouer à plusieurs.');
   }
 
-  // ===================== BINDINGS =====================
   function bindEvents() {
     const nodes = els();
 
-    // Fermer modale
     nodes.closeBtn?.addEventListener('click', () => {
       if (!state.current?.gameCode) close();
       else leaveGame();
     });
 
-    // Onglets
     nodes.tabCreate?.addEventListener('click', () => switchTab('create'));
     nodes.tabJoin?.addEventListener('click', () => switchTab('join'));
-
-    // Créer
     nodes.createBtn?.addEventListener('click', createGame);
-
-    // Rejoindre
     nodes.joinBtn?.addEventListener('click', joinGame);
-    nodes.joinCode?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') joinGame();
-    });
+    nodes.joinCode?.addEventListener('keydown', (e) => { if (e.key === 'Enter') joinGame(); });
 
-    // Copier code
     nodes.copyCodeBtn?.addEventListener('click', () => {
       const code = nodes.codeDisplay?.textContent;
       if (code) {
@@ -569,61 +521,34 @@
       }
     });
 
-    // Lobby
     nodes.readyBtn?.addEventListener('click', setReady);
     nodes.startBtn?.addEventListener('click', startGame);
     nodes.leaveLobbyBtn?.addEventListener('click', leaveGame);
 
-    // Jeu
-    nodes.answerForm?.addEventListener('submit', (e) => {
-      e.preventDefault();
-      submitAnswer();
-    });
-    nodes.leaveLobbyBtn?.addEventListener('click', leaveGame);
+    nodes.answerForm?.addEventListener('submit', (e) => { e.preventDefault(); submitAnswer(); });
 
-    // Final
     nodes.closeFinalBtn?.addEventListener('click', close);
 
-    // Fermer modale via backdrop
     nodes.modal?.addEventListener('click', (e) => {
-      if (e.target === nodes.modal && !state.current?.gameCode) {
-        close();
-      }
+      if (e.target === nodes.modal && !state.current?.gameCode) close();
     });
 
-    // Écouter les erreurs réseau
     document.addEventListener('memoriz:multiplayer-error', (e) => {
       setStatus(`Réseau: ${e.detail?.error || 'déconnecté'}`);
     });
-
     document.addEventListener('memoriz:multiplayer-network', (e) => {
-      if (e.detail?.connected) {
-        setStatus('Connecté au serveur multijoueur.');
-      }
+      if (e.detail?.connected) setStatus('Connecté au serveur multijoueur.');
     });
   }
 
-  // ===================== INIT =====================
-  function init() {
-    bindEvents();
-  }
-
+  function init() { bindEvents(); }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  } else { init(); }
 
-  // ===================== API GLOBALE =====================
   window.MemorizMultiplayer = {
-    open,
-    close,
+    open, close,
     getState: () => ({ ...state }),
-    createGame,
-    joinGame,
-    setReady,
-    startGame,
-    submitAnswer,
-    leaveGame
+    createGame, joinGame, setReady, startGame, submitAnswer, leaveGame
   };
 })();
