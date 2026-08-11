@@ -120,7 +120,6 @@
     views.forEach(v => {
       if (nodes[v]) nodes[v].hidden = true;
     });
-    // Masquer aussi les panels portail
     if (nodes.panelCreate) nodes.panelCreate.hidden = true;
     if (nodes.panelJoin) nodes.panelJoin.hidden = true;
 
@@ -131,7 +130,6 @@
     if (target) {
       target.hidden = false;
     } else if (viewName === 'portal') {
-      // Retour aux onglets créer/rejoindre
       switchTab(state.activeTab);
     }
   }
@@ -352,10 +350,10 @@
     try {
       setStatus('Création du salon…');
       await ensureConnected();
+      // CORRECTION: maxPlayers doit être un number (pas string), pas de timeLimitSeconds (strict schema)
       const result = await window.MemorizMultiplayerSocket.emitWithAck('createGame', {
         categoryId,
-        maxPlayers,
-        timeLimitSeconds: 300
+        maxPlayers
       });
       if (result?.created?.game_code) {
         state.current = { gameCode: result.created.game_code };
@@ -390,9 +388,10 @@
     if (!state.current?.gameCode) return;
     try {
       const current = currentPlayer(state.current);
+      // CORRECTION: le backend attend 'ready' (boolean), pas 'isReady'
       const result = await window.MemorizMultiplayerSocket.emitWithAck('setReady', {
         gameCode: state.current.gameCode,
-        isReady: !current?.isReady
+        ready: !current?.isReady
       });
       if (result?.snapshot) renderState(result.snapshot);
     } catch (err) {
@@ -585,7 +584,7 @@
     // Final
     nodes.closeFinalBtn?.addEventListener('click', close);
 
-    // Fermer modale via backdrop (clic hors du contenu)
+    // Fermer modale via backdrop
     nodes.modal?.addEventListener('click', (e) => {
       if (e.target === nodes.modal && !state.current?.gameCode) {
         close();
