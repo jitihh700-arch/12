@@ -249,8 +249,13 @@ test('partie: une reponse deja trouvee affiche un message sans ajouter de points
 
     await expect(page.locator('#multiplayer-status')).toHaveText('Cette réponse a déjà été trouvée par un autre joueur.');
     await expect(page.locator('.multiplayer-toast')).toHaveText('Cette réponse a déjà été trouvée par un autre joueur.');
+    await expect(page.locator('[role="alertdialog"]')).toBeVisible();
+    await expect(page.locator('#multiplayer-answer-dialog-title')).toHaveText('Réponse déjà trouvée');
+    await expect(page.locator('#multiplayer-answer-dialog-message')).toHaveText('Cette réponse a déjà été trouvée par un autre joueur.');
     await expect(page.locator('#multiplayer-score-live')).toContainText('0 pts');
     await expect(page.locator('#multiplayer-answer-grid')).toContainText('Walter White');
+    await page.locator('[role="alertdialog"] button').click();
+    await expect(page.locator('[role="alertdialog"]')).toHaveCount(0);
 });
 
 test('rejoindre, quitter et cache minimal', async ({ page }) => {

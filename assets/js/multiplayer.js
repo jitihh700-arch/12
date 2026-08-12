@@ -10,7 +10,8 @@
     listenersBound: false,
     socketListenersBound: false,
     foundAnswersByGame: new Map(),
-    noticeTimer: null
+    noticeTimer: null,
+    answerDialogOpen: false
   };
 
   function byId(id) { return document.getElementById(id); }
@@ -132,6 +133,50 @@
     state.noticeTimer = window.setTimeout(() => toast.remove(), 3600);
   }
 
+  function closeAnswerDialog() {
+    const dialog = document.querySelector('.multiplayer-answer-dialog');
+    dialog?.remove();
+    state.answerDialogOpen = false;
+  }
+
+  function showAnswerAlreadyUsedDialog(message) {
+    const n = els();
+    if (!n.modal || !message) return;
+    closeAnswerDialog();
+    const overlay = document.createElement('div');
+    overlay.className = 'multiplayer-answer-dialog';
+    overlay.setAttribute('role', 'presentation');
+
+    const panel = document.createElement('section');
+    panel.className = 'multiplayer-answer-dialog-panel';
+    panel.setAttribute('role', 'alertdialog');
+    panel.setAttribute('aria-modal', 'true');
+    panel.setAttribute('aria-labelledby', 'multiplayer-answer-dialog-title');
+    panel.setAttribute('aria-describedby', 'multiplayer-answer-dialog-message');
+
+    const title = document.createElement('h3');
+    title.id = 'multiplayer-answer-dialog-title';
+    title.textContent = 'Réponse déjà trouvée';
+
+    const text = document.createElement('p');
+    text.id = 'multiplayer-answer-dialog-message';
+    text.textContent = message;
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = 'OK';
+    button.addEventListener('click', closeAnswerDialog);
+
+    panel.append(title, text, button);
+    overlay.append(panel);
+    overlay.addEventListener('click', event => {
+      if (event.target === overlay) closeAnswerDialog();
+    });
+    n.modal.append(overlay);
+    state.answerDialogOpen = true;
+    button.focus({ preventScroll: true });
+  }
+
   function answerResultMessage(result) {
     const key = typeof result === 'string' ? result : result?.result;
     return {
@@ -142,6 +187,10 @@
       game_finished: 'La partie est déjà terminée.',
       expired: 'Le temps est écoulé.'
     }[key] || '';
+  }
+
+  function answerResultKey(result) {
+    return typeof result === 'string' ? result : result?.result || '';
   }
 
   // ===================== CORRECTION CLÉ : isCurrent =====================
@@ -509,11 +558,14 @@
       const result = await window.MemorizMultiplayerSocket.emitWithAck('submitAnswer', {
         gameCode: state.current.gameCode, answer
       });
-      const message = answerResultMessage(result?.result);
+      const resultKey = answerResultKey(result?.result);
+      const message = answerResultMessage(resultKey);
       if (result?.snapshot) renderState(result.snapshot);
       if (message) {
+        const type = resultKey === 'correct' ? 'success' : 'warning';
         setStatus(message);
-        showNotice(message, result?.result === 'correct' ? 'success' : 'warning');
+        showNotice(message, type);
+        if (resultKey === 'already_found_by_other') showAnswerAlreadyUsedDialog(message);
       }
     } catch(err) { setStatus(`Erreur: ${err.message||'Réponse refusée'}`); }
   }
@@ -662,6 +714,10 @@
     });
 
     document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && state.answerDialogOpen) {
+        closeAnswerDialog();
+        return;
+      }
       if (e.key === 'Escape' && state.modalOpen) close();
     });
 
