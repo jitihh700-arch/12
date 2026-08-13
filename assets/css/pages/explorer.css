@@ -59,3 +59,19 @@
     background: rgba(78, 205, 196, 0.16);
     transform: translateY(-1px);
 }
+/* 🔴 Force l'input et le formulaire à rester interactifs */
+.v4-search {
+    position: relative;
+    z-index: 5;
+}
+
+.v4-search input {
+    position: relative;
+    z-index: 6;
+    pointer-events: auto;
+}
+
+.v4-search-row {
+    position: relative;
+    z-index: 6;
+}
