@@ -128,24 +128,18 @@
     }
 
     function bindExplorer() {
-    const search = byId('v4-category-search');
-    const clear = byId('v4-category-clear');
-    const searchForm = document.querySelector('.v4-search');
+        const search = byId('v4-category-search');
+        const clear = byId('v4-category-clear');
+        const searchForm = document.querySelector('.v4-search');
 
-    search?.addEventListener('input', filterCategories);
-    clear?.addEventListener('click', () => {
-        search.value = '';
-        search.focus();
-        filterCategories();
-    });
+        search?.addEventListener('input', filterCategories);
+        clear?.addEventListener('click', () => {
+            search.value = '';
+            search.focus();
+            filterCategories();
+        });
 
-    // 🔴 BLOQUE le rechargement de page à l'appui sur Entrée
-    searchForm?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        filterCategories();
-    });
-
-        // ← AJOUTER CE BLOC
+        // 🔴 AJOUT : bloque le rechargement de page à l'appui sur Entrée
         searchForm?.addEventListener('submit', (e) => {
             e.preventDefault();
             filterCategories();
@@ -158,6 +152,17 @@
                 filterCategories();
             });
         });
+
+        // 🔴 AJOUT : clic souris sur les cartes de catégories
+        document.querySelectorAll('.category-card[data-category]').forEach(card => {
+            card.addEventListener('click', () => {
+                const category = card.getAttribute('data-category');
+                if (category && typeof window.showGamePanel === 'function') {
+                    window.showGamePanel(category);
+                }
+            });
+        });
+
         document.querySelectorAll('.category-card[data-category]').forEach(card => {
             card.addEventListener('keydown', event => {
                 if (event.key !== 'Enter' && event.key !== ' ') return;
