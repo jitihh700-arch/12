@@ -502,3 +502,19 @@
         .info-note { background: #e3f2fd; padding: 10px 15px; border-radius: 20px; margin-bottom: 20px; font-size: 0.9rem; color: #0c5460; border-left: 4px solid #17a2b8; }
 
         @media (max-width: 768px) { .game-header { flex-direction: column; text-align: center; } .modal-content { width: 95%; margin: 10% auto; padding: 20px; } header h1 { font-size: 2.5rem; } .category-card h3 { font-size: 1.5rem; } .sharingan-bg { width: 300px; height: 300px; } .tomoe-1, .tomoe-2, .tomoe-3 { transform: translate(-50%, -50%) translate(80px); } .profile-card { text-align: center; } .profile-status-line, .profile-actions { justify-content: center; } .profile-modal-content { margin: 5vh auto; padding: 24px 20px; } .profile-modal-actions { justify-content: stretch; } .profile-modal-actions button { flex: 1 1 150px; } }
+/* 🔴 Force le footer et les liens sociaux au-dessus de tout */
+.main-footer {
+    position: relative;
+    z-index: 10;
+}
+
+.social-links {
+    position: relative;
+    z-index: 11;
+}
+
+.social-link {
+    position: relative;
+    z-index: 12;
+    pointer-events: auto;
+}
