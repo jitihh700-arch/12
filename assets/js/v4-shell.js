@@ -130,12 +130,21 @@
     function bindExplorer() {
         const search = byId('v4-category-search');
         const clear = byId('v4-category-clear');
+        const searchForm = document.querySelector('.v4-search'); // ← AJOUTER
+
         search?.addEventListener('input', filterCategories);
         clear?.addEventListener('click', () => {
             search.value = '';
             search.focus();
             filterCategories();
         });
+
+        // ← AJOUTER CE BLOC
+        searchForm?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            filterCategories();
+        });
+
         document.querySelectorAll('[data-v4-filter]').forEach(button => {
             button.addEventListener('click', () => {
                 document.querySelectorAll('[data-v4-filter]').forEach(item => item.classList.remove('is-active'));
