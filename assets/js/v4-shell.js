@@ -128,16 +128,22 @@
     }
 
     function bindExplorer() {
-        const search = byId('v4-category-search');
-        const clear = byId('v4-category-clear');
-        const searchForm = document.querySelector('.v4-search'); // ← AJOUTER
+    const search = byId('v4-category-search');
+    const clear = byId('v4-category-clear');
+    const searchForm = document.querySelector('.v4-search');
 
-        search?.addEventListener('input', filterCategories);
-        clear?.addEventListener('click', () => {
-            search.value = '';
-            search.focus();
-            filterCategories();
-        });
+    search?.addEventListener('input', filterCategories);
+    clear?.addEventListener('click', () => {
+        search.value = '';
+        search.focus();
+        filterCategories();
+    });
+
+    // 🔴 BLOQUE le rechargement de page à l'appui sur Entrée
+    searchForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        filterCategories();
+    });
 
         // ← AJOUTER CE BLOC
         searchForm?.addEventListener('submit', (e) => {
