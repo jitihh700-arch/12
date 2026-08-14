@@ -153,9 +153,11 @@
             });
         });
 
-        // 🔴 AJOUT : clic souris sur les cartes de catégories
+        // 🔴 AJOUT : clic souris sur les cartes de catégories AVEC stopPropagation et preventDefault
         document.querySelectorAll('.category-card[data-category]').forEach(card => {
-            card.addEventListener('click', () => {
+            card.addEventListener('click', (event) => {
+                event.stopPropagation();      // ← AJOUTÉ
+                event.preventDefault();       // ← AJOUTÉ
                 const category = card.getAttribute('data-category');
                 if (category && typeof window.showGamePanel === 'function') {
                     window.showGamePanel(category);
@@ -239,10 +241,11 @@
         menu.hidden = !open;
     }
 
+    // MODIFIÉ : bindNavigation avec la nouvelle ligne d'exclusion
     function bindNavigation() {
         document.addEventListener('click', event => {
-            // 🔴 CORRECTION : ignorer les clics à l'intérieur des modales, commentaires et sections interactives
-            if (event.target.closest('.multiplayer-modal, .profile-modal, .leaderboard-modal, .comments-section, .modal, [aria-modal="true"]')) {
+            // 🔴 CORRECTION : ignorer les clics à l'intérieur des modales, commentaires, sections interactives ET du panneau de jeu
+            if (event.target.closest('.multiplayer-modal, .profile-modal, .leaderboard-modal, .comments-section, .modal, [aria-modal="true"], #game-panel, .game-panel')) {
                 return;
             }
 
