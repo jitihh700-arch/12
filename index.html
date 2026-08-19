@@ -1,488 +1,193 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-   <!--  google adsense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5242542688677015"
-     crossorigin="anonymous"></script>
-    
-    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="shortcut icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/site.webmanifest" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memoriz-quiz Le défi ultime des souvenirs</title>
-    <meta name="description" content="Memoriz - Testez vos connaissances sur les célébrités, anime, sports, musiques, jeux vidéo, super-héros et rap. Quiz gratuit avec chronomètre.">
-    <meta name="keywords" content="quiz, célébrités, anime, manga, football, musique, test, connaissances, jeux vidéo, super-héros, rap, culture générale">
+    <title>Memoriz - Quiz Culture Pop, Sport, Anime & Cinéma | Le défi ultime des souvenirs</title>
+    <meta name="description" content="Memoriz est le site de quiz ultime sur la culture pop, le sport, les animés et le cinéma. 26 catégories, mode solo et multijoueur. Testez votre mémoire et votre culture générale gratuitement !">
+    <meta name="keywords" content="quiz, culture pop, sport, animé, manga, cinéma, mémoire, jeu, multijoueur, ballon d'or, ligue des champions, super-héros, rap français">
     <meta name="author" content="Memoriz">
     <meta name="robots" content="index, follow">
-
-    <!-- Sécurité 2026 -->
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-    <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()">
-    <meta name="format-detection" content="telephone=no">
-    
-    <meta property="og:title" content="Memoriz - Le défi ultime des souvenirs">
-    <meta property="og:description" content="Testez vos connaissances sur les célébrités, anime, sports, musiques, jeux vidéo, super-héros et rap. Quiz gratuit avec chronomètre.">
+    <meta name="google-adsense-account" content="ca-pub-XXXXXXXXXXXXXXXX">
+    <link rel="canonical" href="https://memoriz.fr/">
+    <meta property="og:title" content="Memoriz - Quiz Culture Pop, Sport, Anime & Cinéma">
+    <meta property="og:description" content="Le défi ultime des souvenirs. 26 catégories de quiz gratuits en solo ou multijoueur.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://memoriz.onrender.com">
-    <meta property="og:image" content="https://memoriz.onrender.com/favicon-96x96.png">
-    <meta property="og:image:width" content="96">
-    <meta property="og:image:height" content="96">
+    <meta property="og:url" content="https://memoriz.fr/">
     <meta property="og:site_name" content="Memoriz">
     <meta property="og:locale" content="fr_FR">
-
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Memoriz - Le défi ultime des souvenirs">
-    <meta name="twitter:description" content="Testez vos connaissances sur les célébrités, anime, sports, musiques, jeux vidéo, super-héros et rap. Quiz gratuit avec chronomètre.">
-    <meta name="twitter:image" content="https://memoriz.onrender.com/favicon-96x96.png">
-
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Memoriz - Quiz Culture Pop, Sport, Anime & Cinéma">
+    <meta name="twitter:description" content="Testez votre mémoire avec 26 catégories de quiz gratuits.">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebSite","name":"Memoriz","url":"https://memoriz.fr","description":"Quiz culture pop, sport, anime et cinéma. 26 catégories, mode solo et multijoueur.","potentialAction":{"@type":"SearchAction","target":"https://memoriz.fr/?q={search_term_string}","query-input":"required name=search_term_string"}}
+    </script>
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"Organization","name":"Memoriz","url":"https://memoriz.fr","email":"jitihh700@gmail.com","sameAs":["https://www.youtube.com/@memoriz","https://www.tiktok.com/@memoriz","https://www.twitch.tv/memoriz"]}
+    </script>
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"VideoGame","name":"Memoriz Quiz","description":"Quiz interactif sur la culture pop, le sport, les animés et le cinéma.","genre":["Quiz","Trivia","Mémoire","Culture générale"],"gamePlatform":["Web Browser","Mobile Browser"],"inLanguage":"fr","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR","availability":"https://schema.org/InStock"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.8","ratingCount":"1250","bestRating":"5","worstRating":"1"}}
+    </script>
     <link rel="stylesheet" href="assets/css/app.css">
     <link rel="stylesheet" href="assets/css/comments.css">
-    <link rel="stylesheet" href="assets/css/leaderboard.css">
     <link rel="stylesheet" href="assets/css/multiplayer.css">
     <link rel="stylesheet" href="assets/css/reactions.css">
-    <link rel="stylesheet" href="assets/css/tokens.css">
-    <link rel="stylesheet" href="assets/css/reset.css">
-    <link rel="stylesheet" href="assets/css/base.css">
-    <link rel="stylesheet" href="assets/css/layout.css">
-    <link rel="stylesheet" href="assets/css/utilities.css">
-    <link rel="stylesheet" href="assets/css/components/buttons.css">
-    <link rel="stylesheet" href="assets/css/components/cards.css">
-    <link rel="stylesheet" href="assets/css/components/forms.css">
-    <link rel="stylesheet" href="assets/css/components/navigation.css">
-    <link rel="stylesheet" href="assets/css/components/feedback.css">
-    <link rel="stylesheet" href="assets/css/pages/home.css">
-    <link rel="stylesheet" href="assets/css/pages/explorer.css">
-    <link rel="stylesheet" href="assets/css/pages/v4-pages.css">
-    <link rel="stylesheet" href="assets/css/pages/system-states.css">
-    <link rel="stylesheet" href="assets/css/responsive.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
 </head>
-<body class="memoriz-v4">
-    <!-- CANVAS POUR LE FOND ANIMÉ -->
+<body>
     <canvas id="particles-canvas"></canvas>
-
-    <!-- SHARINGAN AU CENTRE ANIMÉ -->
-    <div class="sharingan-bg">
-        <div class="sharingan-eye">
-            <div class="sharingan-base"></div>
-            <div class="sharingan-tomoe tomoe-1"></div>
-            <div class="sharingan-tomoe tomoe-2"></div>
-            <div class="sharingan-tomoe tomoe-3"></div>
-            <div class="sharingan-pupil"></div>
-        </div>
-    </div>
-
-    <nav class="v4-top-nav" aria-label="Navigation principale">
-        <a class="v4-brand" href="#home" data-v4-route="home" aria-label="Accueil Memoriz">
-            <img src="favicon-96x96.png" alt="" width="36" height="36">
-            <span>MEMORIZ</span>
-        </a>
-        <button class="v4-menu-toggle" id="v4-menu-toggle" type="button" aria-label="Ouvrir le menu" aria-controls="v4-mobile-menu" aria-expanded="false">
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-        </button>
-        <div class="v4-nav-links">
-            <a href="#home" data-v4-route="home" aria-current="page">Accueil</a>
-            <a href="#explorer" data-v4-route="explorer">Explorer</a>
-            <a href="#solo" data-v4-route="solo">Solo</a>
-            <a href="#multiplayer" data-v4-route="multiplayer">Multijoueur</a>
-            <a href="#community" data-v4-route="community">Communauté</a>
-        </div>
-        <button class="v4-nav-profile" id="v4-nav-profile-action" type="button" aria-live="polite">
-            <span id="v4-nav-profile-name">Mode solo</span>
-        </button>
-    </nav>
-    <nav class="v4-mobile-menu" id="v4-mobile-menu" aria-label="Navigation mobile" hidden>
-        <a href="#home" data-v4-route="home" aria-current="page">
-            <span class="v4-mobile-menu-icon" aria-hidden="true"></span>
-            <span>Accueil</span>
-        </a>
-        <a href="#explorer" data-v4-route="explorer">
-            <span class="v4-mobile-menu-icon" aria-hidden="true"></span>
-            <span>Explorer</span>
-        </a>
-        <a href="#solo" data-v4-route="solo">
-            <span class="v4-mobile-menu-icon" aria-hidden="true"></span>
-            <span>Solo</span>
-        </a>
-        <a href="#multiplayer" data-v4-route="multiplayer">
-            <span class="v4-mobile-menu-icon" aria-hidden="true"></span>
-            <span>Multijoueur</span>
-        </a>
-        <a href="#community" data-v4-route="community">
-            <span class="v4-mobile-menu-icon" aria-hidden="true"></span>
-            <span>Communauté</span>
-        </a>
-    </nav>
-
+    <div class="sharingan-bg"><div class="sharingan-eye"><div class="sharingan-base"></div><div class="sharingan-pupil"></div><div class="sharingan-tomoe tomoe-1"></div><div class="sharingan-tomoe tomoe-2"></div><div class="sharingan-tomoe tomoe-3"></div></div></div>
     <div class="container">
-        <header class="v4-home" id="home" data-v4-view="home" aria-labelledby="v4-home-title">
-            <p class="v4-eyebrow">Quiz culture pop et mémoire</p>
-            <h1 id="v4-home-title">Teste tes connaissances. <span>Progresse chaque jour.</span></h1>
-            <p class="v4-home-lead">Des quiz rapides dans tes univers préférés, utilisables en solo même quand les services en ligne sont indisponibles.</p>
-            <div class="v4-home-actions">
-                <a href="#explorer" class="v4-button v4-button-primary" data-v4-route="explorer">Lancer un quiz</a>
-            </div>
-            <div class="v4-home-stats" aria-label="Résumé Memoriz">
-                <span>26 catégories</span>
-                <span>10 minutes</span>
-                <span>Solo disponible</span>
-            </div>
-            <div class="profile-runtime-controls" id="profile-card" data-state="idle" aria-live="polite">
-                <div class="profile-status-line"><span class="profile-dot" aria-hidden="true"></span><span id="profile-status-label">Profil local</span></div>
-                <strong id="profile-pseudo">Quiz solo disponible</strong>
-                <span class="profile-stats" id="profile-stats"></span>
-                <p id="profile-help">Chargement du profil...</p>
-                <div class="profile-actions">
-                    <button type="button" id="profile-primary-action">Créer mon pseudo</button>
-                    <button type="button" id="profile-retry-action" hidden>Réessayer</button>
-                    <button type="button" id="leaderboard-open">Classement</button>
-                </div>
-            </div>
+        <header>
+            <button class="theme-btn" id="themeToggle">🌙 Mode Sombre</button>
+            <h1>Memoriz</h1>
+            <p>Quiz culture pop et mémoire — Le défi ultime des souvenirs</p>
+            <span class="badge">🎮 26 catégories • Solo & Multijoueur</span>
+            <a href="https://www.sapeo.fr" target="_blank" rel="noopener noreferrer" class="support-banner">💚 Soutenir Memoriz</a>
+            <div class="profile-card" id="profileCard" data-state="loading"><div class="profile-status-line"><span class="profile-dot"></span><span id="profileStatus">Chargement du profil...</span></div><strong id="profilePseudo"></strong><span class="profile-stats" id="profileStats"></span><p id="profileMessage"></p><div class="profile-actions" id="profileActions"></div></div>
         </header>
-
-        <section class="v4-page v4-solo-page" id="solo" data-v4-view="solo" aria-labelledby="v4-solo-title">
-            <div class="v4-page-copy">
-                <p class="v4-eyebrow">Mode solo</p>
-                <h2 id="v4-solo-title">Un quiz rapide, sans friction.</h2>
-                <p>Choisis une catégorie, réponds au clavier ou à la souris, puis garde ton rythme même si les services en ligne sont indisponibles.</p>
-                <a href="#explorer" class="v4-button v4-button-primary" data-v4-route="explorer">Voir les catégories</a>
-            </div>
-            <div class="v4-page-panel">
-                <span class="v4-panel-kicker">Règles conservées</span>
-                <strong>Score, durée et réponses restent ceux du quiz existant.</strong>
-                <ul class="v4-feature-list">
-                    <li>26 catégories existantes.</li>
-                    <li>Chronomètre solo inchangé.</li>
-                    <li>Mode dégradé disponible sans Supabase.</li>
-                </ul>
-            </div>
-        </section>
-
-        <section class="v4-page v4-multiplayer-page" id="multiplayer" data-v4-view="multiplayer" aria-labelledby="v4-multiplayer-title">
-            <div class="v4-page-copy">
-                <p class="v4-eyebrow">Multijoueur</p>
-                <h2 id="v4-multiplayer-title">Crée un salon clair avant d’inviter tes joueurs.</h2>
-                <p>Cette page sert de portail V4 : elle explique l’état, garde les actions visibles, puis ouvre le flux multijoueur sécurisé déjà validé.</p>
-                <div class="v4-page-actions">
-                    <button type="button" class="v4-button v4-button-primary" id="v4-multiplayer-create">Créer une partie</button>
-                    <button type="button" class="v4-button v4-button-secondary" id="v4-multiplayer-join">Rejoindre avec un code</button>
-                </div>
-            </div>
-            <div class="v4-lobby-preview" aria-label="Aperçu du lobby multijoueur">
-                <div class="v4-room-code">
-                    <span>Code</span>
-                    <strong>------</strong>
-                </div>
-                <div class="v4-player-row is-host"><span>Hôte</span><strong>En attente</strong></div>
-                <div class="v4-player-row"><span>Joueur 2</span><strong>À inviter</strong></div>
-                <div class="v4-player-row"><span>Joueur 3</span><strong>Optionnel</strong></div>
-                <p>2 à 4 joueurs, lancement côté serveur, score jamais fourni par le client.</p>
-            </div>
-        </section>
-
-        <div class="categories v4-explorer" id="explorer" data-v4-view="explorer" aria-labelledby="v4-explorer-title">
-            <div class="v4-section-heading">
-                <p class="v4-eyebrow">Explorer</p>
-                <h2 id="v4-explorer-title">Choisis ton défi</h2>
-                <p>Recherche une catégorie, puis lance le quiz existant sans changer les règles.</p>
-            </div>
-            <form class="v4-search" role="search" aria-label="Recherche de catégories">
-                <label for="v4-category-search">Rechercher une catégorie</label>
-                <div class="v4-search-row">
-                    <input id="v4-category-search" type="search" autocomplete="off" placeholder="Anime, football, cinéma...">
-                    <button type="button" id="v4-category-clear" aria-label="Effacer la recherche" hidden>Effacer</button>
-                </div>
-                <div class="v4-search-suggestions" id="v4-category-suggestions" aria-label="Suggestions de recherche" hidden></div>
-            </form>
-            <div class="v4-filter-row" aria-label="Filtres de catégories">
-                <button type="button" class="is-active" data-v4-filter="all">Toutes</button>
-                <button type="button" data-v4-filter="anime">Anime</button>
-                <button type="button" data-v4-filter="sport">Sport</button>
-                <button type="button" data-v4-filter="culture">Culture</button>
-            </div>
-            <div class="v4-state" id="v4-category-empty" role="status" aria-live="polite" hidden>
-                <img src="assets/images/memoriz/states/no-search-results.png" alt="" width="180" height="180" loading="lazy">
-                <strong>Aucune catégorie trouvée</strong>
-                <span>Essaie avec un autre mot-clé.</span>
-            </div>
-            <div class="category-grid">
-                <!-- Catégories existantes -->
-                <div class="category-card" data-category="series"><h3>📺 Séries TV</h3><p>Top 20 des légendes du petit écran</p><span class="questions-count">20 personnages</span></div>
-                <div class="category-card" data-category="films"><h3>🎬 Cinéma</h3><p>Top 20 des icônes du 7ème art</p><span class="questions-count">20 personnages</span></div>
-                <div class="category-card" data-category="animeCelebres"><h3>🌍 Anime/Manga</h3><p>Top 30 des plus célèbres au monde</p><span class="questions-count">30 personnages</span></div>
-                <div class="category-card" data-category="animeDeteste"><h3>💀 Anime/Manga</h3><p>Top 20 des plus détestés</p><span class="questions-count">20 personnages</span></div>
-                <div class="category-card" data-category="animeForts"><h3>🌌 Anime/Manga</h3><p>Top 20 des plus puissants (version ultime)</p><span class="questions-count">20 personnages</span></div>
-                <div class="category-card" data-category="animeIntelligents"><h3>🧠 Anime/Manga</h3><p>Top 15 des génies ultimes</p><span class="questions-count">15 personnages</span></div>
-                <div class="category-card" data-category="sportsMusique"><h3>⚽🏀🎵 Sports & Musique</h3><p>Top 40 des stars mondiales</p><span class="questions-count">40 célébrités</span></div>
-                <div class="category-card" data-category="seriesDeteste"><h3>👎 Séries TV</h3><p>Top 10 des personnages détestés</p><span class="questions-count">10 personnages</span></div>
-                <div class="category-card" data-category="fillesPuissantes"><h3>👸 Anime/Manga</h3><p>Top 15 des filles les plus puissantes</p><span class="questions-count">15 personnages</span></div>
-                <div class="category-card" data-category="meilleursFootballeurs"><h3>⚽ Football</h3><p>Top 15 des meilleurs joueurs de tous les temps</p><span class="questions-count">15 joueurs</span></div>
-                <div class="category-card" data-category="meilleursEntraineurs"><h3>📋 Football</h3><p>Top 10 des meilleurs entraîneurs de tous les temps</p><span class="questions-count">10 entraîneurs</span></div>
-                <div class="category-card" data-category="meilleursMangas"><h3>📖 Mangas</h3><p>Top 15 des meilleurs mangas de tous les temps</p><span class="questions-count">15 mangas</span></div>
-                <div class="category-card" data-category="meilleursAnimes"><h3>🎬 Animes</h3><p>Top 15 des meilleurs animes de tous les temps</p><span class="questions-count">15 animes</span></div>
-                <div class="category-card" data-category="animeIdiots"><h3>🤪 Anime/Manga</h3><p>Top 10 des personnages les plus idiots</p><span class="questions-count">10 personnages</span></div>
-                <div class="category-card" data-category="meilleursCombats"><h3>⚔️ Anime/Manga</h3><p>Top 20 des meilleurs combats all time</p><span class="questions-count">20 combats</span></div>
-                <div class="category-card" data-category="meilleursArcs"><h3>📖 Anime/Manga</h3><p>Top 10 des meilleurs arcs</p><span class="questions-count">10 arcs</span></div>
-                <div class="category-card" data-category="meilleuresTechniques"><h3>✨ Anime/Manga</h3><p>Top 10 des meilleures techniques</p><span class="questions-count">10 techniques</span></div>
-                <div class="category-card" data-category="meilleuresTransformations"><h3>🔄 Anime/Manga</h3><p>Top 10 des meilleures transformations</p><span class="questions-count">10 transformations</span></div>
-                <div class="category-card" data-category="ligueDesChampions"><h3>🏆 Ligue des Champions</h3><p>Vainqueurs de 2000 à 2026</p><span class="questions-count">27 clubs</span></div>
-                <div class="category-card" data-category="ballonDor"><h3>🥇 Ballon d'Or</h3><p>Vainqueurs de 2000 à 2025</p><span class="questions-count">25 joueurs</span></div>
-                
-                <!-- NOUVELLES CATÉGORIES AJOUTÉES -->
-                <div class="category-card" data-category="jeuxVideo"><h3>🎮 Légendes du Jeu Vidéo</h3><p>Top 10 des jeux cultes</p><span class="questions-count">10 jeux</span></div>
-                <div class="category-card" data-category="superHeros"><h3>🦸 Super-héros Marvel & DC</h3><p>Top 20 des héros et vilains</p><span class="questions-count">20 personnages</span></div>
-                <div class="category-card" data-category="rapFrUs"><h3>🎤 Rap Français & US</h3><p>Top 15 des plus grandes légendes</p><span class="questions-count">15 artistes</span></div>
-                
-                <!-- === NOUVELLES CATÉGORIES : TROUVE L'ANIME === -->
-                <div class="category-card" data-category="trouveAnime"><h3>🔍 Trouve l'Anime (Emojis)</h3><p>Trouve l'anime grâce aux emojis !</p><span class="questions-count">15 animes</span></div>
-                
-                <!-- === NOUVELLE CATÉGORIE : DEVINE LE PERSONNAGE === -->
-                <div class="category-card" data-category="devinePersonnage"><h3>🎭 Devine le Personnage</h3><p>Trouve le personnage grâce à l'indice</p><span class="questions-count">20 personnages</span></div>
-                
-                <!-- === NOUVELLE CATÉGORIE : DEVINE L'ANIME PAR ORGANISATION === -->
-                <div class="category-card" data-category="animeParOrganisation"><h3>🏛️ Anime par Organisation</h3><p>Trouve l'anime de l'organisation</p><span class="questions-count">9 organisations</span></div>
-            </div>
+        <nav style="display:flex;justify-content:center;gap:15px;flex-wrap:wrap;margin-bottom:30px;position:relative;z-index:5;">
+            <a href="index.html" style="background:linear-gradient(135deg,#ff4757,#ff6b6b);color:white;padding:10px 24px;border-radius:50px;text-decoration:none;font-weight:700;font-size:0.95rem;box-shadow:0 4px 15px rgba(255,71,87,0.3);">🏠 Accueil</a>
+            <a href="articles.html" style="background:rgba(255,255,255,0.1);color:inherit;padding:10px 24px;border-radius:50px;text-decoration:none;font-weight:600;font-size:0.95rem;border:1px solid rgba(255,255,255,0.2);">📰 Articles</a>
+            <a href="contact.html" style="background:rgba(255,255,255,0.1);color:inherit;padding:10px 24px;border-radius:50px;text-decoration:none;font-weight:600;font-size:0.95rem;border:1px solid rgba(255,255,255,0.2);">📬 Contact</a>
+        </nav>
+        <div style="text-align:center;margin:20px 0;min-height:90px;">
+            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="TOP_BANNER_SLOT" data-ad-format="auto" data-full-width-responsive="true"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
         </div>
-
-        <section class="v4-page v4-community-page" id="community" data-v4-view="community" aria-labelledby="v4-community-title">
-            <div class="v4-page-copy">
-                <p class="v4-eyebrow">Communauté</p>
-                <h2 id="v4-community-title">Les souvenirs des joueurs, au même endroit.</h2>
-                <p>Retrouve les commentaires, les idées de quiz et les retours de la communauté dans une page dédiée, sans mélanger le flux avec l’accueil.</p>
-            </div>
-            <div class="v4-community-stats" aria-label="Résumé communauté">
-                <span>Commentaires sécurisés</span>
-                <span>Profil requis</span>
-                <span>Mode solo intact</span>
-            </div>
-        </section>
-
-        <section class="blog-section" id="articles" data-v4-view="articles" aria-labelledby="articles-title">
-            <h2 id="articles-title">📝 Articles Memoriz</h2>
-            
-            <article class="blog-article" id="blog1">
-                <h3>🧠 Comment améliorer sa mémoire avec les quiz ?</h3>
-                <p class="blog-date">📅 Publié le 10 janvier 2026</p>
-                <div class="blog-short"><p>Les quiz stimulent votre cerveau et renforcent les connexions neuronales...</p></div>
-                <div class="blog-content" id="blog1-content"><p>Les quiz sont bien plus qu'un simple jeu : ce sont de véritables outils de stimulation cognitive. Lorsque vous testez vos connaissances, votre cerveau active plusieurs zones simultanément : l'hippocampe (mémoire), le cortex préfrontal (raisonnement) et le lobe temporal (reconnaissance).</p><p><strong>🎯 Les bienfaits scientifiquement prouvés :</strong></p><ul><li><strong>Renforcement des synapses :</strong> Chaque rappel d'information consolide les connexions neuronales.</li><li><strong>Effet "testing" :</strong> Se tester est plus efficace que relire des notes pour mémoriser.</li><li><strong>Neuroplasticité :</strong> Les quiz réguliers aident le cerveau à créer de nouveaux chemins neuronaux.</li><li><strong>Réduction du stress :</strong> Le jeu permet de libérer de la dopamine, l'hormone du plaisir.</li></ul><p>💡 <strong>Conseil Memoriz :</strong> Faites un quiz par jour pendant 10 minutes. Vous verrez des résultats significatifs sur votre mémoire générale en moins d'un mois !</p><p>Notre site propose plus de 20 catégories différentes pour varier les plaisirs et solliciter différentes zones de votre mémoire.</p></div>
-                <button class="read-more" data-blog="blog1">Lire la suite →</button>
-            </article>
-
-            <article class="blog-article" id="blog2">
-                <h3>🎬 Top 5 des animés à regarder absolument en 2026</h3>
-                <p class="blog-date">📅 Publié le 5 mars 2026</p>
-                <div class="blog-short"><p>L'année 2026 s'annonce exceptionnelle pour les fans d'animation japonaise...</p></div>
-                <div class="blog-content" id="blog2-content"><p>L'industrie de l'animation japonaise ne cesse de nous surprendre avec des œuvres toujours plus ambitieuses. Voici notre sélection des incontournables de 2026 :</p><ul><li><strong>🌸 "Chroniques de l'Aube"</strong> - Une pépite visuelle du studio Ghibli, mêlant aventure et philosophie.</li><li><strong>⚡ "Thunder Legacy"</strong> - La nouvelle référence du shonen par les créateurs de Demon Slayer.</li><li><strong>🌌 "Echoes of the Void"</strong> - Un chef-d'œuvre de science-fiction psychologique.</li><li><strong>🔥 "Flame Reborn"</strong> - Le retour tant attendu d'une licence culte.</li><li><strong>🎭 "The Last Theatre"</strong> - Un drame poignant sur l'amour et l'art.</li></ul><p>Testez vos connaissances sur ces animés et bien d'autres dans notre catégorie "Anime/Manga" ! Qui sera le roi des quiz ?</p></div>
-                <button class="read-more" data-blog="blog2">Lire la suite →</button>
-            </article>
-
-            <article class="blog-article" id="blog3">
-                <h3>⚽ Pourquoi les quiz de sport sont bons pour votre culture générale</h3>
-                <p class="blog-date">📅 Publié le 20 mars 2026</p>
-                <div class="blog-short"><p>Le sport est un phénomène culturel mondial...</p></div>
-                <div class="blog-content" id="blog3-content"><p>Le sport dépasse largement le simple cadre de la compétition. Il façonne des générations, crée des légendes et rassemble des milliards de personnes à travers le monde.</p><p><strong>🏆 Pourquoi les quiz sportifs sont essentiels :</strong></p><ul><li>Ils vous connectent à l'histoire mondiale (JO, Coupes du Monde).</li><li>Ils développent votre mémoire des noms, dates et chiffres.</li><li>Ils facilitent les conversations et le réseautage social.</li><li>Ils vous tiennent informé des records et performances historiques.</li></ul><p>Notre catégorie "Sports & Musique" réunit plus de 40 légendes du football, basketball, tennis et bien plus encore. Pouvez-vous tous les nommer ?</p></div>
-                <button class="read-more" data-blog="blog3">Lire la suite →</button>
-            </article>
-
-            <article class="blog-article" id="blog4">
-                <h3>💡 Les bienfaits cognitifs des jeux de mémoire</h3>
-                <p class="blog-date">📅 Publié le 15 avril 2026</p>
-                <div class="blog-short"><p>Les jeux de mémoire réduisent le risque de déclin cognitif...</p></div>
-                <div class="blog-content" id="blog4-content"><p>Des études récentes menées par l'Université de Californie démontrent que 15 minutes de jeux de mémoire par jour peuvent réduire de 30% le risque de déclin cognitif lié à l'âge.</p><p><strong>🧠 Les effets positifs mesurés :</strong></p><ul><li>Amélioration de la mémoire à court terme (+25% en moyenne)</li><li>Meilleure concentration et attention aux détails</li><li>Réduction du stress et de l'anxiété</li><li>Augmentation de la vitesse de traitement de l'information</li><li>Prévention des maladies neurodégénératives (Alzheimer, Parkinson)</li></ul><p>Memoriz a été conçu avec des experts en neurosciences pour maximiser ces bénéfices. Chaque quiz est chronométré pour stimuler vos réflexes cognitifs et renforcer votre mémoire à long terme.</p><p>Alors, prêt à relever le défi ? Lancez un quiz dès maintenant !</p></div>
-                <button class="read-more" data-blog="blog4">Lire la suite →</button>
-            </article>
-        </section>
-        
-        <section class="comments-section" id="comments-section" data-v4-view="community" aria-labelledby="comments-title">
-            <div class="comments-header">
-                <div>
-                    <h2 id="comments-title">Commentaires</h2>
-                    <p>Partage un souvenir, une suggestion de quiz ou ton meilleur score du moment.</p>
+        <main>
+            <section class="categories" id="categories">
+                <h2>🎮 Choisis ton défi</h2>
+                <p style="text-align:center;opacity:0.9;margin-bottom:25px;max-width:700px;margin-left:auto;margin-right:auto;">Recherche une catégorie parmi nos 26 quiz variés, puis lance le défi. Chaque quiz est chronométré et mettra à l'épreuve ta mémoire et ta culture générale.</p>
+                <div style="max-width:500px;margin:0 auto 25px;position:relative;z-index:5;">
+                    <input type="text" id="categorySearch" placeholder="🔍 Rechercher une catégorie..." style="width:100%;padding:14px 22px;border-radius:50px;border:2px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:inherit;font-size:1rem;outline:none;backdrop-filter:blur(5px);font-family:inherit;">
                 </div>
-                <p class="comments-status" id="comments-status" aria-live="polite">Connexion au profil...</p>
-            </div>
-
-            <form class="comments-form" id="comments-form" novalidate>
-                <label for="comment-input">Ton commentaire</label>
-                <textarea id="comment-input" name="comment" maxlength="500" rows="4" aria-describedby="comment-counter comments-error" disabled></textarea>
-                <div class="comments-form-meta">
-                    <p id="comments-error" class="comments-error" role="alert" aria-live="assertive"></p>
-                    <span id="comment-counter" class="comment-counter" aria-live="polite">0 / 500</span>
+                <div class="category-grid" id="categoryGrid">
+                    <article class="category-card" data-category="series-tv" data-keywords="séries tv télévision personnages"><h3>📺 Séries TV</h3><p>Top 20 des légendes du petit écran</p><span class="questions-count">20 personnages</span></article>
+                    <article class="category-card" data-category="cinema" data-keywords="cinéma film movies icônes 7ème art"><h3>🎬 Cinéma</h3><p>Top 20 des icônes du 7ème art</p><span class="questions-count">20 personnages</span></article>
+                    <article class="category-card" data-category="anime-manga-celebres" data-keywords="anime manga célèbres japonais"><h3>🌍 Anime/Manga</h3><p>Top 30 des plus célèbres au monde</p><span class="questions-count">30 personnages</span></article>
+                    <article class="category-card" data-category="anime-manga-detestes" data-keywords="anime manga détestés vilains"><h3>💀 Anime/Manga</h3><p>Top 20 des plus détestés</p><span class="questions-count">20 personnages</span></article>
+                    <article class="category-card" data-category="anime-manga-puissants" data-keywords="anime manga puissants fort combat"><h3>🌌 Anime/Manga</h3><p>Top 20 des plus puissants (version ultime)</p><span class="questions-count">20 personnages</span></article>
+                    <article class="category-card" data-category="anime-manga-genies" data-keywords="anime manga génies intelligent stratège"><h3>🧠 Anime/Manga</h3><p>Top 15 des génies ultimes</p><span class="questions-count">15 personnages</span></article>
+                    <article class="category-card" data-category="sports-musique" data-keywords="sport musique football basketball tennis star célébrité"><h3>⚽🏀🎵 Sports & Musique</h3><p>Top 40 des stars mondiales</p><span class="questions-count">40 célébrités</span></article>
+                    <article class="category-card" data-category="series-tv-detestes" data-keywords="séries tv détestés personnages"><h3>👎 Séries TV</h3><p>Top 10 des personnages détestés</p><span class="questions-count">10 personnages</span></article>
+                    <article class="category-card" data-category="anime-manga-filles-puissantes" data-keywords="anime manga filles puissantes héroïne"><h3>👸 Anime/Manga</h3><p>Top 15 des filles les plus puissantes</p><span class="questions-count">15 personnages</span></article>
+                    <article class="category-card" data-category="football-joueurs" data-keywords="football joueurs ballon d'or légende"><h3>⚽ Football</h3><p>Top 15 des meilleurs joueurs de tous les temps</p><span class="questions-count">15 joueurs</span></article>
+                    <article class="category-card" data-category="football-entraineurs" data-keywords="football entraîneurs coach tactique"><h3>📋 Football</h3><p>Top 10 des meilleurs entraîneurs de tous les temps</p><span class="questions-count">10 entraîneurs</span></article>
+                    <article class="category-card" data-category="mangas" data-keywords="mangas classiques meilleurs lecture"><h3>📖 Mangas</h3><p>Top 15 des meilleurs mangas de tous les temps</p><span class="questions-count">15 mangas</span></article>
+                    <article class="category-card" data-category="animes" data-keywords="animes meilleurs animation japonaise"><h3>🎬 Animes</h3><p>Top 15 des meilleurs animes de tous les temps</p><span class="questions-count">15 animes</span></article>
+                    <article class="category-card" data-category="anime-manga-idiots" data-keywords="anime manga idiots personnages drôles"><h3>🤪 Anime/Manga</h3><p>Top 10 des personnages les plus idiots</p><span class="questions-count">10 personnages</span></article>
+                    <article class="category-card" data-category="anime-manga-combats" data-keywords="anime manga combats fight scène"><h3>⚔️ Anime/Manga</h3><p>Top 20 des meilleurs combats all time</p><span class="questions-count">20 combats</span></article>
+                    <article class="category-card" data-category="anime-manga-arcs" data-keywords="anime manga arcs histoire saga"><h3>📖 Anime/Manga</h3><p>Top 10 des meilleurs arcs</p><span class="questions-count">10 arcs</span></article>
+                    <article class="category-card" data-category="anime-manga-techniques" data-keywords="anime manga techniques pouvoirs attaques"><h3>✨ Anime/Manga</h3><p>Top 10 des meilleures techniques</p><span class="questions-count">10 techniques</span></article>
+                    <article class="category-card" data-category="anime-manga-transformations" data-keywords="anime manga transformations power-up"><h3>🔄 Anime/Manga</h3><p>Top 10 des meilleures transformations</p><span class="questions-count">10 transformations</span></article>
+                    <article class="category-card" data-category="ligue-champions" data-keywords="ligue des champions ldc football uefa vainqueurs"><h3>🏆 Ligue des Champions</h3><p>Vainqueurs de 2000 à 2026</p><span class="questions-count">27 clubs</span></article>
+                    <article class="category-card" data-category="ballon-dor" data-keywords="ballon d'or football joueur meilleur"><h3>🥇 Ballon d'Or</h3><p>Vainqueurs de 2000 à 2025</p><span class="questions-count">25 joueurs</span></article>
+                    <article class="category-card" data-category="jeux-video" data-keywords="jeux vidéo gaming légendes cultes"><h3>🎮 Légendes du Jeu Vidéo</h3><p>Top 10 des jeux cultes</p><span class="questions-count">10 jeux</span></article>
+                    <article class="category-card" data-category="super-heros" data-keywords="super-héros marvel dc comics héros vilain"><h3>🦸 Super-héros Marvel & DC</h3><p>Top 20 des héros et vilains</p><span class="questions-count">20 personnages</span></article>
+                    <article class="category-card" data-category="rap" data-keywords="rap français us hip-hop légende artiste"><h3>🎤 Rap Français & US</h3><p>Top 15 des plus grandes légendes</p><span class="questions-count">15 artistes</span></article>
+                    <article class="category-card" data-category="trouve-anime" data-keywords="trouve anime emoji devine"><h3>🔍 Trouve l'Anime (Emojis)</h3><p>Trouve l'anime grâce aux emojis !</p><span class="questions-count">15 animes</span></article>
+                    <article class="category-card" data-category="devine-personnage" data-keywords="devine personnage indice quiz"><h3>🎭 Devine le Personnage</h3><p>Trouve le personnage grâce à l'indice</p><span class="questions-count">20 personnages</span></article>
+                    <article class="category-card" data-category="anime-organisation" data-keywords="anime organisation groupe devine"><h3>🏛️ Anime par Organisation</h3><p>Trouve l'anime de l'organisation</p><span class="questions-count">9 organisations</span></article>
                 </div>
-                <button type="submit" id="comment-submit" disabled>Publier</button>
-            </form>
-
-            <div class="comments-feed-status" id="comments-feed-status" aria-live="polite">Les commentaires seront disponibles après la connexion du profil.</div>
-            <div class="comments-list" id="comments-list" aria-live="polite"></div>
-            <button type="button" class="comments-load-more" id="comments-load-more" hidden>Charger plus</button>
-        </section>
-
-        <footer class="main-footer">
-            <div class="footer-links">
-                <a href="#" id="privacy-link">🔒 Confidentialité</a>
-                <a href="#" id="terms-link">📜 Conditions générales</a>
-                <a href="#" id="mentions-link">⚖️ Mentions légales</a>
-                <a href="#" id="about-link">ℹ️ À propos</a>
-                <a href="#" id="contact-link">📧 Contact</a>
+            </section>
+            <div style="text-align:center;margin:30px 0;min-height:250px;">
+                <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="IN_CONTENT_SLOT" data-ad-format="auto" data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
             </div>
-            <div class="social-links">
-                <a href="https://youtube.com/@noironik" target="_blank" class="social-link youtube" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="20"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.376.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.376-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg> YouTube</a>
-                <a href="https://tiktok.com/@noironik" target="_blank" class="social-link tiktok" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="20"><path d="M19.589 6.686a4.993 4.993 0 0 1-3.77-4.245V2h-3.445v13.672a2.945 2.945 0 0 1-2.942 2.94 2.945 2.945 0 0 1-2.942-2.94 2.945 2.945 0 0 1 2.942-2.94c.345 0 .675.06.98.164V8.233a6.424 6.424 0 0 0-5.4 6.273 6.424 6.424 0 0 0 6.4 6.4 6.424 6.424 0 0 0 6.4-6.4c0-.14-.007-.28-.014-.418V8.956a7.235 7.235 0 0 0 4.218 1.336V7.081a4.314 4.314 0 0 1-2.185-.395z"/></svg> TikTok</a>
-                <a href="https://twitch.tv/noironik1" target="_blank" class="social-link twitch" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="20"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm10.857 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714V11.143z"/></svg> Twitch</a>
-                <a href="https://www.sapeo.org/memoriz-quiz" target="_blank" class="social-link sapeo" rel="noopener noreferrer" style="background: #00A859; color: white;">❤️ Soutenir Memoriz</a>
+            <section style="max-width:900px;margin:50px auto;padding:35px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);border-radius:24px;border:1px solid rgba(255,255,255,0.1);">
+                <h2 style="text-align:center;font-size:1.8rem;margin-bottom:20px;background:linear-gradient(135deg,#ff4757,#ffa502);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🧠 Qu'est-ce que Memoriz ?</h2>
+                <p style="font-size:1.05rem;line-height:1.8;margin-bottom:18px;"><strong>Memoriz</strong> est une plateforme de quiz en ligne gratuite dédiée à la culture pop, au sport, aux animés, au cinéma et à la musique. Notre mission est double : vous divertir tout en stimulant votre mémoire et votre culture générale. Avec <strong>26 catégories variées</strong> et plus de <strong>400 questions</strong>, Memoriz offre une expérience de jeu riche et engageante pour tous les passionnés.</p>
+                <p style="font-size:1.05rem;line-height:1.8;margin-bottom:18px;">Contrairement aux quiz classiques, Memoriz met l'accent sur le <strong>rappel actif</strong> — la méthode d'apprentissage la plus efficace selon les neurosciences. Chaque quiz est chronométré pour stimuler vos réflexes cognitifs, et le classement mondial vous permet de mesurer vos progrès face à la communauté.</p>
+                <p style="font-size:1.05rem;line-height:1.8;">Que vous soyez otaku chevronné, fan de football inconditionnel, cinéphile averti ou simplement curieux, Memoriz a un quiz fait pour vous. Le mode solo fonctionne même sans connexion internet, et le mode multijoueur vous permet de défier vos amis en temps réel.</p>
+            </section>
+            <section style="max-width:900px;margin:50px auto;padding:35px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);border-radius:24px;border:1px solid rgba(255,255,255,0.1);">
+                <h2 style="text-align:center;font-size:1.8rem;margin-bottom:25px;background:linear-gradient(135deg,#ff4757,#ffa502);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">⚡ Comment ça marche ?</h2>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;">
+                    <div style="text-align:center;padding:20px;"><div style="font-size:2.5rem;margin-bottom:10px;">1️⃣</div><h3 style="color:#ff6b6b;margin-bottom:8px;">Choisissez</h3><p style="font-size:0.95rem;opacity:0.9;">Sélectionnez une catégorie parmi nos 26 quiz variés : animés, sport, cinéma, super-héros...</p></div>
+                    <div style="text-align:center;padding:20px;"><div style="font-size:2.5rem;margin-bottom:10px;">2️⃣</div><h3 style="color:#ff6b6b;margin-bottom:8px;">Jouez</h3><p style="font-size:0.95rem;opacity:0.9;">Répondez aux questions dans le temps imparti. Utilisez le clavier ou la souris selon votre préférence.</p></div>
+                    <div style="text-align:center;padding:20px;"><div style="font-size:2.5rem;margin-bottom:10px;">3️⃣</div><h3 style="color:#ff6b6b;margin-bottom:8px;">Progressez</h3><p style="font-size:0.95rem;opacity:0.9;">Suivez votre score, comparez-vous au classement mondial et débloquez de nouveaux défis.</p></div>
+                    <div style="text-align:center;padding:20px;"><div style="font-size:2.5rem;margin-bottom:10px;">4️⃣</div><h3 style="color:#ff6b6b;margin-bottom:8px;">Défiez</h3><p style="font-size:0.95rem;opacity:0.9;">Créez un salon multijoueur et invitez vos amis pour des parties endiablées jusqu'à 4 joueurs.</p></div>
+                </div>
+            </section>
+            <section class="blog-section">
+                <h2>📝 Articles Memoriz</h2>
+                <p style="text-align:center;opacity:0.9;margin-bottom:25px;">Découvrez nos articles sur la mémoire, les quiz cognitifs, les animés et le sport.</p>
+                <article class="blog-article"><h3>🧠 Comment améliorer sa mémoire avec les quiz ?</h3><p class="blog-date">📅 Publié le 10 janvier 2026</p><p>Les quiz stimulent votre cerveau et renforcent les connexions neuronales. Découvrez les bienfaits scientifiquement prouvés des jeux de mémoire.</p><button class="read-more" onclick="window.location.href='article-1.html'">Lire l'article complet →</button></article>
+                <article class="blog-article"><h3>🎬 Top 5 des animés à regarder absolument en 2026</h3><p class="blog-date">📅 Publié le 5 mars 2026</p><p>L'année 2026 s'annonce exceptionnelle pour les fans d'animation japonaise. De Chroniques de l'Aube à Thunder Legacy, découvrez notre sélection.</p><button class="read-more" onclick="window.location.href='article-2.html'">Lire l'article complet →</button></article>
+                <article class="blog-article"><h3>⚽ Pourquoi les quiz de sport sont bons pour votre culture générale</h3><p class="blog-date">📅 Publié le 20 mars 2026</p><p>Le sport façonne des générations et crée des légendes. Découvrez pourquoi tester vos connaissances sportives enrichit votre culture.</p><button class="read-more" onclick="window.location.href='article-3.html'">Lire l'article complet →</button></article>
+                <article class="blog-article"><h3>💡 Les bienfaits cognitifs des jeux de mémoire</h3><p class="blog-date">📅 Publié le 15 avril 2026</p><p>15 minutes de jeux de mémoire par jour peuvent réduire de 30% le risque de déclin cognitif. Découvrez les effets positifs mesurés.</p><button class="read-more" onclick="window.location.href='article-4.html'">Lire l'article complet →</button></article>
+                <div style="text-align:center;margin-top:25px;"><a href="articles.html" style="display:inline-block;background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:white;padding:12px 30px;border-radius:50px;text-decoration:none;font-weight:700;">Voir tous les articles →</a></div>
+            </section>
+            <div style="text-align:center;margin:30px 0;min-height:90px;">
+                <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="BOTTOM_BANNER_SLOT" data-ad-format="auto" data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
             </div>
-            <div class="copyright">© 2022-2026 Memoriz - Tous droits réservés | Hébergé par Render Inc. | Sharingan Edition</div>
-        </footer>
+            <section style="max-width:900px;margin:50px auto;padding:35px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);border-radius:24px;border:1px solid rgba(255,255,255,0.1);">
+                <h2 style="text-align:center;font-size:1.8rem;margin-bottom:25px;background:linear-gradient(135deg,#ff4757,#ffa502);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">⭐ Ce que disent nos joueurs</h2>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;">
+                    <div style="background:rgba(255,255,255,0.05);border-radius:16px;padding:20px;border:1px solid rgba(255,255,255,0.1);"><div style="color:#ffa502;margin-bottom:10px;">⭐⭐⭐⭐⭐</div><p style="font-size:0.95rem;line-height:1.6;margin-bottom:12px;">"Memoriz est devenu ma routine quotidienne. 10 minutes le matin et je me sens plus vif toute la journée !"</p><p style="font-size:0.85rem;opacity:0.7;">— Alex, joueur régulier</p></div>
+                    <div style="background:rgba(255,255,255,0.05);border-radius:16px;padding:20px;border:1px solid rgba(255,255,255,0.1);"><div style="color:#ffa502;margin-bottom:10px;">⭐⭐⭐⭐⭐</div><p style="font-size:0.95rem;line-height:1.6;margin-bottom:12px;">"Les catégories anime sont incroyables. J'ai appris tellement de choses sur mes séries préférées !"</p><p style="font-size:0.85rem;opacity:0.7;">— Sarah, fan d'anime</p></div>
+                    <div style="background:rgba(255,255,255,0.05);border-radius:16px;padding:20px;border:1px solid rgba(255,255,255,0.1);"><div style="color:#ffa502;margin-bottom:10px;">⭐⭐⭐⭐⭐</div><p style="font-size:0.95rem;line-height:1.6;margin-bottom:12px;">"Le mode multijoueur avec mes potes est génial. On se défie tous les week-ends !"</p><p style="font-size:0.85rem;opacity:0.7;">— Thomas, joueur multijoueur</p></div>
+                </div>
+            </section>
+            <section style="max-width:900px;margin:50px auto;padding:35px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);border-radius:24px;border:1px solid rgba(255,255,255,0.1);">
+                <h2 style="text-align:center;font-size:1.8rem;margin-bottom:20px;background:linear-gradient(135deg,#ff4757,#ffa502);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🎯 Pourquoi choisir Memoriz ?</h2>
+                <div style="font-size:1.05rem;line-height:1.8;">
+                    <p>Memoriz se distingue des autres sites de quiz par plusieurs aspects uniques :</p>
+                    <ul style="margin:15px 0 20px 25px;">
+                        <li><strong>Contenu original et vérifié :</strong> Chaque question est soigneusement rédigée et vérifiée par notre équipe.</li>
+                        <li><strong>26 catégories spécialisées :</strong> Des quiz ultra-spécifiques sur les animés, le football, le cinéma, les super-héros, le rap et bien plus.</li>
+                        <li><strong>Mode solo sans inscription :</strong> Jouez immédiatement sans créer de compte.</li>
+                        <li><strong>Multijoueur en temps réel :</strong> Défiez jusqu'à 4 amis simultanément.</li>
+                        <li><strong>Bienfaits cognitifs prouvés :</strong> Nos quiz sont conçus pour stimuler la mémoire, la concentration et la vitesse de traitement.</li>
+                        <li><strong>Gratuit et sans publicité intrusive :</strong> Les publicités AdSense sont affichées de manière responsable.</li>
+                        <li><strong>Communauté active :</strong> Partagez vos scores et grimpez dans le classement mondial.</li>
+                    </ul>
+                    <p>Rejoignez des milliers de joueurs qui stimulent leur mémoire chaque jour avec Memoriz.</p>
+                </div>
+            </section>
+        </main>
     </div>
-
-    <div id="legal-modal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><div id="modal-body"></div></div></div>
-    <div id="profile-modal" class="profile-modal" hidden aria-hidden="true">
-        <div class="profile-modal-content" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title" aria-describedby="profile-modal-intro profile-form-error">
-            <button type="button" class="profile-modal-close" id="profile-modal-close" aria-label="Fermer">&times;</button>
-            <h2 id="profile-modal-title">Créer mon pseudo</h2>
-            <p id="profile-modal-intro">Ton profil anonyme sera lié à cette session Supabase.</p>
-            <form id="profile-form" novalidate>
-                <label for="profile-pseudo-input">Pseudo</label>
-                <input type="text" id="profile-pseudo-input" name="pseudo" autocomplete="nickname" aria-describedby="profile-form-hint profile-form-error" required>
-                <p class="profile-form-hint" id="profile-form-hint">3 à 20 caractères : lettres, chiffres, espaces et underscores.</p>
-                <p class="profile-form-error" id="profile-form-error" role="alert" aria-live="assertive"></p>
-                <div class="profile-modal-actions">
-                    <button type="button" id="profile-modal-cancel">Annuler</button>
-                    <button type="submit" id="profile-modal-submit">Créer le profil</button>
-                </div>
-            </form>
+    <footer class="main-footer">
+        <div class="footer-links">
+            <a href="index.html">Accueil</a>
+            <a href="articles.html">Articles</a>
+            <a href="contact.html">Contact</a>
+            <a href="politique-confidentialite.html">Politique de confidentialité</a>
+            <a href="mentions-legales.html">Mentions légales</a>
         </div>
-    </div>
-    <div id="leaderboard-modal" class="leaderboard-modal" hidden aria-hidden="true">
-        <div class="leaderboard-modal-content" role="dialog" aria-modal="true" aria-labelledby="leaderboard-title" aria-describedby="leaderboard-status">
-            <button type="button" class="leaderboard-close" id="leaderboard-close" aria-label="Fermer le classement">&times;</button>
-            <div class="leaderboard-heading">
-                <h2 id="leaderboard-title">Classement Memoriz</h2>
-                <button type="button" id="leaderboard-refresh">Rafraîchir</button>
-            </div>
-            <p id="leaderboard-status" class="leaderboard-status" aria-live="polite">Classement indisponible sans profil actif.</p>
-            <section id="leaderboard-my-rank" class="leaderboard-my-rank" aria-labelledby="leaderboard-title"></section>
-            <ol id="leaderboard-list" class="leaderboard-list" aria-label="Top 20 Memoriz"></ol>
+        <div class="social-links">
+            <a href="#" class="social-link youtube">📺 YouTube</a>
+            <a href="#" class="social-link tiktok">🎵 TikTok</a>
+            <a href="#" class="social-link twitch">🎮 Twitch</a>
+            <a href="#" class="social-link whatsapp">💬 WhatsApp</a>
         </div>
-    </div>
-    <div id="multiplayer-modal" class="multiplayer-modal" hidden aria-hidden="true">
-        <div class="multiplayer-modal-content" role="dialog" aria-modal="true" aria-labelledby="multiplayer-title" aria-describedby="multiplayer-status">
-            <button type="button" class="multiplayer-close" id="multiplayer-close" aria-label="Fermer le multijoueur">&times;</button>
-            <div class="multiplayer-heading">
-                <h2 id="multiplayer-title">Partie multijoueur</h2>
-                <p id="multiplayer-status" class="multiplayer-status" aria-live="polite">Connecte ton profil pour jouer à plusieurs.</p>
-            </div>
-
-            <div class="multiplayer-tabs" role="tablist" aria-label="Mode multijoueur">
-                <button type="button" id="multiplayer-tab-create" class="is-active" role="tab" aria-selected="true" aria-controls="multiplayer-create-panel">Créer</button>
-                <button type="button" id="multiplayer-tab-join" role="tab" aria-selected="false" aria-controls="multiplayer-join-panel">Rejoindre</button>
-            </div>
-
-            <section id="multiplayer-create-panel" class="multiplayer-panel multiplayer-portal" role="tabpanel" aria-labelledby="multiplayer-tab-create">
-                <div class="multiplayer-field">
-                    <label for="multiplayer-category">Catégorie</label>
-                    <select id="multiplayer-category"></select>
-                </div>
-                <div class="multiplayer-field">
-                    <label for="multiplayer-max-players">Joueurs maximum</label>
-                    <select id="multiplayer-max-players">
-                        <option value="2">2 joueurs</option>
-                        <option value="3">3 joueurs</option>
-                        <option value="4" selected>4 joueurs</option>
-                    </select>
-                </div>
-                <p class="multiplayer-help">Crée un salon, partage le code, puis attends que tout le monde soit prêt.</p>
-                <button type="button" id="multiplayer-create">Créer une partie</button>
-            </section>
-
-            <section id="multiplayer-join-panel" class="multiplayer-panel multiplayer-portal" role="tabpanel" aria-labelledby="multiplayer-tab-join" hidden>
-                <div class="multiplayer-field">
-                    <label for="multiplayer-code-input">Code de partie</label>
-                    <input id="multiplayer-code-input" type="text" inputmode="latin-prose" autocomplete="off" maxlength="6" aria-describedby="multiplayer-status">
-                </div>
-                <p class="multiplayer-help">Entre le code à 6 caractères reçu par l'hôte.</p>
-                <button type="button" id="multiplayer-join">Rejoindre</button>
-            </section>
-
-            <section id="multiplayer-lobby" class="multiplayer-lobby" hidden aria-labelledby="multiplayer-lobby-title">
-                <div class="multiplayer-code-card">
-                    <span id="multiplayer-lobby-title">Code</span>
-                    <strong id="multiplayer-code-display"></strong>
-                    <button type="button" id="multiplayer-copy-code">Copier</button>
-                </div>
-                <div class="multiplayer-meta">
-                    <span id="multiplayer-category-label"></span>
-                    <span id="multiplayer-count-label"></span>
-                    <span id="multiplayer-host-label"></span>
-                </div>
-                <ul id="multiplayer-players" class="multiplayer-players" aria-live="polite"></ul>
-                <div class="multiplayer-actions">
-                    <button type="button" id="multiplayer-ready">Prêt</button>
-                    <button type="button" id="multiplayer-start" hidden>Lancer la partie</button>
-                    <button type="button" id="multiplayer-leave">Quitter</button>
-                </div>
-                <p id="multiplayer-start-hint" class="multiplayer-help" aria-live="polite"></p>
-            </section>
-
-            <section id="multiplayer-game" class="multiplayer-game" hidden aria-labelledby="multiplayer-game-title">
-                <div class="multiplayer-game-topline">
-                    <h3 id="multiplayer-game-title">Quiz multijoueur</h3>
-                    <span id="multiplayer-timer" class="multiplayer-timer" role="timer" aria-live="polite">--:--</span>
-                </div>
-                <div id="multiplayer-score-live" class="multiplayer-score-live" aria-live="polite"></div>
-                <div id="multiplayer-progress-live" class="multiplayer-progress-live" aria-live="polite"></div>
-                <ol id="multiplayer-scoreboard" class="multiplayer-scoreboard" aria-label="Classement courant"></ol>
-                <form id="multiplayer-answer-form" class="multiplayer-answer-form" novalidate>
-                    <label for="multiplayer-answer-input">Réponse</label>
-                    <div>
-                        <input id="multiplayer-answer-input" type="text" autocomplete="off">
-                        <button type="submit">Valider</button>
-                    </div>
-                </form>
-                <div class="quiz-table multiplayer-answer-table" aria-label="Tableau de réponses multijoueur">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Réponse</th>
-                                <th>Statut</th>
-                            </tr>
-                        </thead>
-                        <tbody id="multiplayer-answer-grid"></tbody>
-                    </table>
-                </div>
-                <ul id="multiplayer-found-list" class="multiplayer-found-list" aria-label="Tes réponses trouvées"></ul>
-                <div id="multiplayer-reactions" class="reactions-bar" aria-label="Réactions rapides"></div>
-            </section>
-
-            <section id="multiplayer-final" class="multiplayer-final" hidden aria-labelledby="multiplayer-final-title">
-                <h3 id="multiplayer-final-title">Classement final</h3>
-                <ol id="multiplayer-final-ranking" class="multiplayer-scoreboard"></ol>
-                <button type="button" id="multiplayer-final-close">Fermer</button>
-            </section>
-        </div>
-    </div>
-
-    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.9/dist/umd/supabase.min.js"></script>
-    <script defer src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
-    <script defer src="assets/js/supabase-runtime-config.js"></script>
-    <script defer src="assets/js/quiz-data.js"></script>
-    <script defer src="assets/js/ui.js"></script>
-    <script defer src="assets/js/api.js"></script>
-    <script defer src="assets/js/auth.js"></script>
-    <script defer src="assets/js/quiz-session.js"></script>
-    <script defer src="assets/js/quiz-solo.js"></script>
-    <script defer src="assets/js/v4-shell.js"></script>
-    <script defer src="assets/js/leaderboard.js"></script>
-    <script defer src="assets/js/multiplayer-socket.js"></script>
-    <script defer src="assets/js/reactions.js"></script>
-    <script defer src="assets/js/multiplayer.js"></script>
-    <script defer src="assets/js/comments.js"></script>
-    <script defer src="assets/js/app.js"></script>
+        <p class="copyright">© 2026 Memoriz. Tous droits réservés. | <a href="mailto:jitihh700@gmail.com" style="color:#ff6b6b;text-decoration:none;">jitihh700@gmail.com</a></p>
+    </footer>
+    <script src="assets/js/cookie-banner.js"></script>
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        if (currentTheme === 'light') document.body.classList.add('light-mode');
+        themeToggle.textContent = document.body.classList.contains('light-mode') ? '☀️ Mode Clair' : '🌙 Mode Sombre';
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            themeToggle.textContent = isLight ? '☀️ Mode Clair' : '🌙 Mode Sombre';
+        });
+        const searchInput = document.getElementById('categorySearch');
+        const cards = document.querySelectorAll('.category-card');
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            cards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                const desc = card.querySelector('p').textContent.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                const keywords = (card.dataset.keywords || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                card.style.display = (title.includes(term) || desc.includes(term) || keywords.includes(term)) ? '' : 'none';
+            });
+        });
+    </script>
 </body>
 </html>
