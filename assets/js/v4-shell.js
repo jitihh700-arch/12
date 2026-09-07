@@ -22,6 +22,63 @@
         return [...document.querySelectorAll('.category-card[data-category]')];
     }
 
+    function addFootballRecordsCategory() {
+        if (!window.categoryMapping || window.categoryMapping.footballRecords) return;
+
+        const data = [
+            'Lionel Messi',
+            'Robert Lewandowski',
+            'Sadio Mané',
+            'Real Madrid',
+            'Lionel Messi',
+            'Lionel Messi',
+            'Pelé',
+            'Bayern Munich',
+            'Lionel Messi',
+            'Real Madrid'
+        ];
+        const hints = [
+            '⚽ 91 buts inscrits sur une année civile en 2012.',
+            '🔥 5 buts marqués en seulement 9 minutes avec le Bayern Munich.',
+            '⚡ 3 buts inscrits en 2 minutes et 56 secondes avec Southampton.',
+            '🏆 Club recordman avec 15 titres de Ligue des Champions.',
+            '🥇 Premier joueur à remporter le Ballon d’Or 4 fois consécutivement : 2009, 2010, 2011 et 2012.',
+            '👑 Recordman avec 8 Ballons d’Or remportés.',
+            '🌍 Seul joueur à avoir remporté 3 Coupes du Monde : 1958, 1962 et 1970.',
+            '💥 A battu le FC Barcelone 8-2 en quart de finale de la Ligue des Champions 2019/20.',
+            '👟 Recordman avec 6 Souliers d’Or européens.',
+            '🏆 A remporté les 5 premières Coupes d’Europe des clubs champions consécutivement, de 1956 à 1960.'
+        ];
+
+        window.categoryMapping.footballRecords = {
+            data,
+            title: '⚽ Football - Top 10 des records & statistiques',
+            showYears: false,
+            yearsList: null,
+            hintList: hints
+        };
+
+        const grid = document.querySelector('.category-grid');
+        if (!grid || grid.querySelector('[data-category="footballRecords"]')) return;
+
+        const card = document.createElement('div');
+        card.className = 'category-card';
+        card.dataset.category = 'footballRecords';
+        card.innerHTML = '<h3>⚽ Football</h3><p>Top 10 des records & statistiques</p><span class="questions-count">10 records</span>';
+        grid.append(card);
+
+        const stats = document.querySelector('.v4-home-stats');
+        if (stats) {
+            [...stats.children].forEach(item => {
+                if (/26 catégories/i.test(item.textContent)) item.textContent = '27 catégories';
+            });
+        }
+
+        document.querySelectorAll('.v4-feature-list li').forEach(item => {
+            if (/26 catégories existantes/i.test(item.textContent)) item.textContent = '27 catégories disponibles.';
+        });
+    }
+
     function enrichCategories() {
         document.querySelectorAll('.category-card[data-category]').forEach(card => {
             const key = card.getAttribute('data-category');
@@ -208,9 +265,7 @@
                 event.stopPropagation();
                 event.preventDefault();
                 const category = card.getAttribute('data-category');
-                if (category && typeof window.showGamePanel === 'function') {
-                    window.showGamePanel(category);
-                }
+                if (category && typeof window.showGamePanel === 'function') window.showGamePanel(category);
             });
         });
 
@@ -219,11 +274,8 @@
                 if (event.key !== 'Enter' && event.key !== ' ') return;
                 event.preventDefault();
                 const category = card.getAttribute('data-category');
-                if (category && typeof window.showGamePanel === 'function') {
-                    window.showGamePanel(category);
-                    return;
-                }
-                card.click();
+                if (category && typeof window.showGamePanel === 'function') window.showGamePanel(category);
+                else card.click();
             });
         });
     }
@@ -242,29 +294,13 @@
     }
 
     function routeTarget(route) {
-        const targets = {
-            home: 'home',
-            explorer: 'explorer',
-            solo: 'solo',
-            multiplayer: 'multiplayer',
-            community: 'community',
-            articles: 'articles',
-            profile: 'profile-card'
-        };
+        const targets = { home: 'home', explorer: 'explorer', solo: 'solo', multiplayer: 'multiplayer', community: 'community', articles: 'articles', profile: 'profile-card' };
         return byId(targets[route] || route);
     }
 
     function routeFromHash(hash) {
         const value = hash ? hash.replace(/^#/, '') : 'home';
-        const hashRoutes = {
-            home: 'home',
-            explorer: 'explorer',
-            solo: 'solo',
-            multiplayer: 'multiplayer',
-            community: 'community',
-            articles: 'articles',
-            'profile-card': 'profile'
-        };
+        const hashRoutes = { home: 'home', explorer: 'explorer', solo: 'solo', multiplayer: 'multiplayer', community: 'community', articles: 'articles', 'profile-card': 'profile' };
         return hashRoutes[value] || 'home';
     }
 
@@ -284,7 +320,6 @@
         const button = byId('v4-menu-toggle');
         const menu = byId('v4-mobile-menu');
         if (!button || !menu) return;
-
         button.setAttribute('aria-expanded', open ? 'true' : 'false');
         button.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
         menu.hidden = !open;
@@ -292,9 +327,7 @@
 
     function bindNavigation() {
         document.addEventListener('click', event => {
-            if (event.target.closest('.multiplayer-modal, .profile-modal, .leaderboard-modal, .comments-section, .modal, [aria-modal="true"], #game-panel, .game-panel')) {
-                return;
-            }
+            if (event.target.closest('.multiplayer-modal, .profile-modal, .leaderboard-modal, .comments-section, .modal, [aria-modal="true"], #game-panel, .game-panel')) return;
 
             const emptyAnchor = event.target.closest('a[href="#"]:not([data-v4-route])');
             if (emptyAnchor) {
@@ -318,20 +351,10 @@
             setMobileMenu(false);
             goToRoute(route, { focus: true });
         });
-        document.addEventListener('keydown', event => {
-            if (event.key === 'Escape') setMobileMenu(false);
-        });
-        byId('v4-nav-profile-action')?.addEventListener('click', () => {
-            window.memorizAuth?.openModal?.();
-        });
-        byId('v4-multiplayer-create')?.addEventListener('click', () => {
-            window.MemorizMultiplayer?.open?.();
-            byId('multiplayer-tab-create')?.click();
-        });
-        byId('v4-multiplayer-join')?.addEventListener('click', () => {
-            window.MemorizMultiplayer?.open?.();
-            byId('multiplayer-tab-join')?.click();
-        });
+        document.addEventListener('keydown', event => { if (event.key === 'Escape') setMobileMenu(false); });
+        byId('v4-nav-profile-action')?.addEventListener('click', () => window.memorizAuth?.openModal?.());
+        byId('v4-multiplayer-create')?.addEventListener('click', () => { window.MemorizMultiplayer?.open?.(); byId('multiplayer-tab-create')?.click(); });
+        byId('v4-multiplayer-join')?.addEventListener('click', () => { window.MemorizMultiplayer?.open?.(); byId('multiplayer-tab-join')?.click(); });
     }
 
     function syncProfileName() {
@@ -345,6 +368,7 @@
     function init() {
         if (initialized) return;
         initialized = true;
+        addFootballRecordsCategory();
         enrichCategories();
         renderHomeGuide();
         bindExplorer();
@@ -358,9 +382,6 @@
         window.addEventListener('hashchange', () => setCurrentRoute(routeFromHash(window.location.hash)));
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
 })();
