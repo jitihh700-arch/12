@@ -130,8 +130,8 @@
     async function reload() {
         const api = getApi();
         const els = getEls();
-        if (!api || !state.profile) {
-            setStatus('Classement indisponible sans profil actif.');
+        if (!api) {
+            setStatus('Classement momentanément indisponible.');
             clearNode(els.list);
             clearNode(els.mine);
             return;
@@ -140,21 +140,26 @@
         state.loading = true;
         if (els.refresh) els.refresh.disabled = true;
         setStatus('Chargement du classement...');
-        const [top, mine] = await Promise.all([
-            api.getLeaderboard(20),
-            api.getMyLeaderboardRank()
-        ]);
+
+        const topPromise = api.getLeaderboard(20);
+        const minePromise = state.profile
+            ? api.getMyLeaderboardRank()
+            : Promise.resolve({ data: null, error: null });
+
+        const [top, mine] = await Promise.all([topPromise, minePromise]);
         state.loading = false;
         if (els.refresh) els.refresh.disabled = false;
 
         if (top.error || mine.error) {
             setStatus('Classement momentanément indisponible.');
             clearNode(els.list);
-            renderMine(null);
+            if (state.profile) renderMine(null);
+            else clearNode(els.mine);
             return;
         }
 
-        renderMine(mine.data);
+        if (state.profile) renderMine(mine.data);
+        else clearNode(els.mine);
         renderList(top.data);
         setStatus(top.data.length ? 'Classement à jour.' : 'Aucun score classé pour le moment.');
     }
@@ -224,8 +229,10 @@
     });
     document.addEventListener('memoriz:profile-unavailable', () => {
         state.profile = null;
+        // Le classement public reste accessible sans profil.
         const els = getEls();
-        if (els.button) els.button.disabled = true;
+        if (els.button) els.button.disabled = false;
+        if (!getEls().modal?.hidden) reload();
     });
     document.addEventListener('memoriz:quiz-finalized', reload);
 
