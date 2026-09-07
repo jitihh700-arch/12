@@ -64,6 +64,42 @@
         });
     }
 
+    function renderHomeGuide() {
+        const home = byId('home');
+        const profile = byId('profile-card');
+        if (!home || !profile || byId('v4-home-guide')) return;
+
+        const section = document.createElement('section');
+        section.id = 'v4-home-guide';
+        section.className = 'v4-page-panel';
+        section.setAttribute('aria-labelledby', 'v4-home-guide-title');
+        section.style.marginTop = '24px';
+
+        const heading = document.createElement('h2');
+        heading.id = 'v4-home-guide-title';
+        heading.textContent = '📚 Comment fonctionne Memoriz ?';
+        section.append(heading);
+
+        const articles = [
+            ['🎯 1. Choisis ton quiz', 'Va dans Explorer, cherche une catégorie ou utilise les filtres. Clique ensuite sur une catégorie pour lancer le quiz.'],
+            ['⚡ 2. Réponds et progresse', 'Réponds aux questions dans le temps prévu. Ton score et tes résultats sont calculés selon les règles du quiz.'],
+            ['🏆 3. Profil et classement', 'Tu peux jouer sans profil. Crée un pseudo si tu veux enregistrer ta progression et retrouver ton classement personnel.']
+        ];
+
+        articles.forEach(([title, text]) => {
+            const article = document.createElement('article');
+            article.className = 'blog-article';
+            const articleTitle = document.createElement('h3');
+            articleTitle.textContent = title;
+            const paragraph = document.createElement('p');
+            paragraph.textContent = text;
+            article.append(articleTitle, paragraph);
+            section.append(article);
+        });
+
+        profile.insertAdjacentElement('afterend', section);
+    }
+
     function suggestionLabel(card) {
         return card.querySelector('h3')?.textContent?.trim() || card.dataset.category || '';
     }
@@ -96,9 +132,11 @@
             const button = document.createElement('button');
             button.type = 'button';
             button.textContent = label;
-            button.addEventListener('click', () => {
+            button.addEventListener('click', event => {
+                event.preventDefault();
+                event.stopPropagation();
                 input.value = label;
-                input.focus();
+                input.focus({ preventScroll: true });
                 filterCategories();
             });
             suggestions.append(button);
@@ -132,32 +170,43 @@
         const clear = byId('v4-category-clear');
         const searchForm = document.querySelector('.v4-search');
 
+        search?.addEventListener('mousedown', event => event.stopPropagation());
+        search?.addEventListener('click', event => event.stopPropagation());
         search?.addEventListener('input', filterCategories);
-        clear?.addEventListener('click', () => {
+        search?.addEventListener('keydown', event => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                filterCategories();
+            }
+        });
+
+        clear?.addEventListener('click', event => {
+            event.preventDefault();
+            event.stopPropagation();
             search.value = '';
-            search.focus();
+            search.focus({ preventScroll: true });
             filterCategories();
         });
 
-        // 🔴 AJOUT : bloque le rechargement de page à l'appui sur Entrée
-        searchForm?.addEventListener('submit', (e) => {
-            e.preventDefault();
+        searchForm?.addEventListener('submit', event => {
+            event.preventDefault();
             filterCategories();
         });
 
         document.querySelectorAll('[data-v4-filter]').forEach(button => {
-            button.addEventListener('click', () => {
+            button.addEventListener('click', event => {
+                event.preventDefault();
+                event.stopPropagation();
                 document.querySelectorAll('[data-v4-filter]').forEach(item => item.classList.remove('is-active'));
                 button.classList.add('is-active');
                 filterCategories();
             });
         });
 
-        // 🔴 AJOUT : clic souris sur les cartes de catégories AVEC stopPropagation et preventDefault
         document.querySelectorAll('.category-card[data-category]').forEach(card => {
-            card.addEventListener('click', (event) => {
-                event.stopPropagation();      // ← AJOUTÉ
-                event.preventDefault();       // ← AJOUTÉ
+            card.addEventListener('click', event => {
+                event.stopPropagation();
+                event.preventDefault();
                 const category = card.getAttribute('data-category');
                 if (category && typeof window.showGamePanel === 'function') {
                     window.showGamePanel(category);
@@ -241,11 +290,15 @@
         menu.hidden = !open;
     }
 
-    // MODIFIÉ : bindNavigation avec la nouvelle ligne d'exclusion
     function bindNavigation() {
         document.addEventListener('click', event => {
-            // 🔴 CORRECTION : ignorer les clics à l'intérieur des modales, commentaires, sections interactives ET du panneau de jeu
             if (event.target.closest('.multiplayer-modal, .profile-modal, .leaderboard-modal, .comments-section, .modal, [aria-modal="true"], #game-panel, .game-panel')) {
+                return;
+            }
+
+            const emptyAnchor = event.target.closest('a[href="#"]:not([data-v4-route])');
+            if (emptyAnchor) {
+                event.preventDefault();
                 return;
             }
 
@@ -293,6 +346,7 @@
         if (initialized) return;
         initialized = true;
         enrichCategories();
+        renderHomeGuide();
         bindExplorer();
         bindNavigation();
         syncProfileName();
