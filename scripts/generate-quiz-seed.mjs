@@ -7,7 +7,7 @@ const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const quizDataPath = path.join(rootDir, 'assets', 'js', 'quiz-data.js');
 const indexPath = path.join(rootDir, 'index.html');
 const migrationPath = path.join(rootDir, 'supabase', 'migrations', '20260728150100_quiz_seed.sql');
-const expectedCategoryCount = 26;
+const expectedCategoryCount = 27;
 const durationSeconds = 600;
 
 function normalizeQuizAnswer(value) {
@@ -58,6 +58,12 @@ function extractDescriptions(indexHtml) {
 
     while ((match = cardPattern.exec(indexHtml)) !== null) {
         descriptions.set(match[1], `${match[2]} (${match[3]})`);
+    }
+
+    // Football Records est injecte dynamiquement par v4-shell.js.
+    // Il reste néanmoins une catégorie canonique du seed Supabase.
+    if (!descriptions.has('footballRecords')) {
+        descriptions.set('footballRecords', 'Top 10 des records & statistiques du football (10 records)');
     }
 
     return descriptions;
