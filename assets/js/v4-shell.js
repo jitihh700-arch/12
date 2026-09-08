@@ -16,21 +16,23 @@
     function categoryCards() { return [...document.querySelectorAll('.category-card[data-category]')]; }
 
     function addFootballRecordsCategory() {
-        if (!window.categoryMapping || window.categoryMapping.footballRecords) return;
-        const data = ['Lionel Messi','Robert Lewandowski','Sadio Mané','Real Madrid','Lionel Messi','Lionel Messi','Pelé','Bayern Munich','Lionel Messi','Real Madrid'];
-        const hints = [
-            '⚽ 91 buts inscrits sur une année civile en 2012.',
-            '🔥 5 buts marqués en seulement 9 minutes avec le Bayern Munich.',
-            '⚡ 3 buts inscrits en 2 minutes et 56 secondes avec Southampton.',
-            '🏆 Club recordman avec 15 titres de Ligue des Champions.',
-            '🥇 Premier joueur à remporter le Ballon d’Or 4 fois consécutivement : 2009, 2010, 2011 et 2012.',
-            '👑 Recordman avec 8 Ballons d’Or remportés.',
-            '🌍 Seul joueur à avoir remporté 3 Coupes du Monde : 1958, 1962 et 1970.',
-            '💥 A battu le FC Barcelone 8-2 en quart de finale de la Ligue des Champions 2019/20.',
-            '👟 Recordman avec 6 Souliers d’Or européens.',
-            '🏆 A remporté les 5 premières éditions de la Coupe d’Europe des clubs champions consécutivement, de 1956 à 1960.'
-        ];
-        window.categoryMapping.footballRecords = { data, title: '⚽ Football - Top 10 des records & statistiques', showYears: false, yearsList: null, hintList: hints };
+        if (!window.categoryMapping) return;
+        if (!window.categoryMapping.footballRecords) {
+            const data = ['Lionel Messi','Robert Lewandowski','Sadio Mané','Real Madrid','Lionel Messi','Lionel Messi','Pelé','Bayern Munich','Lionel Messi','Real Madrid'];
+            const hints = [
+                '⚽ 91 buts inscrits sur une année civile en 2012.',
+                '🔥 5 buts marqués en seulement 9 minutes avec le Bayern Munich.',
+                '⚡ 3 buts inscrits en 2 minutes et 56 secondes avec Southampton.',
+                '🏆 Club recordman avec 15 titres de Ligue des Champions.',
+                '🥇 Premier joueur à remporter le Ballon d’Or 4 fois consécutivement : 2009, 2010, 2011 et 2012.',
+                '👑 Recordman avec 8 Ballons d’Or remportés.',
+                '🌍 Seul joueur à avoir remporté 3 Coupes du Monde : 1958, 1962 et 1970.',
+                '💥 A battu le FC Barcelone 8-2 en quart de finale de la Ligue des Champions 2019/20.',
+                '👟 Recordman avec 6 Souliers d’Or européens.',
+                '🏆 A remporté les 5 premières éditions de la Coupe d’Europe des clubs champions consécutivement, de 1956 à 1960.'
+            ];
+            window.categoryMapping.footballRecords = { data, title: '⚽ Football - Top 10 des records & statistiques', showYears: false, yearsList: null, hintList: hints };
+        }
 
         const grid = document.querySelector('.category-grid');
         if (!grid || grid.querySelector('[data-category="footballRecords"]')) return;
