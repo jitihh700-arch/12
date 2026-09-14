@@ -83,9 +83,16 @@
         state.lastError = null;
         state.socket = window.io(url, {
             auth: { accessToken },
-            transports: ['websocket'],
+            // Start with HTTP long-polling, then upgrade to WebSocket when the
+            // Render/proxy path supports the Upgrade handshake. Forcing only
+            // WebSocket makes the multiplayer mode fail with "websocket error"
+            // when the service is waking up or a proxy temporarily blocks the
+            // initial WebSocket upgrade.
+            transports: ['polling', 'websocket'],
+            upgrade: true,
             reconnection: true,
-            reconnectionAttempts: 8
+            reconnectionAttempts: 8,
+            timeout: DEFAULT_TIMEOUT
         });
         attachRegisteredListeners(state.socket);
 
