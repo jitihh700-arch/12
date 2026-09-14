@@ -1,4 +1,4 @@
-/* Memoriz - Module Multijoueur (corrigé v3) */
+/* Memoriz - Module Multijoueur (corrigé v4) */
 (function() {
   'use strict';
 
@@ -11,7 +11,8 @@
     socketListenersBound: false,
     foundAnswersByGame: new Map(),
     noticeTimer: null,
-    answerDialogOpen: false
+    answerDialogOpen: false,
+    timerInterval: null
   };
 
   function byId(id) { return document.getElementById(id); }
@@ -42,6 +43,7 @@
       leaveBtn: byId('multiplayer-leave'),
       startHint: byId('multiplayer-start-hint'),
       gameView: byId('multiplayer-game'),
+      gameTitle: byId('multiplayer-game-title'),
       answerForm: byId('multiplayer-answer-form'),
       answerInput: byId('multiplayer-answer-input'),
       answerGrid: byId('multiplayer-answer-grid'),
@@ -83,7 +85,35 @@
     try { localStorage.removeItem(CACHE_KEY); } catch(e){}
   }
 
+  function stopTimerTicker() {
+    if (state.timerInterval) {
+      window.clearInterval(state.timerInterval);
+      state.timerInterval = null;
+    }
+  }
+
+  function startTimerTicker(snap) {
+    stopTimerTicker();
+    if (!snap || snap.status !== 'playing' || !(snap.endsAt || snap.expiresAt)) return;
+
+    renderTimer(snap);
+    state.timerInterval = window.setInterval(() => {
+      const current = state.current;
+      if (!current || current.status !== 'playing' || !(current.endsAt || current.expiresAt)) {
+        stopTimerTicker();
+        return;
+      }
+      renderTimer(current);
+      const endAt = current.endsAt || current.expiresAt;
+      if (new Date(endAt).getTime() <= Date.now()) {
+        renderTimer(current);
+        stopTimerTicker();
+      }
+    }, 250);
+  }
+
   function resetCurrentGame() {
+    stopTimerTicker();
     clearCache();
     state.current = null;
     state.startGamePending = false;
@@ -276,7 +306,6 @@
     const connectedPlayers = (snap.players || []).filter(p=>p.isConnected !== false);
     const enough = connectedPlayers.length >= 2;
 
-    // Toujours visible pour l'hôte, hidden pour les autres
     n.startBtn.hidden = !isHost;
     n.startBtn.disabled = !(snap.status==='waiting' && enough) || state.startGamePending;
     n.startBtn.textContent = state.startGamePending ? 'Lancement…' : 'Lancer la partie';
@@ -324,6 +353,7 @@
   }
 
   function showFinal(snap) {
+    stopTimerTicker();
     showView('final');
     setStatus('Partie terminée !');
     const n = els();
@@ -367,6 +397,7 @@
     if (n.categoryLabel) n.categoryLabel.textContent = catLabel(snap.categoryId);
     if (n.countLabel) n.countLabel.textContent = `${snap.currentPlayers||0}/${snap.maxPlayers||4} joueurs`;
     if (n.hostLabel) n.hostLabel.textContent = host ? `Hôte: ${host.pseudo}` : 'Hôte indisponible';
+    if (n.gameTitle) n.gameTitle.textContent = `Quiz multijoueur — ${catLabel(snap.categoryId)}`;
     if (n.players) n.players.replaceChildren(...(snap.players||[]).map(playerItem));
     if (n.scoreboard) n.scoreboard.replaceChildren(...(snap.players||[]).map(scoreItem));
     const visibleFoundAnswers = foundAnswersForRender(snap);
@@ -388,9 +419,19 @@
     }
     renderTimer(snap);
 
-    if (snap.status==='playing') { showView('game'); setStatus('Partie en cours.'); }
-    else if (['finished','expired','cancelled'].includes(snap.status)) { showFinal(snap); }
-    else { showView('lobby'); setStatus('Lobby synchronisé.'); }
+    if (snap.status==='playing') {
+      showView('game');
+      setStatus('Partie en cours.');
+      startTimerTicker(snap);
+    }
+    else if (['finished','expired','cancelled'].includes(snap.status)) {
+      showFinal(snap);
+    }
+    else {
+      stopTimerTicker();
+      showView('lobby');
+      setStatus('Lobby synchronisé.');
+    }
   }
 
   function bindSocketEvents() {
@@ -590,6 +631,7 @@
         gameCode: state.current.gameCode
       });
     } catch(err) {}
+    stopTimerTicker();
     clearCache();
     state.current = null;
     close();
@@ -671,6 +713,7 @@
   function close() {
     const n = els();
     if (!n.modal) return;
+    stopTimerTicker();
     n.modal.hidden = true;
     n.modal.setAttribute('aria-hidden','true');
     n.modal.classList.remove('is-open');
